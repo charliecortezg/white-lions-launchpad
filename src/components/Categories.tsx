@@ -27,7 +27,7 @@ const Categories = () => {
     },
     {
       name: "Infantil",
-      age: "10-11 años",
+      age: "10-11 años (2014-2015)",
       sport: "Fútbol",
       schedule: "Lunes y miércoles, 6:00–8:00 pm",
       location: "Campo Hacienda del Bosque",
@@ -35,8 +35,17 @@ const Categories = () => {
       spots: "Disponibles"
     },
     {
-      name: "Juvenil A y B",
-      age: "12+ años",
+      name: "Juvenil A",
+      age: "12-13 años (2012-2013)",
+      sport: "Fútbol",
+      schedule: "Lunes y miércoles, 6:00–8:00 pm",
+      location: "Campo Hacienda del Bosque",
+      mapLink: "https://maps.app.goo.gl/fxARNWmBn1RixYPZV",
+      spots: "Disponibles"
+    },
+    {
+      name: "Juvenil B",
+      age: "14-15 años (2010-2011)",
       sport: "Fútbol",
       schedule: "Lunes y miércoles, 6:00–8:00 pm",
       location: "Campo Hacienda del Bosque",
@@ -57,7 +66,7 @@ const Categories = () => {
     },
     {
       name: "Infantil",
-      age: "10-11 años",
+      age: "10-11 años (2014-2015)",
       sport: "Basketball",
       schedule: "Martes y jueves, 6:30–8:00 pm",
       location: "Parque Quinta del Rey III",
@@ -87,7 +96,7 @@ const Categories = () => {
             <h3 className="text-3xl font-bold text-navy mb-6 flex items-center gap-3">
               <span>⚽</span> Fútbol
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {footballCategories.map((category, index) => (
                 <div key={index} className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold">
                   <h3 className="text-2xl font-bold text-navy mb-2">{category.name}</h3>
