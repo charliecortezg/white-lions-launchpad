@@ -4,10 +4,12 @@ import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-training.jpg";
 import TrialClassModal from "./TrialClassModal";
 import MethodologyModal from "./modals/MethodologyModal";
+import JoinFamilyModal from "./modals/JoinFamilyModal";
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMethodologyModalOpen, setIsMethodologyModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -59,10 +61,19 @@ const Hero = () => {
             >
               Conocer Metodología
             </Button>
+
+            <Button 
+              variant="hero" 
+              size="xl"
+              onClick={() => setIsJoinModalOpen(true)}
+            >
+              Únete a la Familia
+            </Button>
           </div>
 
           <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
           <MethodologyModal open={isMethodologyModalOpen} onOpenChange={setIsMethodologyModalOpen} />
+          <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto">
             <div className="space-y-2">
