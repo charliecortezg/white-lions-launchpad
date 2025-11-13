@@ -1,12 +1,11 @@
-import { Heart, Users, Award, Target } from "lucide-react";
+import { useState } from "react";
+import { Shield, Users, Award, Target, Zap } from "lucide-react";
+import ValueModal from "./modals/ValueModal";
 
 const About = () => {
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+
   const values = [
-    {
-      icon: Heart,
-      title: "Alegría",
-      description: "El deporte debe ser divertido y motivador"
-    },
     {
       icon: Users,
       title: "Respeto",
@@ -21,6 +20,16 @@ const About = () => {
       icon: Target,
       title: "Disciplina",
       description: "La base del crecimiento personal y deportivo"
+    },
+    {
+      icon: Shield,
+      title: "Valor",
+      description: "Afrontamos los desafíos con determinación"
+    },
+    {
+      icon: Zap,
+      title: "Resiliencia",
+      description: "Nos levantamos más fuertes después de cada caída"
     }
   ];
 
@@ -48,27 +57,33 @@ const About = () => {
               Nuestra Misión
             </h3>
             <p className="text-lg text-primary-foreground/90 max-w-3xl mx-auto">
-              Formar personas antes que jugadores. Desarrollamos habilidades deportivas de clase mundial 
-              mientras inculcamos valores que trascienden el campo de juego.
+              Criar deportistas de alto rendimiento mientras juegan y se divierten.
             </p>
           </div>
 
           {/* Values Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {values.map((value, index) => (
               <div 
                 key={index}
-                className="bg-card border border-border rounded-2xl p-6 hover:shadow-gold transition-all duration-300 hover:-translate-y-1 animate-scale-in"
+                className="bg-card border border-border rounded-2xl p-6 hover:shadow-gold transition-all duration-300 hover:-translate-y-1 animate-scale-in cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => setSelectedValue(value.title)}
               >
                 <div className="bg-gold/10 w-14 h-14 rounded-xl flex items-center justify-center mb-4">
                   <value.icon className="w-7 h-7 text-gold" />
                 </div>
                 <h4 className="text-xl font-bold text-foreground mb-2">{value.title}</h4>
-                <p className="text-muted-foreground">{value.description}</p>
+                <p className="text-muted-foreground text-sm">{value.description}</p>
               </div>
             ))}
           </div>
+
+          <ValueModal 
+            open={!!selectedValue} 
+            onOpenChange={(open) => !open && setSelectedValue(null)}
+            valueName={selectedValue || ""}
+          />
 
           {/* Quote */}
           <div className="mt-16 text-center">

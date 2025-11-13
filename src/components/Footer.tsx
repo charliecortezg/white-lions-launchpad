@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Phone, Video } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -57,14 +57,14 @@ const Footer = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
-                  <a href="tel:+526861234567" className="text-primary-foreground/80 text-sm hover:text-gold transition-colors">
-                    +52 686 123 4567
+                  <a href="tel:+526867221036" className="text-primary-foreground/80 text-sm hover:text-gold transition-colors">
+                    +52 686 722 1036
                   </a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Mail className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
-                  <a href="mailto:info@whitelions.mx" className="text-primary-foreground/80 text-sm hover:text-gold transition-colors">
-                    info@whitelions.mx
+                  <a href="mailto:whitelions.admn@gmail.com" className="text-primary-foreground/80 text-sm hover:text-gold transition-colors">
+                    whitelions.admn@gmail.com
                   </a>
                 </li>
               </ul>
@@ -75,7 +75,7 @@ const Footer = () => {
               <h4 className="text-lg font-bold mb-4 text-gold">Síguenos</h4>
               <div className="flex gap-4 mb-6">
                 <a 
-                  href="https://facebook.com/whitelionsacademies" 
+                  href="https://www.facebook.com/profile.php?id=61569959826644" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
@@ -83,12 +83,20 @@ const Footer = () => {
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a 
-                  href="https://instagram.com/whitelionsacademies" 
+                  href="https://www.instagram.com/whitelions.fc/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                 >
                   <Instagram className="w-5 h-5" />
+                </a>
+                <a 
+                  href="https://www.tiktok.com/@whitelionsfc" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <Video className="w-5 h-5" />
                 </a>
               </div>
               <div>

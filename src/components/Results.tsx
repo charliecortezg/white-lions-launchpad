@@ -5,21 +5,15 @@ const Results = () => {
   const achievements = [
     {
       icon: Trophy,
-      title: "Subcampeonato Copa CETYS",
+      title: "Subcampeonato – Copa CETYS",
       year: "2024",
-      category: "Juvenil A"
+      category: "Categoría Estrellita"
     },
     {
       icon: Medal,
-      title: "Campeones Liga Municipal",
-      year: "2023",
-      category: "Infantil"
-    },
-    {
-      icon: Target,
-      title: "Finalistas Torneo Regional",
+      title: "Subcampeonato – Torneo Vicente Guerrero",
       year: "2024",
-      category: "Juvenil B"
+      category: "Categoría Estrellita"
     }
   ];
 
@@ -61,7 +55,7 @@ const Results = () => {
           </div>
 
           {/* Achievements Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {achievements.map((achievement, index) => (
               <div 
                 key={index}
