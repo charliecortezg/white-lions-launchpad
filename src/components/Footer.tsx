@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Mail, MapPin, Phone, Video } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -70,43 +70,14 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Social & Hours */}
+            {/* Hours */}
             <div>
-              <h4 className="text-lg font-bold mb-4 text-gold">Síguenos</h4>
-              <div className="flex gap-4 mb-6">
-                <a 
-                  href="https://www.facebook.com/profile.php?id=61569959826644" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a 
-                  href="https://www.instagram.com/whitelions.fc/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a 
-                  href="https://www.tiktok.com/@whitelionsfc" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-primary-foreground/10 hover:bg-gold/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                >
-                  <Video className="w-5 h-5" />
-                </a>
-              </div>
-              <div>
-                <h5 className="font-semibold mb-2">Horarios</h5>
-                <p className="text-primary-foreground/80 text-sm">
-                  Lun - Vie: 3:00 PM - 8:00 PM
-                  <br />
-                  Sábado: 8:00 AM - 2:00 PM
-                </p>
-              </div>
+              <h4 className="text-lg font-bold mb-4 text-gold">Horarios</h4>
+              <p className="text-primary-foreground/80">
+                Lun - Vie: 3:00 PM - 8:00 PM
+                <br />
+                Sábado: 8:00 AM - 2:00 PM
+              </p>
             </div>
           </div>
 
