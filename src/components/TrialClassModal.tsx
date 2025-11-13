@@ -49,6 +49,16 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const selectedSport = form.watch("sport");
   const selectedBirthYear = form.watch("birth_year");
 
+  // Obtener años válidos según el deporte
+  const getValidYears = (sport: string | undefined) => {
+    if (sport === "Fútbol") {
+      return Array.from({ length: 10 }, (_, i) => (2019 - i).toString()); // 2019 a 2010
+    } else if (sport === "Basketball") {
+      return Array.from({ length: 4 }, (_, i) => (2017 - i).toString()); // 2017 a 2014
+    }
+    return [];
+  };
+
   // Función para determinar categorías según deporte y año de nacimiento
   const getCategories = (sport: string | undefined, birthYear: string | undefined) => {
     if (!sport || !birthYear) return [];
@@ -189,15 +199,19 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Año de Nacimiento</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      disabled={!selectedSport}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona el año" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - i - 4).map((year) => (
-                          <SelectItem key={year} value={year.toString()}>
+                        {getValidYears(selectedSport).map((year) => (
+                          <SelectItem key={year} value={year}>
                             {year}
                           </SelectItem>
                         ))}
