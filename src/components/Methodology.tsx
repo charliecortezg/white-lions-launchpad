@@ -1,6 +1,11 @@
+import { useState } from "react";
 import { CheckCircle, Trophy, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CertificationModal } from "./modals/CertificationModals";
 
 const Methodology = () => {
+  const [selectedCertification, setSelectedCertification] = useState<'barca' | 'coerver' | 'whitelions' | null>(null);
+
   const certifications = [
     {
       name: "Barça Innovation Hub",
@@ -103,13 +108,48 @@ const Methodology = () => {
             </div>
 
             <div className="mt-12 text-center">
-              <p className="text-primary-foreground/80 text-lg">
+              <p className="text-primary-foreground/80 text-lg mb-6">
                 Cada nivel está diseñado para maximizar el potencial de nuestros jugadores
               </p>
+              
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="bg-primary-foreground text-navy hover:bg-primary-foreground/90"
+                  onClick={() => setSelectedCertification('barca')}
+                >
+                  Barça Innovation Hub
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="bg-primary-foreground text-navy hover:bg-primary-foreground/90"
+                  onClick={() => setSelectedCertification('coerver')}
+                >
+                  Coerver Coaching
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="bg-primary-foreground text-navy hover:bg-primary-foreground/90"
+                  onClick={() => setSelectedCertification('whitelions')}
+                >
+                  White Lions Methodology
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {selectedCertification && (
+        <CertificationModal 
+          open={!!selectedCertification}
+          onOpenChange={(open) => !open && setSelectedCertification(null)}
+          type={selectedCertification}
+        />
+      )}
     </section>
   );
 };

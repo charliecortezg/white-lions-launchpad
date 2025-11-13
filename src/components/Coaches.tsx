@@ -1,124 +1,85 @@
-import { Award, GraduationCap } from "lucide-react";
+import { Award, Users, Trophy } from "lucide-react";
 import coachImage from "@/assets/coach-portrait.jpg";
 
 const Coaches = () => {
   const coaches = [
     {
-      name: "Director Técnico",
-      certifications: ["Barça Innovation Hub", "UEFA Pro License", "Coerver Advanced"],
-      specialty: "Dirección Deportiva y Metodología"
+      name: "Carlos Cortez",
+      role: "Director Deportivo / Coach Basketball",
+      certifications: ["Introducción al Deporte – Barça Innovation Hub", "Certificado Profesional Dirección Deportiva – Barça Innovation Hub", "FIFA Coach Academy", "Barça Coach Academy Nivel I", "NBA Coach Academy"],
+      specialty: "Coach de Estrellita e Infantil Basketball. Encargado de administración y gestión deportiva"
     },
     {
-      name: "Entrenador Principal",
-      certifications: ["Barça Innovation Hub", "Coerver Coaching", "Licencia C"],
-      specialty: "Desarrollo Técnico Juvenil"
-    },
-    {
-      name: "Coordinador Formativo",
-      certifications: ["Coerver Coaching", "Preparación Física", "Psicología Deportiva"],
-      specialty: "Categorías Formativas"
+      name: "Jaime Estrella",
+      role: "Entrenador",
+      certifications: ["Lic. Actividad Física y Deporte", "White Lions Coach Academy", "FIFA Coach Academy", "Barça Coach Academy Nivel I"],
+      specialty: "Entrenador de Fútbol Estrellita e Infantil"
     }
   ];
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-16">
-            <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
-              Nuestro Equipo
-            </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
-              Entrenadores
-              <span className="block text-gold">Certificados</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Staff profesional con certificaciones internacionales y pasión por la formación deportiva
-            </p>
+            <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">Nuestro Equipo</div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">Staff de Élite<span className="block text-gold">Certificado</span></h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Staff altamente certificado con más de 10 años de experiencia combinada</p>
           </div>
 
-          {/* Hero Coach Image */}
-          <div className="relative rounded-3xl overflow-hidden mb-12 shadow-premium max-w-4xl mx-auto">
-            <img 
-              src={coachImage} 
-              alt="Entrenador certificado White Lions" 
-              className="w-full h-[500px] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy/95 via-navy/60 to-transparent flex items-end">
+          <div className="relative rounded-3xl overflow-hidden mb-12 shadow-premium">
+            <img src={coachImage} alt="Entrenador White Lions" className="w-full h-[400px] object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/50 to-transparent flex items-end">
               <div className="p-8 w-full">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-gold/20 backdrop-blur-sm rounded-full p-3">
-                    <Award className="w-6 h-6 text-gold" />
-                  </div>
-                  <span className="text-primary-foreground/90 font-semibold">
-                    Certificación Internacional
-                  </span>
-                </div>
-                <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-2">
-                  Experiencia y Dedicación
-                </h3>
-                <p className="text-primary-foreground/90 text-lg">
-                  Cada entrenador está comprometido con el desarrollo integral de nuestros jugadores
-                </p>
+                <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-2">Liderazgo Profesional</h3>
+                <p className="text-primary-foreground/90 text-lg">Entrenadores certificados por las mejores instituciones deportivas del mundo</p>
               </div>
             </div>
           </div>
 
-          {/* Coaches Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {coaches.map((coach, index) => (
-              <div 
-                key={index}
-                className="bg-card border border-border rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold"
-              >
-                <div className="bg-gold/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <GraduationCap className="w-6 h-6 text-gold" />
+              <div key={index} className="bg-card border-2 border-gold/20 rounded-2xl p-8 hover:border-gold/50 transition-all duration-300 hover:shadow-gold">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="bg-gold/10 w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"><Award className="w-8 h-8 text-gold" /></div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-navy mb-1">{coach.name}</h3>
+                    <p className="text-gold font-semibold">{coach.role}</p>
+                  </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-foreground mb-3">{coach.name}</h3>
-                
-                <div className="space-y-2 mb-4">
-                  {coach.certifications.map((cert, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-gold"></div>
-                      <span className="text-sm text-muted-foreground">{cert}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm font-semibold text-gold">{coach.specialty}</p>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2 flex items-center gap-2"><Trophy className="w-4 h-4 text-gold" />Certificaciones</h4>
+                    <ul className="space-y-1">
+                      {coach.certifications.map((cert, idx) => (
+                        <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2"><span className="text-gold mt-1">•</span>{cert}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground"><span className="font-semibold text-foreground">Especialidad: </span>{coach.specialty}</p>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Certifications Highlight */}
           <div className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-8 md:p-12 shadow-premium">
-            <div className="text-center">
-              <Award className="w-16 h-16 text-gold mx-auto mb-6" />
-              <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-                Staff Altamente Calificado
-              </h3>
-              <p className="text-primary-foreground/90 text-lg max-w-3xl mx-auto mb-8">
-                Todos nuestros entrenadores cuentan con certificaciones internacionales y actualizaciones 
-                constantes en metodologías de formación deportiva
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-primary-foreground/20">
-                  <div className="text-3xl font-bold text-gold mb-1">100%</div>
-                  <div className="text-sm text-primary-foreground/80">Certificados</div>
-                </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-primary-foreground/20">
-                  <div className="text-3xl font-bold text-gold mb-1">20+</div>
-                  <div className="text-sm text-primary-foreground/80">Entrenadores</div>
-                </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-primary-foreground/20">
-                  <div className="text-3xl font-bold text-gold mb-1">15+</div>
-                  <div className="text-sm text-primary-foreground/80">Años Experiencia</div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="bg-primary-foreground/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Award className="w-8 h-8 text-gold" /></div>
+                <div className="text-4xl font-bold text-gold mb-2">100%</div>
+                <div className="text-primary-foreground/80">Certificados Internacionalmente</div>
+              </div>
+              <div>
+                <div className="bg-primary-foreground/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Users className="w-8 h-8 text-gold" /></div>
+                <div className="text-4xl font-bold text-gold mb-2">10+</div>
+                <div className="text-primary-foreground/80">Años de Experiencia Combinada</div>
+              </div>
+              <div>
+                <div className="bg-primary-foreground/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Trophy className="w-8 h-8 text-gold" /></div>
+                <div className="text-4xl font-bold text-gold mb-2">500+</div>
+                <div className="text-primary-foreground/80">Jugadores Formados</div>
               </div>
             </div>
           </div>

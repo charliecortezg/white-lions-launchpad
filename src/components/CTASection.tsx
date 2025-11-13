@@ -1,8 +1,14 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import trainingImage from "@/assets/training-facility.jpg";
+import TrialClassModal from "./TrialClassModal";
+import JoinFamilyModal from "./modals/JoinFamilyModal";
 
 const CTASection = () => {
+  const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -42,6 +48,7 @@ const CTASection = () => {
                     variant="gold" 
                     size="xl"
                     className="group"
+                    onClick={() => setIsTrialModalOpen(true)}
                   >
                     <CalendarCheck className="w-5 h-5" />
                     Registrar Clase Muestra
@@ -51,6 +58,7 @@ const CTASection = () => {
                   <Button 
                     variant="hero" 
                     size="xl"
+                    onClick={() => setIsJoinModalOpen(true)}
                   >
                     Unirme a la Familia White Lions
                   </Button>
@@ -76,9 +84,9 @@ const CTASection = () => {
 
                   <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
                     <div className="text-3xl mb-2">✓</div>
-                    <h3 className="font-bold text-primary-foreground mb-2">Instalaciones Premium</h3>
+                    <h3 className="font-bold text-primary-foreground mb-2">Conoce Nuestras Sedes</h3>
                     <p className="text-primary-foreground/80 text-sm">
-                      Conoce nuestras sedes
+                      Visita nuestras instalaciones
                     </p>
                   </div>
                 </div>
@@ -87,6 +95,9 @@ const CTASection = () => {
           </div>
         </div>
       </div>
+
+      <TrialClassModal open={isTrialModalOpen} onOpenChange={setIsTrialModalOpen} />
+      <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
     </section>
   );
 };
