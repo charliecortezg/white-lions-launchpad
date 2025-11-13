@@ -4,14 +4,14 @@ import { MessageCircle, Phone } from "lucide-react";
 
 const FAQ = () => {
   const faqs = [
-    { question: "¿A partir de qué edad pueden ingresar los niños?", answer: "Aceptamos niños desde los 6 años en adelante. Tenemos categorías específicas para cada grupo de edad: Escuelita (6-7 años), Estrellita (8-9 años), Infantil (10-11 años) y Juvenil (12+ años)." },
+    { question: "¿A partir de qué edad pueden ingresar los niños?", answer: "Aceptamos niños desde los 6 años en adelante. Tenemos categorías específicas para cada grupo de edad según el deporte seleccionado." },
     { question: "¿Qué necesita mi hijo para la clase muestra?", answer: "Solo necesita ropa cómoda deportiva y muchas ganas de divertirse. Nosotros proporcionamos los balones y todo el equipo necesario para la sesión." },
     { question: "¿Cómo agendo una clase muestra?", answer: "Puedes agendar tu clase muestra únicamente a través del formulario en nuestro sitio web. Solo haz clic en el botón 'Agendar Clase Muestra' y llena el formulario con la información requerida." },
-    { question: "¿Cuál es el costo de inscripción y mensualidad?", answer: "La inscripción tiene un costo de $300 MXN (incluye inscripción a torneos del curso actual + derecho a entrenamientos + certificaciones internas White Lions). La mensualidad tanto para fútbol como para basketball es de $600 MXN." },
+    { question: "¿Cuál es el costo de inscripción y mensualidad?", answer: "La inscripción tiene un costo de $300 MXN. La mensualidad de fútbol es de $450 MXN y la de basketball es de $400 MXN." },
     { question: "¿Cuántos entrenamientos son por semana?", answer: "Nuestros entrenamientos son 2 veces por semana. Para categorías juveniles, el entrenador puede programar hasta 3 sesiones semanales según el nivel y objetivos del equipo." },
     { question: "¿Dónde están ubicadas las sedes?", answer: "Fútbol: Campo Hacienda del Bosque (Av Bosque Almendros S/N, Del Bosque). Basketball: Parque Quinta del Rey III (Residencial Quinta del Rey, 3ra Etapa)." },
     { question: "¿En qué torneos participan?", answer: "Fútbol: Futcenter Liga Menor, Liga Elite, Liga Alianza Kids, Liga Independencia, y Copa CETYS. Basketball: Liga Municipal de Basketball." },
-    { question: "¿Qué hace especial a White Lions Academies?", answer: "Combinamos metodología europea certificada (Barça Innovation Hub, Coerver Coaching) con valores institucionales sólidos. No solo formamos jugadores técnicamente superiores, sino personas íntegras y resilientes." }
+    { question: "¿Qué hace especial a White Lions Academies?", answer: "Combinamos metodología europea certificada (Barça Innovation Hub, Coerver Coaching, FIFA Grassroots) con valores institucionales sólidos. No solo formamos jugadores técnicamente superiores, sino personas íntegras y resilientes." }
   ];
 
   return (

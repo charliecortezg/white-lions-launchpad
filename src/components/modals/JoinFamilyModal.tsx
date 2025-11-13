@@ -54,11 +54,11 @@ const JoinFamilyModal = ({ open, onOpenChange }: JoinFamilyModalProps) => {
               <div className="border-t border-border pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-muted-foreground">Mensualidad Fútbol</span>
-                  <span className="font-bold text-navy">$600 MXN</span>
+                  <span className="font-bold text-navy">$450 MXN</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Mensualidad Basketball</span>
-                  <span className="font-bold text-navy">$600 MXN</span>
+                  <span className="font-bold text-navy">$400 MXN</span>
                 </div>
               </div>
             </div>
@@ -73,10 +73,12 @@ const JoinFamilyModal = ({ open, onOpenChange }: JoinFamilyModalProps) => {
             
             <ul className="space-y-2">
               {[
-                "Foto del jugador",
                 "Datos del tutor",
-                "Pago de inscripción y mensualidad",
-                "Compromiso con la asistencia y valores institucionales"
+                "Compromiso de asistencia",
+                "Pago de inscripción y primera mensualidad",
+                "CURP",
+                "Constancia de estudios",
+                "Balón propio para entrenar"
               ].map((req, index) => (
                 <li key={index} className="flex items-start gap-3">
                   <span className="text-gold font-bold mt-1">✓</span>
