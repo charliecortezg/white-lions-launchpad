@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Shield, Users, Award, Target, Zap } from "lucide-react";
 import ValueModal from "./modals/ValueModal";
+import logoWhiteLions from "@/assets/logo-white-lions.png";
 
 const About = () => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
@@ -45,6 +46,13 @@ const About = () => {
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
               White Lions Academies
             </h2>
+            <div className="flex justify-center mb-8">
+              <img 
+                src={logoWhiteLions} 
+                alt="White Lions FC Logo" 
+                className="w-48 h-48 md:w-64 md:h-64 object-contain"
+              />
+            </div>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Somos más que un club deportivo. Somos un ecosistema formativo que combina la pasión 
               por el fútbol y basketball con una metodología europea certificada.

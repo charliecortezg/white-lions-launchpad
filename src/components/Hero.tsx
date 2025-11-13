@@ -64,18 +64,14 @@ const Hero = () => {
           <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
           <MethodologyModal open={isMethodologyModalOpen} onOpenChange={setIsMethodologyModalOpen} />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto">
             <div className="space-y-2">
               <div className="text-4xl font-bold text-gold">+500</div>
               <div className="text-sm text-primary-foreground/80">Jugadores</div>
             </div>
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-gold">15+</div>
-              <div className="text-sm text-primary-foreground/80">Años</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-gold">20+</div>
-              <div className="text-sm text-primary-foreground/80">Entrenadores</div>
+              <div className="text-4xl font-bold text-gold">10+</div>
+              <div className="text-sm text-primary-foreground/80">Años de Experiencia</div>
             </div>
             <div className="space-y-2">
               <div className="text-4xl font-bold text-gold">2</div>
