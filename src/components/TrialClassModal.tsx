@@ -195,6 +195,28 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
 
               <FormField
                 control={form.control}
+                name="sport"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deporte</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un deporte" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Fútbol">⚽ Fútbol</SelectItem>
+                        <SelectItem value="Basketball">🏀 Basketball</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="birth_year"
                 render={({ field }) => (
                   <FormItem>
@@ -245,28 +267,6 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                     <FormControl>
                       <Input type="tel" placeholder="686 123 4567" {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="sport"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Deporte</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un deporte" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Fútbol">⚽ Fútbol</SelectItem>
-                        <SelectItem value="Basketball">🏀 Basketball</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
