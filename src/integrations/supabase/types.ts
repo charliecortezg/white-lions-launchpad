@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      trial_class_registrations: {
+        Row: {
+          age_or_birth_year: string
+          category: string
+          comments: string | null
+          contact_phone: string
+          created_at: string
+          id: string
+          player_name: string
+          preferred_location: string
+          preferred_schedule: string
+          tutor_name: string
+        }
+        Insert: {
+          age_or_birth_year: string
+          category: string
+          comments?: string | null
+          contact_phone: string
+          created_at?: string
+          id?: string
+          player_name: string
+          preferred_location: string
+          preferred_schedule: string
+          tutor_name: string
+        }
+        Update: {
+          age_or_birth_year?: string
+          category?: string
+          comments?: string | null
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          player_name?: string
+          preferred_location?: string
+          preferred_schedule?: string
+          tutor_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-training.jpg";
+import TrialClassModal from "./TrialClassModal";
 
 const Hero = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -40,6 +44,7 @@ const Hero = () => {
               variant="gold" 
               size="xl"
               className="group"
+              onClick={() => setIsModalOpen(true)}
             >
               Agendar Clase Muestra
               <ArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -52,6 +57,8 @@ const Hero = () => {
               Conocer Metodología
             </Button>
           </div>
+
+          <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 max-w-3xl mx-auto">
             <div className="space-y-2">
