@@ -25,23 +25,27 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Headline */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             Agenda una
             <span className="block text-gold">Clase Muestra</span>
           </h1>
           
-          <p className="text-xl md:text-2xl lg:text-3xl text-primary-foreground/90 font-light max-w-3xl mx-auto">
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl lg:text-3xl text-primary-foreground/90 font-light max-w-3xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: '0.4s' }}>
             Conoce White Lions Academies y vive la experiencia deportiva
           </p>
           
-          <div className="inline-block bg-gold/10 backdrop-blur-sm border border-gold/30 rounded-full px-6 py-3">
+          {/* Badge */}
+          <div className="inline-block bg-gold/10 backdrop-blur-sm border border-gold/30 rounded-full px-6 py-3 opacity-0 animate-fade-in-scale" style={{ animationDelay: '0.6s' }}>
             <p className="text-gold text-lg md:text-xl font-semibold">
               Fútbol y Basketball • Mexicali
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 justify-center items-center pt-8">
+          {/* CTAs */}
+          <div className="flex flex-col gap-4 justify-center items-center pt-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
             <Button 
               variant="gold" 
               size="xl"
@@ -64,16 +68,17 @@ const Hero = () => {
           <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
           <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
 
+          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto">
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up" style={{ animationDelay: '1s' }}>
               <div className="text-4xl font-bold text-gold">+500</div>
               <div className="text-sm text-primary-foreground/80">Jugadores</div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up" style={{ animationDelay: '1.15s' }}>
               <div className="text-4xl font-bold text-gold">10+</div>
               <div className="text-sm text-primary-foreground/80">Años de Experiencia</div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up" style={{ animationDelay: '1.3s' }}>
               <div className="text-4xl font-bold text-gold">2</div>
               <div className="text-sm text-primary-foreground/80">Deportes</div>
             </div>
