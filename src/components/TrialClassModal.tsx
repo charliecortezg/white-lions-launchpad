@@ -4,12 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CheckCircle2 } from "lucide-react";
+import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ interface TrialClassModalProps {
 const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedData, setSubmittedData] = useState<FormData | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -98,9 +99,32 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     return false;
   };
 
+  // Obtener la próxima fecha disponible
+  const getNextAvailableDate = (sport: string | undefined): Date | undefined => {
+    if (!sport) return undefined;
+    
+    const today = new Date();
+    const validDays = sport === "Fútbol" ? [1, 3] : [2, 4]; // Lun/Mié o Mar/Jue
+    
+    for (let i = 1; i <= 14; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() + i);
+      if (validDays.includes(getDay(checkDate))) {
+        return checkDate;
+      }
+    }
+    return undefined;
+  };
+
   const getLocation = (sport: string | undefined) => {
     if (sport === "Fútbol") return "Campo Hacienda del Bosque";
     if (sport === "Basketball") return "Parque Quinta del Rey III";
+    return "";
+  };
+
+  const getLocationZone = (sport: string | undefined) => {
+    if (sport === "Fútbol") return "Zona Haciendas, Mexicali";
+    if (sport === "Basketball") return "Fracc. Quinta del Rey, Mexicali";
     return "";
   };
 
@@ -131,12 +155,13 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
 
       if (error) throw error;
 
+      setSubmittedData(data);
       setIsSubmitted(true);
       form.reset();
 
       toast({
-        title: "¡Registro exitoso!",
-        description: "Tu clase muestra ha sido agendada correctamente.",
+        title: "Registro enviado",
+        description: "Hemos recibido la información de tu registro.",
       });
     } catch (error) {
       console.error("Error al guardar:", error);
@@ -152,11 +177,13 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
 
   const handleClose = () => {
     setIsSubmitted(false);
+    setSubmittedData(null);
     form.reset();
     onOpenChange(false);
   };
 
   const categories = getCategories(selectedSport, selectedBirthYear);
+  const nextAvailableDate = getNextAvailableDate(selectedSport);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -171,14 +198,66 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
 
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-navy text-center">
-            Registra tu Clase Muestra
+            Agenda tu Clase Muestra
           </DialogTitle>
-          <p className="text-center text-muted-foreground">Tu mejor versión inicia aquí</p>
+          <p className="text-center text-muted-foreground">Completa el registro en pocos pasos</p>
         </DialogHeader>
 
         {!isSubmitted ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
+              {/* Sport Selection - Cards */}
+              <FormField
+                control={form.control}
+                name="sport"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Selecciona un deporte</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            field.onChange("Fútbol");
+                            form.setValue("birth_year", "");
+                            form.setValue("category", "");
+                          }}
+                          className={cn(
+                            "p-6 rounded-xl border-2 transition-all text-left",
+                            field.value === "Fútbol"
+                              ? "border-gold bg-gold/10 shadow-lg"
+                              : "border-border hover:border-gold/50 hover:bg-muted/50"
+                          )}
+                        >
+                          <span className="text-4xl block mb-2">⚽</span>
+                          <span className="font-semibold text-lg block">Fútbol</span>
+                          <span className="text-xs text-muted-foreground">Lun y Mié</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            field.onChange("Basketball");
+                            form.setValue("birth_year", "");
+                            form.setValue("category", "");
+                          }}
+                          className={cn(
+                            "p-6 rounded-xl border-2 transition-all text-left",
+                            field.value === "Basketball"
+                              ? "border-gold bg-gold/10 shadow-lg"
+                              : "border-border hover:border-gold/50 hover:bg-muted/50"
+                          )}
+                        >
+                          <span className="text-4xl block mb-2">🏀</span>
+                          <span className="font-semibold text-lg block">Basketball</span>
+                          <span className="text-xs text-muted-foreground">Mar y Jue</span>
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="player_name"
@@ -188,28 +267,6 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                     <FormControl>
                       <Input placeholder="Nombre completo del jugador" {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="sport"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Deporte</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un deporte" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Fútbol">⚽ Fútbol</SelectItem>
-                        <SelectItem value="Basketball">🏀 Basketball</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -239,34 +296,9 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tutor_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre del Tutor</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre completo del tutor" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="contact_phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono de Contacto (WhatsApp)</FormLabel>
-                    <FormControl>
-                      <Input type="tel" placeholder="686 123 4567" {...field} />
-                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Si no recuerdas el año exacto, puedes elegir uno aproximado.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -300,11 +332,74 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
               )}
 
               {selectedSport && (
-                <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-semibold text-foreground">📍 Sede: {getLocation(selectedSport)}</p>
-                  <p className="text-sm text-muted-foreground">⏰ Horario: {getSchedule(selectedSport)}</p>
+                <div className="bg-muted/30 rounded-xl p-5 space-y-4 border border-border/50">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-foreground">{getLocation(selectedSport)}</p>
+                      <p className="text-sm text-muted-foreground">{getLocationZone(selectedSport)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-gold flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">{getSchedule(selectedSport)}</p>
+                  </div>
+                  
+                  <div className="pt-3 border-t border-border/50">
+                    <p className="text-sm font-semibold text-foreground mb-2">¿Qué incluye la clase muestra?</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Dumbbell className="w-4 h-4 text-gold/70" />
+                        <span>Actividad guiada</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4 text-gold/70" />
+                        <span>Grupo acorde a la edad</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Target className="w-4 h-4 text-gold/70" />
+                        <span>Sesión introductoria</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
+
+              <div className="space-y-4 pt-2">
+                <p className="text-sm font-medium text-foreground">Datos del tutor</p>
+                
+                <FormField
+                  control={form.control}
+                  name="tutor_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre del Tutor</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nombre completo del tutor" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contact_phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono de Contacto (WhatsApp)</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder="686 123 4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <p className="text-xs text-muted-foreground">
+                  Usaremos estos datos únicamente para fines relacionados con tu registro.
+                </p>
+              </div>
 
               {selectedSport && (
                 <FormField
@@ -343,11 +438,22 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                           />
                         </PopoverContent>
                       </Popover>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedSport === "Fútbol" 
-                          ? "Solo puedes seleccionar lunes y miércoles"
-                          : "Solo puedes seleccionar martes y jueves"}
-                      </p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-muted-foreground">
+                          {selectedSport === "Fútbol" 
+                            ? "Solo puedes seleccionar lunes y miércoles"
+                            : "Solo puedes seleccionar martes y jueves"}
+                        </p>
+                        {nextAvailableDate && !field.value && (
+                          <button
+                            type="button"
+                            onClick={() => field.onChange(nextAvailableDate)}
+                            className="text-xs text-gold hover:text-gold/80 underline text-left w-fit"
+                          >
+                            Próxima fecha: {format(nextAvailableDate, "EEEE d 'de' MMMM", { locale: es })}
+                          </button>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -355,22 +461,55 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
               )}
 
               <Button type="submit" className="w-full" variant="gold" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Registrando..." : "Confirmar Registro"}
+                {isSubmitting ? "Enviando..." : "Confirmar registro"}
               </Button>
             </form>
           </Form>
         ) : (
-          <div className="py-12 text-center space-y-6">
-            <div className="w-20 h-20 mx-auto bg-gold/10 rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-gold" />
+          <div className="py-8 space-y-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gold/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-10 h-10 text-gold" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-navy mb-1">Registro enviado correctamente</h3>
+                <p className="text-muted-foreground">
+                  Hemos recibido la información de tu registro.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-navy mb-2">¡Gracias!</h3>
-              <p className="text-muted-foreground">
-                Hemos recibido tu registro y nos pondremos en contacto contigo.
-              </p>
-            </div>
-            <Button onClick={handleClose} variant="outline" size="lg" className="mt-6">
+
+            {submittedData && (
+              <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
+                <p className="text-sm font-semibold text-foreground mb-3">Resumen del registro</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Deporte</span>
+                    <span className="font-medium">{submittedData.sport}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Categoría</span>
+                    <span className="font-medium">{submittedData.category}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Fecha</span>
+                    <span className="font-medium capitalize">
+                      {format(submittedData.trial_date, "EEEE d 'de' MMMM", { locale: es })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Sede</span>
+                    <span className="font-medium">{getLocation(submittedData.sport)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <p className="text-center text-sm text-muted-foreground">
+              Gracias por completar el registro.
+            </p>
+
+            <Button onClick={handleClose} variant="outline" size="lg" className="w-full">
               Cerrar
             </Button>
           </div>
