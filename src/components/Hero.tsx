@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-training.jpg";
 import TrialClassModal from "./TrialClassModal";
-import MethodologyModal from "./modals/MethodologyModal";
 import JoinFamilyModal from "./modals/JoinFamilyModal";
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMethodologyModalOpen, setIsMethodologyModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
   return (
@@ -43,23 +41,15 @@ const Hero = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+          <div className="flex flex-col gap-4 justify-center items-center pt-8">
             <Button 
               variant="gold" 
               size="xl"
-              className="group"
+              className="group text-lg md:text-xl px-10 py-6 animate-pulse-subtle hover:animate-none"
               onClick={() => setIsModalOpen(true)}
             >
               Agendar Clase Muestra
               <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-            </Button>
-            
-            <Button 
-              variant="hero" 
-              size="xl"
-              onClick={() => setIsMethodologyModalOpen(true)}
-            >
-              Conocer Metodología
             </Button>
 
             <Button 
@@ -72,7 +62,6 @@ const Hero = () => {
           </div>
 
           <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
-          <MethodologyModal open={isMethodologyModalOpen} onOpenChange={setIsMethodologyModalOpen} />
           <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto">
