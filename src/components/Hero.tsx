@@ -29,17 +29,17 @@ const Hero = () => {
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight">
-            White Lions
-            <span className="block text-gold">Academies</span>
+            Agenda una
+            <span className="block text-gold">Clase Muestra</span>
           </h1>
           
           <p className="text-xl md:text-2xl lg:text-3xl text-primary-foreground/90 font-light max-w-3xl mx-auto">
-            La experiencia deportiva más inspiradora de Mexicali
+            Conoce White Lions Academies y vive la experiencia deportiva
           </p>
           
           <div className="inline-block bg-gold/10 backdrop-blur-sm border border-gold/30 rounded-full px-6 py-3">
             <p className="text-gold text-lg md:text-xl font-semibold">
-              Tu Mejor Versión. Inicia Aquí.
+              Fútbol y Basketball • Mexicali
             </p>
           </div>
 
