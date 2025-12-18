@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-training.jpg";
@@ -8,23 +8,60 @@ import JoinFamilyModal from "./modals/JoinFamilyModal";
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        if (rect.bottom > 0) {
+          setScrollY(window.scrollY);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const parallaxOffset = scrollY * 0.4;
+  const contentOffset = scrollY * 0.15;
+  const overlayOpacity = Math.min(0.95, 0.7 + scrollY * 0.0005);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
+    <section ref={sectionRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image with Parallax */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 will-change-transform"
         style={{
           backgroundImage: `url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          transform: `translateY(${parallaxOffset}px) scale(${1 + scrollY * 0.0003})`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70"></div>
+        <div 
+          className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/70 transition-opacity duration-300"
+          style={{ opacity: overlayOpacity }}
+        />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+      {/* Floating decorative elements with parallax */}
+      <div 
+        className="absolute top-20 left-10 w-32 h-32 bg-gold/5 rounded-full blur-3xl will-change-transform"
+        style={{ transform: `translateY(${scrollY * 0.2}px)` }}
+      />
+      <div 
+        className="absolute bottom-40 right-20 w-48 h-48 bg-gold/5 rounded-full blur-3xl will-change-transform"
+        style={{ transform: `translateY(${scrollY * -0.1}px)` }}
+      />
+
+      {/* Content with subtle parallax */}
+      <div 
+        className="relative z-10 container mx-auto px-4 py-20 text-center will-change-transform"
+        style={{ transform: `translateY(${contentOffset}px)` }}
+      >
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>

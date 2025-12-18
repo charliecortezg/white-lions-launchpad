@@ -10,10 +10,12 @@ import Experience from "@/components/Experience";
 import Coaches from "@/components/Coaches";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import ScrollProgress from "@/components/ScrollProgress";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <ScrollProgress />
       <Hero />
       <About />
       <Methodology />

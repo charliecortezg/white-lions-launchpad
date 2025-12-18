@@ -1,98 +1,118 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import trainingImage from "@/assets/training-facility.jpg";
 import TrialClassModal from "./TrialClassModal";
 import JoinFamilyModal from "./modals/JoinFamilyModal";
+import AnimatedSection from "./AnimatedSection";
 
 const CTASection = () => {
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        if (rect.top < windowHeight && rect.bottom > 0) {
+          const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
+          setScrollY(progress * 50);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section ref={sectionRef} className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden shadow-premium">
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 z-0"
-              style={{
-                backgroundImage: `url(${trainingImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-navy/95 to-navy/80"></div>
-            </div>
+          <AnimatedSection animation="scale">
+            <div className="relative rounded-3xl overflow-hidden shadow-premium">
+              {/* Background Image with Parallax */}
+              <div 
+                className="absolute inset-0 z-0 will-change-transform"
+                style={{
+                  backgroundImage: `url(${trainingImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  transform: `translateY(${scrollY}px)`,
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-navy/95 to-navy/80"></div>
+              </div>
 
-            {/* Content */}
-            <div className="relative z-10 p-8 md:p-16 text-center">
-              <div className="max-w-3xl mx-auto space-y-8">
-                <div className="inline-block bg-gold/10 backdrop-blur-sm text-gold text-sm font-semibold px-4 py-2 rounded-full">
-                  Únete a Nosotros
-                </div>
+              {/* Content */}
+              <div className="relative z-10 p-8 md:p-16 text-center">
+                <div className="max-w-3xl mx-auto space-y-8">
+                  <AnimatedSection animation="fade-up" delay={100}>
+                    <div className="inline-block bg-gold/10 backdrop-blur-sm text-gold text-sm font-semibold px-4 py-2 rounded-full">
+                      Únete a Nosotros
+                    </div>
+                  </AnimatedSection>
 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground">
-                  Inicia Tu Historia
-                  <span className="block text-gold">Con White Lions</span>
-                </h2>
+                  <AnimatedSection animation="fade-up" delay={200}>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground">
+                      Inicia Tu Historia
+                      <span className="block text-gold">Con White Lions</span>
+                    </h2>
+                  </AnimatedSection>
 
-                <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-                  Agenda tu clase muestra gratuita y descubre por qué somos la academia deportiva 
-                  preferida de Mexicali. Sin costo, sin compromiso.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-                  <Button 
-                    variant="gold" 
-                    size="xl"
-                    className="group"
-                    onClick={() => setIsTrialModalOpen(true)}
-                  >
-                    <CalendarCheck className="w-5 h-5" />
-                    Registrar Clase Muestra
-                    <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                  
-                  <Button 
-                    variant="hero" 
-                    size="xl"
-                    onClick={() => setIsJoinModalOpen(true)}
-                  >
-                    Unirme a la Familia White Lions
-                  </Button>
-                </div>
-
-                {/* Benefits */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
-                  <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
-                    <div className="text-3xl mb-2">✓</div>
-                    <h3 className="font-bold text-primary-foreground mb-2">Clase Gratuita</h3>
-                    <p className="text-primary-foreground/80 text-sm">
-                      Prueba sin costo ni compromiso
+                  <AnimatedSection animation="blur" delay={300}>
+                    <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
+                      Agenda tu clase muestra gratuita y descubre por qué somos la academia deportiva 
+                      preferida de Mexicali. Sin costo, sin compromiso.
                     </p>
-                  </div>
+                  </AnimatedSection>
 
-                  <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
-                    <div className="text-3xl mb-2">✓</div>
-                    <h3 className="font-bold text-primary-foreground mb-2">Evaluación Inicial</h3>
-                    <p className="text-primary-foreground/80 text-sm">
-                      Conoce el nivel de tu hijo
-                    </p>
-                  </div>
+                  <AnimatedSection animation="fade-up" delay={400}>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+                      <Button 
+                        variant="gold" 
+                        size="xl"
+                        className="group"
+                        onClick={() => setIsTrialModalOpen(true)}
+                      >
+                        <CalendarCheck className="w-5 h-5" />
+                        Registrar Clase Muestra
+                        <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                      
+                      <Button 
+                        variant="hero" 
+                        size="xl"
+                        onClick={() => setIsJoinModalOpen(true)}
+                      >
+                        Unirme a la Familia White Lions
+                      </Button>
+                    </div>
+                  </AnimatedSection>
 
-                  <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
-                    <div className="text-3xl mb-2">✓</div>
-                    <h3 className="font-bold text-primary-foreground mb-2">Conoce Nuestras Sedes</h3>
-                    <p className="text-primary-foreground/80 text-sm">
-                      Visita nuestras instalaciones
-                    </p>
+                  {/* Benefits */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
+                    {[
+                      { icon: '✓', title: 'Clase Gratuita', desc: 'Prueba sin costo ni compromiso' },
+                      { icon: '✓', title: 'Evaluación Inicial', desc: 'Conoce el nivel de tu hijo' },
+                      { icon: '✓', title: 'Conoce Nuestras Sedes', desc: 'Visita nuestras instalaciones' }
+                    ].map((benefit, index) => (
+                      <AnimatedSection key={index} animation="fade-up" delay={500 + index * 100}>
+                        <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
+                          <div className="text-3xl mb-2">{benefit.icon}</div>
+                          <h3 className="font-bold text-primary-foreground mb-2">{benefit.title}</h3>
+                          <p className="text-primary-foreground/80 text-sm">{benefit.desc}</p>
+                        </div>
+                      </AnimatedSection>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 

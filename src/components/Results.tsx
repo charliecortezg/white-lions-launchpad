@@ -1,4 +1,5 @@
 import { Trophy } from "lucide-react";
+import AnimatedSection from "./AnimatedSection";
 
 const Results = () => {
   const achievements = [
@@ -19,7 +20,7 @@ const Results = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-16">
+          <AnimatedSection animation="fade-up" className="text-center mb-16">
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Logros Deportivos
             </div>
@@ -30,30 +31,33 @@ const Results = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Celebrando el esfuerzo y dedicación de nuestros jugadores
             </p>
-          </div>
+          </AnimatedSection>
 
           {/* Achievements Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {achievements.map((achievement, index) => (
-              <div 
+              <AnimatedSection 
                 key={index}
-                className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-8 text-center shadow-premium hover:scale-105 transition-transform duration-300"
+                animation="scale" 
+                delay={100 + index * 150}
               >
-                <div className="w-20 h-20 mx-auto mb-6 bg-gold/20 rounded-full flex items-center justify-center">
-                  <achievement.icon className="w-10 h-10 text-gold" />
+                <div className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-8 text-center shadow-premium hover:scale-105 transition-transform duration-300">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-gold/20 rounded-full flex items-center justify-center">
+                    <achievement.icon className="w-10 h-10 text-gold" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-primary-foreground mb-2">
+                    {achievement.title}
+                  </h3>
+                  <p className="text-primary-foreground/80 text-lg">
+                    {achievement.event}
+                  </p>
                 </div>
-                <h3 className="text-2xl font-bold text-primary-foreground mb-2">
-                  {achievement.title}
-                </h3>
-                <p className="text-primary-foreground/80 text-lg">
-                  {achievement.event}
-                </p>
-              </div>
+              </AnimatedSection>
             ))}
           </div>
 
           {/* Bottom Message */}
-          <div className="mt-16 text-center">
+          <AnimatedSection animation="fade-up" delay={400} className="mt-16 text-center">
             <div className="inline-flex items-center gap-3 bg-gold/10 rounded-full px-8 py-4 border border-gold/30">
               <Trophy className="w-6 h-6 text-gold" />
               <span className="text-lg font-semibold text-foreground">
@@ -61,7 +65,7 @@ const Results = () => {
               </span>
               <Trophy className="w-6 h-6 text-gold" />
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
     </section>

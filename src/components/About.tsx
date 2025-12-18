@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Shield, Users, Award, Target, Zap } from "lucide-react";
 import ValueModal from "./modals/ValueModal";
 import logoWhiteLions from "@/assets/logo-white-lions.png";
+import AnimatedSection from "./AnimatedSection";
 
 const About = () => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
@@ -39,7 +40,7 @@ const About = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-16 animate-fade-in">
+          <AnimatedSection animation="fade-up" className="text-center mb-16">
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Quiénes Somos
             </div>
@@ -57,33 +58,39 @@ const About = () => {
               Somos más que un club deportivo. Somos un ecosistema formativo que combina la pasión 
               por el fútbol y basketball con una metodología europea certificada.
             </p>
-          </div>
+          </AnimatedSection>
 
           {/* Mission */}
-          <div className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-8 md:p-12 mb-12 text-center shadow-premium animate-slide-up">
-            <h3 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
-              Nuestra Misión
-            </h3>
-            <p className="text-lg text-primary-foreground/90 max-w-3xl mx-auto">
-              Criar deportistas de alto rendimiento mientras juegan y se divierten.
-            </p>
-          </div>
+          <AnimatedSection animation="scale" delay={100}>
+            <div className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-8 md:p-12 mb-12 text-center shadow-premium">
+              <h3 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
+                Nuestra Misión
+              </h3>
+              <p className="text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+                Criar deportistas de alto rendimiento mientras juegan y se divierten.
+              </p>
+            </div>
+          </AnimatedSection>
 
           {/* Values Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {values.map((value, index) => (
-              <div 
+              <AnimatedSection 
                 key={index}
-                className="bg-card border border-border rounded-2xl p-6 hover:shadow-gold transition-all duration-300 hover:-translate-y-1 animate-scale-in cursor-pointer"
-                style={{ animationDelay: `${index * 100}ms` }}
-                onClick={() => setSelectedValue(value.title)}
+                animation="fade-up" 
+                delay={150 + index * 100}
               >
-                <div className="bg-gold/10 w-14 h-14 rounded-xl flex items-center justify-center mb-4">
-                  <value.icon className="w-7 h-7 text-gold" />
+                <div 
+                  className="bg-card border border-border rounded-2xl p-6 hover:shadow-gold transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full"
+                  onClick={() => setSelectedValue(value.title)}
+                >
+                  <div className="bg-gold/10 w-14 h-14 rounded-xl flex items-center justify-center mb-4">
+                    <value.icon className="w-7 h-7 text-gold" />
+                  </div>
+                  <h4 className="text-xl font-bold text-foreground mb-2">{value.title}</h4>
+                  <p className="text-muted-foreground text-sm">{value.description}</p>
                 </div>
-                <h4 className="text-xl font-bold text-foreground mb-2">{value.title}</h4>
-                <p className="text-muted-foreground text-sm">{value.description}</p>
-              </div>
+              </AnimatedSection>
             ))}
           </div>
 
@@ -94,11 +101,11 @@ const About = () => {
           />
 
           {/* Quote */}
-          <div className="mt-16 text-center">
+          <AnimatedSection animation="blur" delay={200} className="mt-16 text-center">
             <blockquote className="text-2xl md:text-3xl font-light text-primary italic">
               "Jugamos para formar personas"
             </blockquote>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
     </section>

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CheckCircle, Trophy, TrendingUp, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CertificationModal } from "./modals/CertificationModals";
 import MethodologyModal from "./modals/MethodologyModal";
+import AnimatedSection from "./AnimatedSection";
 
 const Methodology = () => {
   const [selectedCertification, setSelectedCertification] = useState<'barca' | 'coerver' | 'whitelions' | 'fifa' | null>(null);
@@ -36,7 +37,7 @@ const Methodology = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-16">
+          <AnimatedSection animation="fade-up" className="text-center mb-16">
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Metodología Europea Certificada
             </div>
@@ -47,90 +48,67 @@ const Methodology = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Nuestra formación deportiva está respaldada por las mejores certificaciones internacionales
             </p>
-          </div>
+          </AnimatedSection>
 
           {/* Certification Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            <div 
-              className="bg-card rounded-2xl p-8 text-center border-2 border-gold/20 hover:border-gold/50 transition-all duration-300 shadow-lg hover:shadow-gold cursor-pointer"
-              onClick={() => setSelectedCertification('barca')}
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-gold/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Barça Innovation Hub</h3>
-              <p className="text-sm text-muted-foreground">Metodología del FC Barcelona</p>
-            </div>
-
-            <div 
-              className="bg-card rounded-2xl p-8 text-center border-2 border-gold/20 hover:border-gold/50 transition-all duration-300 shadow-lg hover:shadow-gold cursor-pointer"
-              onClick={() => setSelectedCertification('coerver')}
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-gold/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Coerver Coaching</h3>
-              <p className="text-sm text-muted-foreground">Desarrollo de habilidades técnicas</p>
-            </div>
-
-            <div 
-              className="bg-card rounded-2xl p-8 text-center border-2 border-gold/20 hover:border-gold/50 transition-all duration-300 shadow-lg hover:shadow-gold cursor-pointer"
-              onClick={() => setSelectedCertification('whitelions')}
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-gold/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">White Lions Methodology</h3>
-              <p className="text-sm text-muted-foreground">Sistema propio de niveles formativos</p>
-            </div>
-
-            <div 
-              className="bg-card rounded-2xl p-8 text-center border-2 border-gold/20 hover:border-gold/50 transition-all duration-300 shadow-lg hover:shadow-gold cursor-pointer"
-              onClick={() => setSelectedCertification('fifa')}
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-gold/10 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">FIFA Grassroots</h3>
-              <p className="text-sm text-muted-foreground">Programa oficial de desarrollo de base</p>
-            </div>
+            {[
+              { key: 'barca', title: 'Barça Innovation Hub', desc: 'Metodología del FC Barcelona' },
+              { key: 'coerver', title: 'Coerver Coaching', desc: 'Desarrollo de habilidades técnicas' },
+              { key: 'whitelions', title: 'White Lions Methodology', desc: 'Sistema propio de niveles formativos' },
+              { key: 'fifa', title: 'FIFA Grassroots', desc: 'Programa oficial de desarrollo de base' }
+            ].map((cert, index) => (
+              <AnimatedSection key={cert.key} animation="scale" delay={100 + index * 100}>
+                <div 
+                  className="bg-card rounded-2xl p-8 text-center border-2 border-gold/20 hover:border-gold/50 transition-all duration-300 shadow-lg hover:shadow-gold cursor-pointer h-full"
+                  onClick={() => setSelectedCertification(cert.key as any)}
+                >
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gold/10 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-gold" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">{cert.title}</h3>
+                  <p className="text-sm text-muted-foreground">{cert.desc}</p>
+                </div>
+              </AnimatedSection>
+            ))}
           </div>
 
           {/* Levels Section */}
-          <div className="bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl p-8 md:p-12 shadow-premium">
-            <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4 text-center">
-              Sistema de Niveles White Lions
-            </h3>
-            <p className="text-center text-primary-foreground/90 mb-12 max-w-2xl mx-auto">
-              Progresión estructurada que garantiza el desarrollo óptimo de cada jugador
-            </p>
+          <AnimatedSection animation="fade-up" delay={200}>
+            <div className="bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl p-8 md:p-12 shadow-premium">
+              <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4 text-center">
+                Sistema de Niveles White Lions
+              </h3>
+              <p className="text-center text-primary-foreground/90 mb-12 max-w-2xl mx-auto">
+                Progresión estructurada que garantiza el desarrollo óptimo de cada jugador
+              </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {levels.map((level, index) => (
-                <div 
-                  key={index}
-                  className="bg-primary-foreground rounded-2xl p-6 hover:scale-105 transition-transform duration-300"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {levels.map((level, index) => (
+                  <AnimatedSection key={index} animation="fade-up" delay={300 + index * 100}>
+                    <div className="bg-primary-foreground rounded-2xl p-6 hover:scale-105 transition-transform duration-300 h-full">
+                      <div className="bg-gold/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+                        <level.icon className="w-6 h-6 text-gold" />
+                      </div>
+                      <h4 className="text-2xl font-bold text-primary mb-3">{level.name}</h4>
+                      <p className="text-muted-foreground text-sm mb-4">{level.focus}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+
+              <div className="mt-12 text-center">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="bg-primary-foreground text-navy hover:bg-primary-foreground/90"
+                  onClick={() => setIsMethodologyModalOpen(true)}
                 >
-                  <div className="bg-gold/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <level.icon className="w-6 h-6 text-gold" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-primary mb-3">{level.name}</h4>
-                  <p className="text-muted-foreground text-sm mb-4">{level.focus}</p>
-                </div>
-              ))}
+                  Ver Sistema Completo de Niveles
+                </Button>
+              </div>
             </div>
-
-            <div className="mt-12 text-center">
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="bg-primary-foreground text-navy hover:bg-primary-foreground/90"
-                onClick={() => setIsMethodologyModalOpen(true)}
-              >
-                Ver Sistema Completo de Niveles
-              </Button>
-            </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
 

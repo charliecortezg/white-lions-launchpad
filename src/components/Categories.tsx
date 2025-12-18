@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Clock, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoryDetailsModal from "./modals/CategoryDetailsModal";
+import AnimatedSection from "./AnimatedSection";
 
 const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -79,7 +80,7 @@ const Categories = () => {
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <AnimatedSection animation="fade-up" className="text-center mb-16">
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Nuestras Categorías
             </div>
@@ -90,66 +91,82 @@ const Categories = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Programas diseñados específicamente para cada etapa de desarrollo
             </p>
-          </div>
+          </AnimatedSection>
 
           <div className="mb-12">
-            <h3 className="text-3xl font-bold text-navy mb-6 flex items-center gap-3">
-              <span>⚽</span> Fútbol
-            </h3>
+            <AnimatedSection animation="fade-right" delay={100}>
+              <h3 className="text-3xl font-bold text-navy mb-6 flex items-center gap-3">
+                <span>⚽</span> Fútbol
+              </h3>
+            </AnimatedSection>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {footballCategories.map((category, index) => (
-                <div key={index} className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold">
-                  <h3 className="text-2xl font-bold text-navy mb-2">{category.name}</h3>
-                  <div className="text-gold font-semibold mb-4">{category.age}</div>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-start gap-2">
-                      <Clock className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">{category.schedule}</span>
+                <AnimatedSection 
+                  key={index}
+                  animation="fade-up" 
+                  delay={150 + index * 80}
+                >
+                  <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold h-full">
+                    <h3 className="text-2xl font-bold text-navy mb-2">{category.name}</h3>
+                    <div className="text-gold font-semibold mb-4">{category.age}</div>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{category.schedule}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{category.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gold flex-shrink-0" />
+                        <span className="text-sm text-green-600 font-semibold">{category.spots}</span>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">{category.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gold flex-shrink-0" />
-                      <span className="text-sm text-green-600 font-semibold">{category.spots}</span>
-                    </div>
+                    <Button variant="outline" className="w-full" onClick={() => setSelectedCategory(category)}>
+                      Ver Horarios Completos
+                    </Button>
                   </div>
-                  <Button variant="outline" className="w-full" onClick={() => setSelectedCategory(category)}>
-                    Ver Horarios Completos
-                  </Button>
-                </div>
+                </AnimatedSection>
               ))}
             </div>
           </div>
 
           <div>
-            <h3 className="text-3xl font-bold text-navy mb-6 flex items-center gap-3">
-              <span>🏀</span> Basketball
-            </h3>
+            <AnimatedSection animation="fade-right" delay={100}>
+              <h3 className="text-3xl font-bold text-navy mb-6 flex items-center gap-3">
+                <span>🏀</span> Basketball
+              </h3>
+            </AnimatedSection>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {basketballCategories.map((category, index) => (
-                <div key={index} className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold">
-                  <h3 className="text-2xl font-bold text-navy mb-2">{category.name}</h3>
-                  <div className="text-gold font-semibold mb-4">{category.age}</div>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-start gap-2">
-                      <Clock className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">{category.schedule}</span>
+                <AnimatedSection 
+                  key={index}
+                  animation="fade-up" 
+                  delay={150 + index * 100}
+                >
+                  <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 hover:shadow-gold h-full">
+                    <h3 className="text-2xl font-bold text-navy mb-2">{category.name}</h3>
+                    <div className="text-gold font-semibold mb-4">{category.age}</div>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{category.schedule}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground">{category.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gold flex-shrink-0" />
+                        <span className="text-sm text-green-600 font-semibold">{category.spots}</span>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground">{category.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gold flex-shrink-0" />
-                      <span className="text-sm text-green-600 font-semibold">{category.spots}</span>
-                    </div>
+                    <Button variant="outline" className="w-full" onClick={() => setSelectedCategory(category)}>
+                      Ver Horarios Completos
+                    </Button>
                   </div>
-                  <Button variant="outline" className="w-full" onClick={() => setSelectedCategory(category)}>
-                    Ver Horarios Completos
-                  </Button>
-                </div>
+                </AnimatedSection>
               ))}
             </div>
           </div>
