@@ -113,6 +113,16 @@ export default {
             opacity: "1"
           }
         },
+        "pulse-subtle": {
+          "0%, 100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 hsl(var(--gold) / 0.4)"
+          },
+          "50%": {
+            transform: "scale(1.02)",
+            boxShadow: "0 0 20px 4px hsl(var(--gold) / 0.3)"
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -120,6 +130,7 @@ export default {
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.8s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
+        "pulse-subtle": "pulse-subtle 2.5s ease-in-out infinite",
       },
     },
   },
