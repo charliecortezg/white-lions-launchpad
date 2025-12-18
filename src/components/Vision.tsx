@@ -1,4 +1,5 @@
 import { Target, TrendingUp, Globe } from "lucide-react";
+import AnimatedSection from "./AnimatedSection";
 
 const Vision = () => {
   const objectives2028 = {
@@ -55,12 +56,28 @@ const Vision = () => {
     ]
   };
 
+  const ObjectivesCard = ({ title, objectives, delay }: { title: string; objectives: string[]; delay: number }) => (
+    <AnimatedSection animation="fade-up" delay={delay}>
+      <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300 h-full">
+        <h4 className="text-xl font-bold text-navy mb-4">{title}</h4>
+        <ul className="space-y-3">
+          {objectives.map((obj, idx) => (
+            <li key={idx} className="flex items-start gap-2">
+              <span className="text-gold font-bold mt-1">✓</span>
+              <span className="text-sm text-muted-foreground">{obj}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </AnimatedSection>
+  );
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-16">
+          <AnimatedSection animation="fade-up" className="text-center mb-16">
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Visión y Futuro
             </div>
@@ -71,155 +88,67 @@ const Vision = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Nuestro compromiso con la excelencia deportiva y el crecimiento sostenible nos impulsa hacia el futuro
             </p>
-          </div>
+          </AnimatedSection>
 
           {/* 2028 - Consolidación */}
           <div className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <Target className="w-8 h-8 text-gold" />
-              <h3 className="text-3xl font-bold text-navy">2028 – Consolidación Multiproceso</h3>
-            </div>
+            <AnimatedSection animation="fade-right" delay={100}>
+              <div className="flex items-center gap-3 mb-8">
+                <Target className="w-8 h-8 text-gold" />
+                <h3 className="text-3xl font-bold text-navy">2028 – Consolidación Multiproceso</h3>
+              </div>
+            </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Deportivos</h4>
-                <ul className="space-y-3">
-                  {objectives2028.deportivos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Comerciales</h4>
-                <ul className="space-y-3">
-                  {objectives2028.comerciales.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Operativos</h4>
-                <ul className="space-y-3">
-                  {objectives2028.operativos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ObjectivesCard title="Objetivos Deportivos" objectives={objectives2028.deportivos} delay={150} />
+              <ObjectivesCard title="Objetivos Comerciales" objectives={objectives2028.comerciales} delay={200} />
+              <ObjectivesCard title="Objetivos Operativos" objectives={objectives2028.operativos} delay={250} />
             </div>
           </div>
 
           {/* 2030 - Expansión Regional */}
           <div className="mb-16">
-            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="w-8 h-8 text-gold" />
-              <h3 className="text-3xl font-bold text-navy">2030 – Expansión Regional e Institucional</h3>
-            </div>
+            <AnimatedSection animation="fade-right" delay={100}>
+              <div className="flex items-center gap-3 mb-8">
+                <TrendingUp className="w-8 h-8 text-gold" />
+                <h3 className="text-3xl font-bold text-navy">2030 – Expansión Regional e Institucional</h3>
+              </div>
+            </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Deportivos</h4>
-                <ul className="space-y-3">
-                  {objectives2030.deportivos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Comerciales</h4>
-                <ul className="space-y-3">
-                  {objectives2030.comerciales.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Operativos</h4>
-                <ul className="space-y-3">
-                  {objectives2030.operativos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ObjectivesCard title="Objetivos Deportivos" objectives={objectives2030.deportivos} delay={150} />
+              <ObjectivesCard title="Objetivos Comerciales" objectives={objectives2030.comerciales} delay={200} />
+              <ObjectivesCard title="Objetivos Operativos" objectives={objectives2030.operativos} delay={250} />
             </div>
           </div>
 
           {/* 2035 - Institución Global */}
           <div>
-            <div className="flex items-center gap-3 mb-8">
-              <Globe className="w-8 h-8 text-gold" />
-              <h3 className="text-3xl font-bold text-navy">2035 – Institución Deportiva Internacional</h3>
-            </div>
+            <AnimatedSection animation="fade-right" delay={100}>
+              <div className="flex items-center gap-3 mb-8">
+                <Globe className="w-8 h-8 text-gold" />
+                <h3 className="text-3xl font-bold text-navy">2035 – Institución Deportiva Internacional</h3>
+              </div>
+            </AnimatedSection>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Deportivos</h4>
-                <ul className="space-y-3">
-                  {objectives2035.deportivos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Comerciales</h4>
-                <ul className="space-y-3">
-                  {objectives2035.comerciales.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-card border-2 border-gold/20 rounded-2xl p-6 hover:border-gold/50 transition-all duration-300">
-                <h4 className="text-xl font-bold text-navy mb-4">Objetivos Operativos</h4>
-                <ul className="space-y-3">
-                  {objectives2035.operativos.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <span className="text-gold font-bold mt-1">✓</span>
-                      <span className="text-sm text-muted-foreground">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ObjectivesCard title="Objetivos Deportivos" objectives={objectives2035.deportivos} delay={150} />
+              <ObjectivesCard title="Objetivos Comerciales" objectives={objectives2035.comerciales} delay={200} />
+              <ObjectivesCard title="Objetivos Operativos" objectives={objectives2035.operativos} delay={250} />
             </div>
           </div>
 
           {/* Bottom Statement */}
-          <div className="mt-16 bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-12 text-center shadow-premium">
-            <blockquote className="text-3xl md:text-4xl font-light text-primary-foreground italic leading-relaxed mb-4">
-              "El futuro se construye hoy"
-            </blockquote>
-            <p className="text-primary-foreground/90 text-lg max-w-3xl mx-auto">
-              Cada entrenamiento, cada valor inculcado y cada jugador formado es un paso hacia nuestra visión de convertirnos en una institución deportiva global de excelencia
-            </p>
-          </div>
+          <AnimatedSection animation="scale" delay={300} className="mt-16">
+            <div className="bg-gradient-to-br from-primary to-primary/90 rounded-3xl p-12 text-center shadow-premium">
+              <blockquote className="text-3xl md:text-4xl font-light text-primary-foreground italic leading-relaxed mb-4">
+                "El futuro se construye hoy"
+              </blockquote>
+              <p className="text-primary-foreground/90 text-lg max-w-3xl mx-auto">
+                Cada entrenamiento, cada valor inculcado y cada jugador formado es un paso hacia nuestra visión de convertirnos en una institución deportiva global de excelencia
+              </p>
+            </div>
+          </AnimatedSection>
         </div>
       </div>
     </section>
