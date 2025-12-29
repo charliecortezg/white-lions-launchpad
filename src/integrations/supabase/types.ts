@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_intents: {
+        Row: {
+          assigned_admin: string | null
+          birth_year: string
+          category: string | null
+          contact_phone: string
+          converted_at: string | null
+          created_at: string
+          id: string
+          player_name: string
+          preferred_location: string | null
+          preferred_schedule: string | null
+          sport: string
+          status: string
+          trial_date: string | null
+          tutor_name: string
+          updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          assigned_admin?: string | null
+          birth_year: string
+          category?: string | null
+          contact_phone: string
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          player_name: string
+          preferred_location?: string | null
+          preferred_schedule?: string | null
+          sport: string
+          status?: string
+          trial_date?: string | null
+          tutor_name: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          assigned_admin?: string | null
+          birth_year?: string
+          category?: string | null
+          contact_phone?: string
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          player_name?: string
+          preferred_location?: string | null
+          preferred_schedule?: string | null
+          sport?: string
+          status?: string
+          trial_date?: string | null
+          tutor_name?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
+      comm_log: {
+        Row: {
+          body_preview: string | null
+          booking_intent_id: string | null
+          comm_type: string
+          created_at: string
+          error_message: string | null
+          id: string
+          recipient_email: string
+          sender_email: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          body_preview?: string | null
+          booking_intent_id?: string | null
+          comm_type?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email: string
+          sender_email?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+        }
+        Update: {
+          body_preview?: string | null
+          booking_intent_id?: string | null
+          comm_type?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string
+          sender_email?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_log_booking_intent_id_fkey"
+            columns: ["booking_intent_id"]
+            isOneToOne: false
+            referencedRelation: "booking_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trial_class_registrations: {
         Row: {
           age_or_birth_year: string

@@ -11,8 +11,12 @@ import Coaches from "@/components/Coaches";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
+import { useUTMTracking } from "@/hooks/useUTMTracking";
 
 const Index = () => {
+  // Track UTM parameters on page load
+  useUTMTracking();
+  
   return (
     <div className="min-h-screen">
       <ScrollProgress />
