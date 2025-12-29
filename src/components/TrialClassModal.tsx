@@ -9,18 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell, AlertTriangle } from "lucide-react";
+import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { getStoredUTMParams } from "@/hooks/useUTMTracking";
 
 const formSchema = z.object({
-  player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(100, "El nombre es demasiado largo"),
-  tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres").max(100, "El nombre es demasiado largo"),
-  contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos").max(15, "El teléfono es demasiado largo"),
+  player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres"),
+  contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
   birth_year: z.string().min(4, "Selecciona el año de nacimiento"),
   sport: z.enum(["Fútbol", "Basketball"], {
     required_error: "Selecciona un deporte",
@@ -37,11 +36,6 @@ interface TrialClassModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-// Helper to convert date to America/Tijuana timezone
-const toTijuanaDate = (date: Date): string => {
-  return date.toLocaleDateString('en-CA', { timeZone: 'America/Tijuana' });
-};
 
 const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -90,15 +84,10 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   // Función para filtrar días válidos según el deporte
   const isValidDate = (date: Date) => {
     const day = getDay(date);
-    // Get current date in Tijuana timezone
-    const now = new Date();
-    const tijuanaToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Tijuana' }));
-    tijuanaToday.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    
-    if (checkDate < tijuanaToday) return false;
+    if (date < today) return false;
 
     if (selectedSport === "Fútbol") {
       // Lunes (1) y Miércoles (3)
@@ -114,13 +103,12 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const getNextAvailableDate = (sport: string | undefined): Date | undefined => {
     if (!sport) return undefined;
     
-    const now = new Date();
-    const tijuanaToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Tijuana' }));
+    const today = new Date();
     const validDays = sport === "Fútbol" ? [1, 3] : [2, 4]; // Lun/Mié o Mar/Jue
     
     for (let i = 1; i <= 14; i++) {
-      const checkDate = new Date(tijuanaToday);
-      checkDate.setDate(tijuanaToday.getDate() + i);
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() + i);
       if (validDays.includes(getDay(checkDate))) {
         return checkDate;
       }
@@ -151,40 +139,8 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     try {
       const location = getLocation(data.sport);
       const schedule = getSchedule(data.sport);
-      const utmParams = getStoredUTMParams();
-      
-      // Format trial date in Tijuana timezone
-      const trialDateStr = toTijuanaDate(data.trial_date);
 
-      // Insert into booking_intents table (new table with UTM tracking)
-      const { error: intentError } = await supabase
-        .from("booking_intents")
-        .insert([{
-          player_name: data.player_name,
-          birth_year: data.birth_year,
-          sport: data.sport,
-          category: data.category,
-          tutor_name: data.tutor_name,
-          contact_phone: data.contact_phone,
-          preferred_location: location,
-          preferred_schedule: `${format(data.trial_date, "EEEE d 'de' MMMM", { locale: es })} - ${schedule}`,
-          trial_date: trialDateStr,
-          utm_source: utmParams.utm_source,
-          utm_medium: utmParams.utm_medium,
-          utm_campaign: utmParams.utm_campaign,
-          utm_term: utmParams.utm_term,
-          utm_content: utmParams.utm_content,
-          status: 'pending',
-          assigned_admin: 'whitelions.admn@gmail.com',
-        }]);
-
-      if (intentError) {
-        console.error("Error saving booking intent:", intentError);
-        throw intentError;
-      }
-
-      // Also insert into legacy trial_class_registrations for backward compatibility
-      const { error: legacyError } = await supabase
+      const { error } = await supabase
         .from("trial_class_registrations")
         .insert([{
           player_name: data.player_name,
@@ -197,18 +153,15 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
           comments: null,
         }]);
 
-      if (legacyError) {
-        console.error("Warning: Legacy registration failed:", legacyError);
-        // Don't throw - the main booking intent was saved successfully
-      }
+      if (error) throw error;
 
       setSubmittedData(data);
       setIsSubmitted(true);
       form.reset();
 
       toast({
-        title: "¡Registro exitoso!",
-        description: "Hemos recibido tu solicitud de clase muestra.",
+        title: "Registro enviado",
+        description: "Hemos recibido la información de tu registro.",
       });
     } catch (error) {
       console.error("Error al guardar:", error);
@@ -253,14 +206,6 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
         {!isSubmitted ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-              {/* Sibling Notice */}
-              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Si registras a dos o más hermanos, por favor realiza un registro individual por cada uno para asegurar su lugar en el grupo correcto.
-                </p>
-              </div>
-
               {/* Sport Selection - Cards */}
               <FormField
                 control={form.control}
@@ -487,90 +432,84 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={!isValidDate}
+                            disabled={(date) => !isValidDate(date)}
                             initialFocus
-                            locale={es}
-                            defaultMonth={nextAvailableDate}
                             className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormDescription className="text-xs">
-                        {selectedSport === "Fútbol" 
-                          ? "Las clases de Fútbol son los lunes y miércoles."
-                          : "Las clases de Basketball son los martes y jueves."
-                        }
-                      </FormDescription>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-muted-foreground">
+                          {selectedSport === "Fútbol" 
+                            ? "Solo puedes seleccionar lunes y miércoles"
+                            : "Solo puedes seleccionar martes y jueves"}
+                        </p>
+                        {nextAvailableDate && !field.value && (
+                          <button
+                            type="button"
+                            onClick={() => field.onChange(nextAvailableDate)}
+                            className="text-xs text-gold hover:text-gold/80 underline text-left w-fit"
+                          >
+                            Próxima fecha: {format(nextAvailableDate, "EEEE d 'de' MMMM", { locale: es })}
+                          </button>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               )}
 
-              <Button
-                type="submit"
-                className="w-full bg-gold hover:bg-gold/90 text-navy font-bold py-6 text-lg"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Enviando..." : "Confirmar Registro"}
+              <Button type="submit" className="w-full" variant="gold" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando..." : "Confirmar registro"}
               </Button>
             </form>
           </Form>
         ) : (
-          <div className="text-center py-8 space-y-6">
-            <div className="mx-auto w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
+          <div className="py-8 space-y-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gold/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-10 h-10 text-gold" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-navy mb-1">Registro enviado correctamente</h3>
+                <p className="text-muted-foreground">
+                  Hemos recibido la información de tu registro.
+                </p>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-foreground">
-                ¡Registro Completado!
-              </h3>
-              <p className="text-muted-foreground">
-                Hemos recibido la solicitud de clase muestra para <strong>{submittedData?.player_name}</strong>
-              </p>
-            </div>
-            
+
             {submittedData && (
-              <div className="bg-muted/30 rounded-xl p-5 text-left space-y-3 border border-border/50">
-                <h4 className="font-semibold text-foreground">Resumen del registro:</h4>
+              <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
+                <p className="text-sm font-semibold text-foreground mb-3">Resumen del registro</p>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Deporte:</span>
+                    <span className="text-muted-foreground">Deporte</span>
                     <span className="font-medium">{submittedData.sport}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Categoría:</span>
+                    <span className="text-muted-foreground">Categoría</span>
                     <span className="font-medium">{submittedData.category}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fecha:</span>
-                    <span className="font-medium">
-                      {format(submittedData.trial_date, "EEEE, d 'de' MMMM", { locale: es })}
+                    <span className="text-muted-foreground">Fecha</span>
+                    <span className="font-medium capitalize">
+                      {format(submittedData.trial_date, "EEEE d 'de' MMMM", { locale: es })}
                     </span>
                   </div>
-                  <div className="flex items-start justify-between">
-                    <span className="text-muted-foreground">Ubicación:</span>
-                    <span className="font-medium text-right">{getLocation(submittedData.sport)}</span>
-                  </div>
-                  <div className="flex items-start justify-between">
-                    <span className="text-muted-foreground">Horario:</span>
-                    <span className="font-medium text-right">{getSchedule(submittedData.sport)}</span>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Sede</span>
+                    <span className="font-medium">{getLocation(submittedData.sport)}</span>
                   </div>
                 </div>
               </div>
             )}
-            
-            <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm">
-              <p className="text-blue-800 dark:text-blue-200">
-                <strong>¿Qué sigue?</strong> Nos pondremos en contacto contigo vía WhatsApp para confirmar la asistencia.
-              </p>
-            </div>
 
-            <Button
-              onClick={handleClose}
-              className="bg-gold hover:bg-gold/90 text-navy font-bold px-8"
-            >
+            <p className="text-center text-sm text-muted-foreground">
+              Gracias por completar el registro.
+            </p>
+
+            <Button onClick={handleClose} variant="outline" size="lg" className="w-full">
               Cerrar
             </Button>
           </div>
