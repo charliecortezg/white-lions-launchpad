@@ -2,3 +2,6 @@ project_id = "dldrgctgwxhdtejeklab"
 
 [functions.send-confirmation]
 verify_jwt = false
+
+[functions.run-reminders]
+verify_jwt = false
