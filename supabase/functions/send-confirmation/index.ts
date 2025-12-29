@@ -27,11 +27,13 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const data: ConfirmationEmailRequest = await req.json();
     
-    console.log("Sending notification for registration:", data.parent_email);
+    console.log("Processing confirmation email for:", data.parent_email);
     console.log("Data received:", JSON.stringify(data));
 
-    // Until domain is verified at resend.com/domains, send notification to admin
-    const adminEmail = "whitelions.admn@gmail.com";
+    // Validate parent_email exists and is valid
+    if (!data.parent_email || !data.parent_email.includes('@')) {
+      throw new Error("Email del padre/tutor es requerido y debe ser válido");
+    }
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -44,35 +46,65 @@ const handler = async (req: Request): Promise<Response> => {
   <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; text-align: center;">
       <h1 style="color: #d4af37; margin: 0; font-size: 24px;">White Lions Academy</h1>
-      <p style="color: white; margin: 10px 0 0; font-size: 14px;">Nueva Clase Muestra Registrada</p>
+      <p style="color: white; margin: 10px 0 0; font-size: 14px;">¡Confirmación de Clase Muestra!</p>
     </div>
     
     <div style="padding: 30px;">
-      <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-        <p style="margin: 0; color: #856404; font-size: 14px;">
-          <strong>Accion requerida:</strong> Contactar al tutor para confirmar.
+      <h2 style="color: #1a1a2e; margin: 0 0 15px; font-size: 20px;">¡Hola ${data.tutor_name}!</h2>
+      
+      <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
+        ¡Gracias por registrar a <strong>${data.player_name}</strong> para una clase muestra con nosotros! 
+        Estamos emocionados de conocerlo/a y mostrarle lo que White Lions Academy tiene para ofrecer.
+      </p>
+
+      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="color: #1a1a2e; margin: 0 0 15px; font-size: 16px;">📋 Detalles de la Clase Muestra</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #666; width: 40%;">🏅 Deporte:</td>
+            <td style="padding: 8px 0; color: #333; font-weight: bold;">${data.sport}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">👥 Categoría:</td>
+            <td style="padding: 8px 0; color: #333; font-weight: bold;">${data.category}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">📅 Fecha:</td>
+            <td style="padding: 8px 0; color: #333; font-weight: bold;">${data.trial_date}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">📍 Ubicación:</td>
+            <td style="padding: 8px 0; color: #333; font-weight: bold;">${data.location}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #666;">🕐 Horario:</td>
+            <td style="padding: 8px 0; color: #333; font-weight: bold;">${data.schedule}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color: #e8f4f8; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #1a1a2e; font-size: 14px;">
+          <strong>📌 Recuerda:</strong> Por favor llega 10 minutos antes. 
+          Trae ropa deportiva cómoda y agua.
         </p>
       </div>
 
-      <h2 style="color: #1a1a2e; margin: 0 0 15px; font-size: 18px;">Datos del Tutor</h2>
-      <div style="background-color: #e8f4f8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-        <p style="margin: 0 0 8px;"><strong>Email:</strong> ${data.parent_email}</p>
-        <p style="margin: 0;"><strong>Nombre:</strong> ${data.tutor_name}</p>
-      </div>
+      <p style="color: #333; line-height: 1.6;">
+        Si tienes alguna pregunta o necesitas reprogramar, no dudes en responder a este correo o contactarnos directamente.
+      </p>
 
-      <h2 style="color: #1a1a2e; margin: 0 0 15px; font-size: 18px;">Datos del Registro</h2>
-      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px;">
-        <p style="margin: 0 0 8px;"><strong>Jugador:</strong> ${data.player_name}</p>
-        <p style="margin: 0 0 8px;"><strong>Deporte:</strong> ${data.sport}</p>
-        <p style="margin: 0 0 8px;"><strong>Categoria:</strong> ${data.category}</p>
-        <p style="margin: 0 0 8px;"><strong>Fecha:</strong> ${data.trial_date}</p>
-        <p style="margin: 0 0 8px;"><strong>Ubicacion:</strong> ${data.location}</p>
-        <p style="margin: 0;"><strong>Horario:</strong> ${data.schedule}</p>
-      </div>
+      <p style="color: #333; line-height: 1.6; margin-top: 20px;">
+        ¡Te esperamos!<br>
+        <strong style="color: #d4af37;">El equipo de White Lions Academy</strong>
+      </p>
     </div>
     
-    <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
-      <p style="color: #888; font-size: 12px; margin: 0;">Correo automatico del sistema de registro.</p>
+    <div style="background-color: #1a1a2e; padding: 20px; text-align: center;">
+      <p style="color: #888; font-size: 12px; margin: 0;">
+        White Lions Academy - Formando Campeones<br>
+        <a href="https://whitelionsacademy.com" style="color: #d4af37; text-decoration: none;">whitelionsacademy.com</a>
+      </p>
     </div>
   </div>
 </body>
@@ -86,9 +118,11 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "White Lions Academy <onboarding@resend.dev>",
-        to: [adminEmail],
-        subject: `Nueva Clase Muestra: ${data.sport} - ${data.player_name}`,
+        from: "White Lions Academy <hola@whitelionsacademy.com>",
+        to: [data.parent_email],
+        bcc: ["whitelions.admn@gmail.com"],
+        reply_to: "whitelions.admn@gmail.com",
+        subject: `Confirmación: Clase Muestra de ${data.sport} - White Lions Academy`,
         html: htmlContent,
       }),
     });
