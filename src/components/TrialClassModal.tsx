@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell } from "lucide-react";
+import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell, Mail } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 const formSchema = z.object({
   player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres"),
+  tutor_email: z.string().email("Ingresa un correo electrónico válido"),
   contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
   birth_year: z.string().min(4, "Selecciona el año de nacimiento"),
   sport: z.enum(["Fútbol", "Basketball"], {
@@ -139,7 +140,9 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     try {
       const location = getLocation(data.sport);
       const schedule = getSchedule(data.sport);
+      const formattedDate = format(data.trial_date, "EEEE d 'de' MMMM", { locale: es });
 
+      // Save to database
       const { error } = await supabase
         .from("trial_class_registrations")
         .insert([{
@@ -147,21 +150,44 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
           age_or_birth_year: data.birth_year,
           tutor_name: data.tutor_name,
           contact_phone: data.contact_phone,
+          parent_email: data.tutor_email,
           category: data.category,
           preferred_location: location,
-          preferred_schedule: `${format(data.trial_date, "EEEE d 'de' MMMM", { locale: es })} - ${schedule}`,
+          preferred_schedule: `${formattedDate} - ${schedule}`,
           comments: null,
         }]);
 
       if (error) throw error;
+
+      // Send confirmation email
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-confirmation', {
+          body: {
+            player_name: data.player_name,
+            tutor_name: data.tutor_name,
+            parent_email: data.tutor_email,
+            sport: data.sport,
+            category: data.category,
+            trial_date: formattedDate,
+            location: location,
+            schedule: schedule,
+          }
+        });
+        
+        if (emailError) {
+          console.error("Error sending email:", emailError);
+        }
+      } catch (emailErr) {
+        console.error("Email function error:", emailErr);
+      }
 
       setSubmittedData(data);
       setIsSubmitted(true);
       form.reset();
 
       toast({
-        title: "Registro enviado",
-        description: "Hemos recibido la información de tu registro.",
+        title: "¡Registro exitoso!",
+        description: "Hemos enviado un correo de confirmación a tu email.",
       });
     } catch (error) {
       console.error("Error al guardar:", error);
@@ -377,6 +403,31 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                       <FormControl>
                         <Input placeholder="Nombre completo del tutor" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tutor_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico del Tutor *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="email" 
+                            placeholder="correo@ejemplo.com" 
+                            className="pl-10"
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Te enviaremos la confirmación de tu registro a este correo.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
