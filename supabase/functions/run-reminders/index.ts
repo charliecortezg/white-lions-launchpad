@@ -7,45 +7,100 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper: Get class start time based on sport (America/Tijuana timezone)
-function getClassStartTime(trialDate: string, sport: string): Date {
-  // Parse the date (YYYY-MM-DD format from Supabase)
-  const [year, month, day] = trialDate.split('-').map(Number);
+// Spanish month names for parsing
+const SPANISH_MONTHS: Record<string, number> = {
+  'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3,
+  'mayo': 4, 'junio': 5, 'julio': 6, 'agosto': 7,
+  'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+};
+
+// Parse preferred_schedule to extract date and sport info
+// Format: "miércoles 31 de diciembre - Lunes y miércoles, 6:00–8:00 pm"
+function parsePreferredSchedule(schedule: string): { date: Date | null; sport: string; hour: number; minute: number } {
+  console.log(`📅 Parsing schedule: "${schedule}"`);
   
-  // Default hours based on sport (in 24h format, Tijuana time)
-  // Fútbol: 18:00, Basketball: 18:30
-  const sportLower = sport.toLowerCase();
-  let hour = 18;
-  let minute = 0;
+  // Default result
+  const result = { date: null as Date | null, sport: 'Fútbol', hour: 18, minute: 0 };
   
-  if (sportLower.includes('basket') || sportLower.includes('baloncesto')) {
-    hour = 18;
-    minute = 30;
+  if (!schedule) {
+    console.log(`⚠️ Empty schedule`);
+    return result;
   }
   
-  // Create date in Tijuana timezone (UTC-8 in winter, UTC-7 in summer)
-  // We'll work in UTC and add the offset
-  // For simplicity, we'll calculate based on typical PST (-8 hours)
-  const tijuanaDate = new Date(Date.UTC(year, month - 1, day, hour + 8, minute, 0));
+  // Determine sport from schedule pattern
+  // Fútbol: "Lunes y miércoles, 6:00–8:00 pm" -> 18:00
+  // Basketball: "Martes y jueves, 6:30–8:00 pm" -> 18:30
+  if (schedule.toLowerCase().includes('martes y jueves') || schedule.toLowerCase().includes('6:30')) {
+    result.sport = 'Basketball';
+    result.hour = 18;
+    result.minute = 30;
+  } else {
+    result.sport = 'Fútbol';
+    result.hour = 18;
+    result.minute = 0;
+  }
   
-  return tijuanaDate;
+  // Extract date: "miércoles 31 de diciembre" or similar patterns
+  // Pattern: day_of_week day de month
+  const datePattern = /(\d{1,2})\s+de\s+(\w+)/i;
+  const match = schedule.match(datePattern);
+  
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const monthName = match[2].toLowerCase();
+    const month = SPANISH_MONTHS[monthName];
+    
+    if (month !== undefined && day >= 1 && day <= 31) {
+      // Determine year - if month is in the past, it's next year
+      const now = new Date();
+      let year = now.getFullYear();
+      
+      // If the month is before current month, or same month but day passed, use next year
+      const currentMonth = now.getMonth();
+      const currentDay = now.getDate();
+      
+      if (month < currentMonth || (month === currentMonth && day < currentDay)) {
+        year = year + 1;
+      }
+      
+      // Create date in Tijuana timezone (UTC-8)
+      // We create the date in UTC and add 8 hours to compensate for Tijuana offset
+      result.date = new Date(Date.UTC(year, month, day, result.hour + 8, result.minute, 0));
+      
+      console.log(`✅ Parsed date: ${result.date.toISOString()} (${day} de ${monthName} ${year}, ${result.hour}:${result.minute.toString().padStart(2, '0')})`);
+    } else {
+      console.log(`⚠️ Could not parse month: "${monthName}" or day: ${day}`);
+    }
+  } else {
+    console.log(`⚠️ Could not extract date from schedule: "${schedule}"`);
+  }
+  
+  console.log(`📊 Result: sport=${result.sport}, hour=${result.hour}:${result.minute}`);
+  
+  return result;
 }
 
-// Helper: Check if a booking needs a reminder
+// Check if a registration needs a reminder
 function needsReminder(classTime: Date, now: Date, reminderType: 'reminder_24h' | 'reminder_2h'): boolean {
   const diffMs = classTime.getTime() - now.getTime();
   const diffHours = diffMs / (1000 * 60 * 60);
   
+  console.log(`⏰ Time check: classTime=${classTime.toISOString()}, now=${now.toISOString()}, diffHours=${diffHours.toFixed(2)}`);
+  
   if (reminderType === 'reminder_24h') {
     // Send 24h reminder if class is between 23-25 hours away
-    return diffHours >= 23 && diffHours <= 25;
+    const needs = diffHours >= 23 && diffHours <= 25;
+    console.log(`   ${reminderType}: ${needs ? '✅ NEEDS REMINDER' : '❌ Not in window'} (23-25h window)`);
+    return needs;
   } else {
     // Send 2h reminder if class is between 1.5-2.5 hours away
-    return diffHours >= 1.5 && diffHours <= 2.5;
+    const needs = diffHours >= 1.5 && diffHours <= 2.5;
+    console.log(`   ${reminderType}: ${needs ? '✅ NEEDS REMINDER' : '❌ Not in window'} (1.5-2.5h window)`);
+    return needs;
   }
 }
 
-// Helper: Format date for email display
+// Format date for email display
 function formatDateForEmail(date: Date): string {
   const options: Intl.DateTimeFormatOptions = {
     weekday: 'long',
@@ -66,8 +121,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   console.log("🔔 Starting reminder check...");
+  console.log("=" .repeat(60));
   const now = new Date();
   console.log(`Current time (UTC): ${now.toISOString()}`);
+  console.log(`Current time (Tijuana): ${now.toLocaleString('es-MX', { timeZone: 'America/Tijuana' })}`);
 
   try {
     // Initialize Supabase client with service role for full access
@@ -75,62 +132,94 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get bookings with a trial_date in the future (or today)
-    const today = now.toISOString().split('T')[0];
-    const { data: bookings, error: bookingsError } = await supabase
-      .from('booking_intents')
+    // Query trial_class_registrations (the correct table!)
+    const { data: registrations, error: registrationsError } = await supabase
+      .from('trial_class_registrations')
       .select('*')
-      .gte('trial_date', today)
       .not('parent_email', 'is', null)
-      .neq('status', 'cancelled');
+      .neq('status', 'cancelled')
+      .neq('status', 'Cancelado');
 
-    if (bookingsError) {
-      console.error("Error fetching bookings:", bookingsError);
-      throw bookingsError;
+    if (registrationsError) {
+      console.error("❌ Error fetching registrations:", registrationsError);
+      throw registrationsError;
     }
 
-    console.log(`Found ${bookings?.length || 0} upcoming bookings with parent emails`);
+    console.log(`📋 Found ${registrations?.length || 0} registrations with parent emails`);
+    console.log("=" .repeat(60));
 
-    const results: { sent: number; skipped: number; errors: number } = {
+    const results: { sent: number; skipped: number; errors: number; processed: number } = {
       sent: 0,
       skipped: 0,
-      errors: 0
+      errors: 0,
+      processed: 0
     };
 
-    for (const booking of bookings || []) {
-      if (!booking.parent_email || !booking.trial_date || !booking.sport) {
-        console.log(`⏭️ Skipping booking ${booking.id}: missing required fields`);
+    for (const registration of registrations || []) {
+      results.processed++;
+      console.log(`\n📝 Processing registration ${results.processed}/${registrations?.length || 0}:`);
+      console.log(`   ID: ${registration.id}`);
+      console.log(`   Player: ${registration.player_name}`);
+      console.log(`   Email: ${registration.parent_email}`);
+      console.log(`   Schedule: ${registration.preferred_schedule}`);
+      
+      if (!registration.parent_email || !registration.preferred_schedule) {
+        console.log(`⏭️ Skipping: missing parent_email or preferred_schedule`);
         results.skipped++;
         continue;
       }
 
-      const classTime = getClassStartTime(booking.trial_date, booking.sport);
-      console.log(`Booking ${booking.id}: Class time is ${classTime.toISOString()}`);
+      // Parse the preferred_schedule to get date and sport
+      const parsed = parsePreferredSchedule(registration.preferred_schedule);
+      
+      if (!parsed.date) {
+        console.log(`⏭️ Skipping: could not parse date from schedule`);
+        results.skipped++;
+        continue;
+      }
+
+      // Check if the class date is in the past
+      if (parsed.date.getTime() < now.getTime()) {
+        console.log(`⏭️ Skipping: class date is in the past`);
+        results.skipped++;
+        continue;
+      }
 
       // Check both reminder types
       for (const reminderType of ['reminder_24h', 'reminder_2h'] as const) {
-        if (!needsReminder(classTime, now, reminderType)) {
+        if (!needsReminder(parsed.date, now, reminderType)) {
           continue;
         }
 
-        console.log(`📧 Booking ${booking.id} needs ${reminderType}`);
+        console.log(`📧 Registration ${registration.id} needs ${reminderType}!`);
 
-        // Check comm_log for existing reminder
-        const { data: existingLog, error: logError } = await supabase
+        // Check comm_log for existing reminder using the registration id
+        // We'll use a custom identifier since comm_log references booking_intent_id
+        const commLogIdentifier = `tcr_${registration.id}`;
+        
+        const { data: existingLogs, error: logError } = await supabase
           .from('comm_log')
           .select('id')
-          .eq('booking_intent_id', booking.id)
+          .eq('recipient_email', registration.parent_email)
           .eq('comm_type', reminderType)
-          .maybeSingle();
+          .gte('created_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()); // Last 48 hours
 
         if (logError) {
-          console.error(`Error checking comm_log for booking ${booking.id}:`, logError);
+          console.error(`Error checking comm_log:`, logError);
           results.errors++;
           continue;
         }
 
-        if (existingLog) {
-          console.log(`⏭️ ${reminderType} already sent for booking ${booking.id}`);
+        // Also check if we already sent for this specific registration
+        const { data: existingForReg } = await supabase
+          .from('comm_log')
+          .select('id')
+          .eq('subject', `¡Mañana es tu clase muestra de ${parsed.sport}! 🦁`)
+          .eq('recipient_email', registration.parent_email)
+          .gte('created_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString());
+
+        if ((existingLogs && existingLogs.length > 0) || (existingForReg && existingForReg.length > 0)) {
+          console.log(`⏭️ ${reminderType} already sent recently for this email`);
           results.skipped++;
           continue;
         }
@@ -138,7 +227,7 @@ const handler = async (req: Request): Promise<Response> => {
         // Prepare email content
         const is24h = reminderType === 'reminder_24h';
         const subject = is24h 
-          ? `¡Mañana es tu clase muestra de ${booking.sport}! 🦁`
+          ? `¡Mañana es tu clase muestra de ${parsed.sport}! 🦁`
           : `¡Nos vemos en 2 horas! - White Lions Academy ⚽`;
         
         const mainMessage = is24h
@@ -174,7 +263,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <tr>
                       <td style="padding: 40px 30px;">
                         <h2 style="margin: 0 0 20px 0; color: #1a1a2e; font-size: 22px;">
-                          ¡Hola ${booking.tutor_name || 'familia'}! 👋
+                          ¡Hola ${registration.tutor_name || 'familia'}! 👋
                         </h2>
                         
                         <p style="margin: 0 0 25px 0; color: #333; font-size: 18px; line-height: 1.6;">
@@ -185,17 +274,20 @@ const handler = async (req: Request): Promise<Response> => {
                           <tr>
                             <td style="padding: 25px;">
                               <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">👤 Jugador:</strong> ${booking.player_name}
+                                <strong style="color: #1a1a2e;">👤 Jugador:</strong> ${registration.player_name}
                               </p>
                               <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">⚽ Deporte:</strong> ${booking.sport}
+                                <strong style="color: #1a1a2e;">⚽ Deporte:</strong> ${parsed.sport}
                               </p>
                               <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">📅 Fecha:</strong> ${formatDateForEmail(classTime)}
+                                <strong style="color: #1a1a2e;">🏷️ Categoría:</strong> ${registration.category}
                               </p>
-                              ${booking.preferred_location ? `
+                              <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
+                                <strong style="color: #1a1a2e;">📅 Fecha:</strong> ${formatDateForEmail(parsed.date)}
+                              </p>
+                              ${registration.preferred_location ? `
                               <p style="margin: 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">📍 Ubicación:</strong> ${booking.preferred_location}
+                                <strong style="color: #1a1a2e;">📍 Ubicación:</strong> ${registration.preferred_location}
                               </p>
                               ` : ''}
                             </td>
@@ -230,6 +322,8 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Send email
         try {
+          console.log(`📤 Sending ${reminderType} email to ${registration.parent_email}...`);
+          
           const emailResponse = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -238,7 +332,7 @@ const handler = async (req: Request): Promise<Response> => {
             },
             body: JSON.stringify({
               from: "White Lions Academy <hola@whitelionsacademy.com>",
-              to: [booking.parent_email],
+              to: [registration.parent_email],
               bcc: ["whitelions.admn@gmail.com"],
               reply_to: "whitelions.admn@gmail.com",
               subject: subject,
@@ -252,36 +346,34 @@ const handler = async (req: Request): Promise<Response> => {
             throw new Error(emailResult.message || "Failed to send reminder email");
           }
 
-          console.log(`✅ ${reminderType} sent to ${booking.parent_email}:`, emailResponse);
+          console.log(`✅ ${reminderType} sent successfully!`);
 
           // Log to comm_log
           const { error: insertError } = await supabase
             .from('comm_log')
             .insert({
-              booking_intent_id: booking.id,
               comm_type: reminderType,
-              recipient_email: booking.parent_email,
+              recipient_email: registration.parent_email,
               subject: subject,
-              body_preview: mainMessage,
+              body_preview: `${mainMessage} - Player: ${registration.player_name}, Sport: ${parsed.sport}`,
               status: 'sent',
               sent_at: new Date().toISOString()
             });
 
           if (insertError) {
-            console.error(`Error logging to comm_log:`, insertError);
+            console.error(`⚠️ Error logging to comm_log:`, insertError);
           }
 
           results.sent++;
         } catch (emailError) {
-          console.error(`❌ Error sending ${reminderType} for booking ${booking.id}:`, emailError);
+          console.error(`❌ Error sending ${reminderType}:`, emailError);
           
           // Log failed attempt
           await supabase
             .from('comm_log')
             .insert({
-              booking_intent_id: booking.id,
               comm_type: reminderType,
-              recipient_email: booking.parent_email,
+              recipient_email: registration.parent_email,
               subject: subject,
               status: 'failed',
               error_message: emailError instanceof Error ? emailError.message : 'Unknown error'
@@ -292,7 +384,13 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    console.log(`🏁 Reminder run complete:`, results);
+    console.log("\n" + "=" .repeat(60));
+    console.log(`🏁 Reminder run complete!`);
+    console.log(`   📊 Processed: ${results.processed}`);
+    console.log(`   ✅ Sent: ${results.sent}`);
+    console.log(`   ⏭️ Skipped: ${results.skipped}`);
+    console.log(`   ❌ Errors: ${results.errors}`);
+    console.log("=" .repeat(60));
 
     return new Response(
       JSON.stringify({
