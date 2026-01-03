@@ -82,13 +82,21 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     return [];
   };
 
+  // Fecha mínima de reserva: 12 de enero de 2025 (regreso de vacaciones)
+  const vacationEndDate = new Date(2025, 0, 12); // 12 de enero de 2025
+  vacationEndDate.setHours(0, 0, 0, 0);
+
   // Función para filtrar días válidos según el deporte
   const isValidDate = (date: Date) => {
     const day = getDay(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Bloquear fechas pasadas
     if (date < today) return false;
+    
+    // Bloquear fechas antes del regreso de vacaciones (12 de enero 2025)
+    if (date < vacationEndDate) return false;
 
     if (selectedSport === "Fútbol") {
       // Lunes (1) y Miércoles (3)
@@ -104,13 +112,14 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const getNextAvailableDate = (sport: string | undefined): Date | undefined => {
     if (!sport) return undefined;
     
-    const today = new Date();
+    // Comenzar desde la fecha de regreso de vacaciones
+    const startDate = new Date(Math.max(new Date().getTime(), vacationEndDate.getTime()));
     const validDays = sport === "Fútbol" ? [1, 3] : [2, 4]; // Lun/Mié o Mar/Jue
     
-    for (let i = 1; i <= 14; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() + i);
-      if (validDays.includes(getDay(checkDate))) {
+    for (let i = 0; i <= 14; i++) {
+      const checkDate = new Date(startDate);
+      checkDate.setDate(startDate.getDate() + i);
+      if (validDays.includes(getDay(checkDate)) && checkDate >= vacationEndDate) {
         return checkDate;
       }
     }
