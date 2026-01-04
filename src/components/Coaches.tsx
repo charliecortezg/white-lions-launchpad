@@ -1,5 +1,5 @@
 import { Award, Users, Trophy } from "lucide-react";
-import coachImage from "@/assets/coach-portrait.jpg";
+import carlosCortezImage from "@/assets/carlos-cortez.png";
 import AnimatedSection from "./AnimatedSection";
 import { useInView } from "@/hooks/useInView";
 import { useState, useEffect } from "react";
@@ -54,7 +54,7 @@ const Coaches = () => {
 
           <AnimatedSection animation="scale" delay={100}>
             <div className="relative rounded-3xl overflow-hidden mb-12 shadow-premium">
-              <img src={coachImage} alt="Entrenador White Lions" className="w-full h-[400px] object-cover" />
+              <img src={carlosCortezImage} alt="Carlos Cortez - Director Deportivo White Lions" className="w-full h-[500px] object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/50 to-transparent flex items-end">
                 <div className="p-8 w-full">
                   <h3 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-2">Liderazgo Profesional</h3>
