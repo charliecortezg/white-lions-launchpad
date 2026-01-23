@@ -1,87 +1,91 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-training.jpg";
 import TrialClassModal from "./TrialClassModal";
+import logoWhite from "@/assets/logo-white-lions.png";
 
 const HeroNew = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Background Image */}
+    <section 
+      id="hero" 
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #0A1628 0%, #0F172A 50%, #020617 100%)',
+      }}
+    >
+      {/* Subtle grid pattern overlay */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
-          backgroundImage: `url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
-      >
-        {/* Dark Overlay - 70% opacity */}
-        <div className="absolute inset-0 bg-black/70" />
+      />
+
+      {/* Logo - Small, top left */}
+      <div className="absolute top-6 left-6 z-20">
+        <img 
+          src={logoWhite} 
+          alt="White Lions Academy" 
+          className="h-10 md:h-12 w-auto opacity-80"
+        />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* H1 - Oswald, UPPERCASE, White */}
-          <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-foreground leading-tight animate-fade-in-up font-display uppercase tracking-wide">
-            Estructura, Disciplina y Desarrollo Deportivo en Mexicali.
-          </h1>
+      <div className="relative z-10 container mx-auto px-6 py-20">
+        <div className="max-w-2xl mx-auto text-center space-y-8">
           
-          {/* Subheadline - Gray */}
-          <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground font-light max-w-3xl mx-auto animate-fade-in-up font-body" style={{ animationDelay: '0.2s' }}>
-            Fútbol y Basketball para niños y jóvenes (6-15 años).
-            <br className="hidden md:block" />
-            <span className="block mt-2">
-              Olvida los equipos desorganizados. En White Lions usamos tecnología y metodología para medir el progreso real de tu hijo.
+          {/* Micro-badge - Cupos limitados */}
+          <div 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm animate-fade-in"
+          >
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="text-sm text-primary font-medium font-body">
+              Cupos limitados para el grupo de 6–11 años
             </span>
-          </p>
-          
-          {/* Badge de urgencia */}
-          <div className="inline-block bg-destructive/90 backdrop-blur-sm rounded-full px-6 py-3 animate-fade-in-scale" style={{ animationDelay: '0.4s' }}>
-            <p className="text-foreground text-base md:text-lg font-semibold flex items-center gap-2 font-body">
-              <span className="w-3 h-3 bg-foreground rounded-full animate-pulse" />
-              Cupos limitados para el grupo de 6-11 años.
-            </p>
           </div>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          {/* H1 - Main headline */}
+          <h1 
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight font-display animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            Tu hijo merece un{' '}
+            <span className="text-primary">sistema</span>,{' '}
+            <br className="hidden sm:block" />
+            no solo un equipo.
+          </h1>
+          
+          {/* Subtitle */}
+          <p 
+            className="text-base md:text-lg text-muted-foreground font-light max-w-xl mx-auto leading-relaxed font-body animate-fade-in-up"
+            style={{ animationDelay: '0.2s' }}
+          >
+            Fútbol y Basketball para niños y jóvenes de 6 a 15 años en Mexicali.
+            <br className="hidden md:block" />
+            Entrenamos con disciplina, metodología y seguimiento real.
+          </p>
+
+          {/* Single CTA Button */}
+          <div 
+            className="pt-4 animate-fade-in-up"
+            style={{ animationDelay: '0.3s' }}
+          >
             <Button 
               variant="gold" 
               size="xl"
-              className="text-lg px-8 py-6 w-full sm:w-auto"
+              className="text-base md:text-lg px-8 md:px-10 py-6 md:py-7 w-full sm:w-auto shadow-gold"
               onClick={() => setIsModalOpen(true)}
             >
-              🦁 INICIAR EL RETO DE 30 DÍAS
-            </Button>
-
-            <Button 
-              variant="outline" 
-              size="xl"
-              onClick={() => scrollToSection("horarios")}
-              className="w-full sm:w-auto"
-            >
-              Ver Horarios y Ubicaciones
+              🦁 Iniciar el Reto de 30 Días
             </Button>
           </div>
+
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
-        <div className="w-6 h-10 border-2 border-primary rounded-full flex items-start justify-center p-2">
-          <div className="w-1 h-3 bg-primary rounded-full" />
-        </div>
-      </div>
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
       <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </section>
