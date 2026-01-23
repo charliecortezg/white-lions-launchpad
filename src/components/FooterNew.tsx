@@ -5,7 +5,7 @@ const FooterNew = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-background-deep text-foreground">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Logo & Tagline */}
@@ -15,7 +15,7 @@ const FooterNew = () => {
               alt="White Lions Academy"
               className="h-12 w-auto mb-4"
             />
-            <p className="text-primary-foreground/70 max-w-md">
+            <p className="text-muted-foreground max-w-md font-body">
               Formamos atletas con estructura, disciplina y metodología profesional. 
               Tu mejor versión inicia aquí.
             </p>
@@ -23,14 +23,14 @@ const FooterNew = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold mb-4">Contacto</h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/70">
+            <h4 className="font-bold mb-4 font-display uppercase text-lg">Contacto</h4>
+            <ul className="space-y-3 text-sm text-muted-foreground font-body">
               <li>
                 <a 
                   href="https://wa.me/526861234567" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-accent transition-colors"
+                  className="flex items-center gap-2 hover:text-primary transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   WhatsApp Directo
@@ -39,7 +39,7 @@ const FooterNew = () => {
               <li>
                 <a 
                   href="mailto:info@whitelions.mx"
-                  className="flex items-center gap-2 hover:text-accent transition-colors"
+                  className="flex items-center gap-2 hover:text-primary transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   info@whitelions.mx
@@ -54,13 +54,13 @@ const FooterNew = () => {
 
           {/* Social */}
           <div>
-            <h4 className="font-bold mb-4">Síguenos</h4>
+            <h4 className="font-bold mb-4 font-display uppercase text-lg">Síguenos</h4>
             <div className="flex gap-4">
               <a 
                 href="https://facebook.com/whitelionsacademy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
                 aria-label="Facebook"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@ const FooterNew = () => {
                 href="https://instagram.com/whitelionsacademy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
                 aria-label="Instagram"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -83,13 +83,13 @@ const FooterNew = () => {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-primary-foreground/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-foreground/60">
+        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground font-body">
           <p>© {currentYear} White Lions Academy. Powered by Stryk Systems.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-primary-foreground transition-colors">
+            <a href="#" className="hover:text-primary transition-colors">
               Aviso de Privacidad
             </a>
-            <a href="#" className="hover:text-primary-foreground transition-colors">
+            <a href="#" className="hover:text-primary transition-colors">
               Términos y Condiciones
             </a>
           </div>

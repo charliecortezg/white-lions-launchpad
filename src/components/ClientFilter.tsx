@@ -15,10 +15,10 @@ const ClientFilter = () => {
   ];
 
   return (
-    <section className="py-20 bg-muted">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
             Nuestra Filosofía: Formamos Personas a través del Deporte.
           </h2>
         </AnimatedSection>
@@ -26,18 +26,18 @@ const ClientFilter = () => {
         <div className="grid md:grid-cols-2 gap-8 mt-12 max-w-5xl mx-auto">
           {/* Lo que sí buscamos */}
           <AnimatedSection animation="fade-up" delay={100}>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-accent/20 h-full">
-              <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                  <Check className="w-5 h-5 text-accent" />
+            <div className="bento-card h-full">
+              <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3 font-display uppercase">
+                <span className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-primary" />
                 </span>
                 Lo que SÍ buscamos
               </h3>
               <ul className="space-y-4">
                 {weLookFor.map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{item}</span>
+                    <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-muted-foreground font-body">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -46,9 +46,9 @@ const ClientFilter = () => {
 
           {/* Lo que no somos */}
           <AnimatedSection animation="fade-up" delay={200}>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border h-full">
-              <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center">
+            <div className="bento-card h-full">
+              <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3 font-display uppercase">
+                <span className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
                   <X className="w-5 h-5 text-destructive" />
                 </span>
                 Lo que NO somos
@@ -57,7 +57,7 @@ const ClientFilter = () => {
                 {weAreNot.map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <X className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{item}</span>
+                    <span className="text-muted-foreground font-body">{item}</span>
                   </li>
                 ))}
               </ul>

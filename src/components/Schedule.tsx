@@ -22,13 +22,13 @@ const Schedule = () => {
   ];
 
   return (
-    <section id="horarios" className="py-20 bg-muted">
+    <section id="horarios" className="py-20 bg-background-alt">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
             Entrenamos cuando tú puedes.
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
             Horarios diseñados para familias con agenda ocupada.
           </p>
         </AnimatedSection>
@@ -36,12 +36,12 @@ const Schedule = () => {
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {schedules.map((schedule, index) => (
             <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-              <div className="bg-card rounded-2xl overflow-hidden shadow-lg border border-border">
+              <div className="bento-card overflow-hidden p-0">
                 {/* Header */}
-                <div className="bg-primary p-6 text-center">
+                <div className="bg-primary/20 p-6 text-center border-b border-border">
                   <span className="text-4xl mb-2 block">{schedule.emoji}</span>
-                  <h3 className="text-2xl font-bold text-primary-foreground">{schedule.sport}</h3>
-                  <div className="flex items-center justify-center gap-1 text-primary-foreground/80 text-sm mt-2">
+                  <h3 className="text-2xl font-bold text-foreground font-display uppercase">{schedule.sport}</h3>
+                  <div className="flex items-center justify-center gap-1 text-muted-foreground text-sm mt-2 font-body">
                     <MapPin className="w-4 h-4" />
                     {schedule.location}
                   </div>
@@ -51,7 +51,7 @@ const Schedule = () => {
                 <div className="p-6">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-sm text-muted-foreground">
+                      <tr className="text-left text-sm text-muted-foreground font-body">
                         <th className="pb-3 font-medium">Días</th>
                         <th className="pb-3 font-medium">Horario</th>
                       </tr>
@@ -60,12 +60,12 @@ const Schedule = () => {
                       {schedule.sessions.map((session, idx) => (
                         <tr key={idx} className="border-t border-border">
                           <td className="py-4">
-                            <span className="font-medium text-foreground">{session.days}</span>
-                            <span className="block text-xs text-muted-foreground mt-1">{session.category}</span>
+                            <span className="font-medium text-foreground font-body">{session.days}</span>
+                            <span className="block text-xs text-muted-foreground mt-1 font-body">{session.category}</span>
                           </td>
                           <td className="py-4">
-                            <div className="flex items-center gap-2 text-foreground">
-                              <Clock className="w-4 h-4 text-accent" />
+                            <div className="flex items-center gap-2 text-foreground font-body">
+                              <Clock className="w-4 h-4 text-primary" />
                               {session.time}
                             </div>
                           </td>
