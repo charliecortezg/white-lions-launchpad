@@ -2,114 +2,101 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* White Lions Elite - Dark Premium Theme
+   60% Base: Slate 900 (#0F172A)
+   30% Contrast: White/Gray
+   10% Accent: Gold/Amber (#F59E0B)
 */
 
 @layer base {
   :root {
-    /* White Lions Brand Colors */
-    --background: 0 0% 100%;
-    --foreground: 210 78% 13%;
+    /* Dark Premium Base - 60% */
+    --background: 222 47% 11%;
+    --background-alt: 222 47% 7%;
+    --background-deep: 220 60% 2%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 78% 13%;
+    /* Cards - Dark Slate */
+    --card: 217 33% 17%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 78% 13%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Navy Blue Primary #0C2340 */
-    --primary: 210 78% 13%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Gold Accent (10%) */
+    --primary: 38 92% 50%;
+    --primary-foreground: 222 47% 11%;
 
-    /* Gold Accent #F6C73B */
-    --secondary: 45 92% 60%;
-    --secondary-foreground: 210 78% 13%;
+    /* Secondary */
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted - Dark backgrounds */
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 45 92% 60%;
-    --accent-foreground: 210 78% 13%;
+    /* Accent - Gold */
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 45 92% 60%;
+    /* Borders - Subtle dark */
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 38 92% 50%;
 
     --radius: 0.75rem;
     
-    /* Custom White Lions Variables */
-    --navy: 210 78% 13%;
-    --gold: 45 92% 60%;
-    --silver: 0 0% 75%;
+    /* Custom Elite Variables */
+    --navy: 222 47% 11%;
+    --gold: 38 92% 50%;
+    --silver: 215 20% 65%;
     
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(210 78% 13%), hsl(210 78% 20%));
-    --gradient-gold: linear-gradient(135deg, hsl(45 92% 60%), hsl(45 100% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 5%), hsl(222 47% 11%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 100% 60%));
     
     /* Shadows */
-    --shadow-premium: 0 20px 50px -10px hsl(210 78% 13% / 0.3);
-    --shadow-gold: 0 10px 30px -5px hsl(45 92% 60% / 0.4);
+    --shadow-premium: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
+    --shadow-gold: 0 0 30px -5px hsl(38 92% 50% / 0.4);
+    --shadow-glow: 0 0 20px hsl(38 92% 50% / 0.3);
     
     /* Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 25%;
+    --sidebar-ring: 38 92% 50%;
   }
 
+  /* Dark mode is the default now */
   .dark {
-    --background: 210 78% 13%;
+    --background: 222 47% 11%;
     --foreground: 0 0% 100%;
-
-    --card: 210 78% 18%;
+    --card: 217 33% 17%;
     --card-foreground: 0 0% 100%;
-
-    --popover: 210 78% 13%;
+    --popover: 217 33% 17%;
     --popover-foreground: 0 0% 100%;
-
-    --primary: 45 92% 60%;
-    --primary-foreground: 210 78% 13%;
-
-    --secondary: 210 78% 20%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 78% 20%;
+    --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-
-    --accent: 45 92% 60%;
-    --accent-foreground: 210 78% 13%;
-
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 210 78% 25%;
-    --input: 210 78% 25%;
-    --ring: 45 92% 60%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 38 92% 50%;
   }
 }
 
@@ -124,7 +111,8 @@ All colors MUST be HSL.
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    font-family: 'Oswald', sans-serif;
+    @apply font-bold tracking-tight uppercase;
   }
 }
 
@@ -145,6 +133,10 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-gold);
   }
   
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
   .transition-smooth {
     transition: var(--transition-smooth);
   }
@@ -163,5 +155,46 @@ All colors MUST be HSL.
   
   .bg-gold {
     background-color: hsl(var(--gold));
+  }
+  
+  .bg-background-alt {
+    background-color: hsl(var(--background-alt));
+  }
+  
+  .bg-background-deep {
+    background-color: hsl(var(--background-deep));
+  }
+  
+  /* Font utilities */
+  .font-display {
+    font-family: 'Oswald', sans-serif;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Glow animation for CTAs */
+  .glow-gold {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(38 92% 50% / 0.4), 0 0 20px hsl(38 92% 50% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(38 92% 50% / 0.6), 0 0 40px hsl(38 92% 50% / 0.3);
+    }
+  }
+  
+  /* Bento card style */
+  .bento-card {
+    @apply bg-card border border-border rounded-xl p-6 transition-all duration-300;
+  }
+  
+  .bento-card:hover {
+    @apply border-accent/50;
+    box-shadow: 0 0 20px hsl(38 92% 50% / 0.15);
   }
 }

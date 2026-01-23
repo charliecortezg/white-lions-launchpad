@@ -23,10 +23,10 @@ const Locations = () => {
   ];
 
   return (
-    <section id="ubicaciones" className="py-20 bg-primary">
+    <section id="ubicaciones" className="py-20 bg-background-alt">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-primary-foreground mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12 font-display uppercase tracking-wide">
             Nuestras Sedes
           </h2>
         </AnimatedSection>
@@ -34,9 +34,9 @@ const Locations = () => {
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {locations.map((location, index) => (
             <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-              <div className="bg-card rounded-2xl overflow-hidden shadow-lg">
+              <div className="bento-card overflow-hidden p-0">
                 {/* Map Embed */}
-                <div className="aspect-video bg-muted relative">
+                <div className="aspect-video bg-card relative">
                   <iframe
                     src={location.embedUrl}
                     width="100%"
@@ -55,12 +55,12 @@ const Locations = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-3xl">{location.emoji}</span>
                     <div>
-                      <h3 className="text-xl font-bold text-foreground">{location.sport}</h3>
-                      <p className="text-muted-foreground text-sm">{location.name}</p>
+                      <h3 className="text-xl font-bold text-foreground font-display uppercase">{location.sport}</h3>
+                      <p className="text-muted-foreground text-sm font-body">{location.name}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4">
+                  <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4 font-body">
                     <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>{location.address}</span>
                   </div>

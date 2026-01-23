@@ -24,10 +24,10 @@ const ValueProposition = () => {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-background-alt">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-12 font-display uppercase tracking-wide">
             ¿Por qué elegir White Lions?
           </h2>
         </AnimatedSection>
@@ -35,17 +35,24 @@ const ValueProposition = () => {
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {cards.map((card, index) => (
             <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
-              <div className="bg-card rounded-2xl p-8 shadow-lg border border-border hover:border-accent/50 transition-all duration-300 h-full text-center">
-                <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-6">
-                  <card.icon className="w-8 h-8 text-accent" />
+              <div className="bento-card h-full text-center">
+                {/* Icon - Large and Gold */}
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                  <card.icon className="w-8 h-8 text-primary" />
                 </div>
-                <p className="text-sm font-medium text-accent uppercase tracking-wide mb-2">
+                
+                {/* Subtitle */}
+                <p className="text-sm font-medium text-primary uppercase tracking-widest mb-2 font-body">
                   {card.subtitle}
                 </p>
-                <h3 className="text-xl font-bold text-foreground mb-4">
+                
+                {/* Title - Oswald */}
+                <h3 className="text-xl font-bold text-foreground mb-4 font-display uppercase">
                   {card.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                
+                {/* Description */}
+                <p className="text-muted-foreground leading-relaxed font-body">
                   {card.description}
                 </p>
               </div>

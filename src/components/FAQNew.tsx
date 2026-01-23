@@ -31,13 +31,13 @@ const FAQNew = () => {
   ];
 
   return (
-    <section className="py-20 bg-muted">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
             Preguntas Frecuentes
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
             Resolvemos tus dudas para que tomes la mejor decisión.
           </p>
         </AnimatedSection>
@@ -49,12 +49,12 @@ const FAQNew = () => {
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="bg-card rounded-xl border border-border px-6 shadow-sm"
+                  className="bento-card px-6"
                 >
-                  <AccordionTrigger className="text-left text-foreground font-medium py-5 hover:no-underline">
+                  <AccordionTrigger className="text-left text-foreground font-medium py-5 hover:no-underline font-body">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-5">
+                  <AccordionContent className="text-muted-foreground pb-5 font-body">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>

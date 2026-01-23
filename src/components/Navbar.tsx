@@ -37,7 +37,7 @@ const Navbar = () => {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-primary/95 backdrop-blur-md shadow-lg py-3"
+            ? "bg-background/95 backdrop-blur-md shadow-lg py-3 border-b border-border"
             : "bg-transparent py-4"
         }`}
       >
@@ -61,7 +61,7 @@ const Navbar = () => {
                 <button
                   key={link.id + link.label}
                   onClick={() => scrollToSection(link.id)}
-                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors text-sm font-medium"
+                  className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium font-body"
                 >
                   {link.label}
                 </button>
@@ -74,7 +74,6 @@ const Navbar = () => {
                 variant="gold"
                 size="lg"
                 onClick={() => setIsModalOpen(true)}
-                className="font-bold"
               >
                 🦁 APLICAR AL RETO
               </Button>
@@ -82,7 +81,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden text-primary-foreground p-2"
+              className="md:hidden text-foreground p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -92,13 +91,13 @@ const Navbar = () => {
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden absolute top-full left-0 right-0 bg-primary/95 backdrop-blur-md border-t border-primary-foreground/10">
+            <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border">
               <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
                 {navLinks.map((link) => (
                   <button
                     key={link.id + link.label}
                     onClick={() => scrollToSection(link.id)}
-                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors text-left py-2 text-sm font-medium"
+                    className="text-muted-foreground hover:text-primary transition-colors text-left py-2 text-sm font-medium font-body"
                   >
                     {link.label}
                   </button>
@@ -110,7 +109,7 @@ const Navbar = () => {
                     setIsModalOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full font-bold mt-2"
+                  className="w-full mt-2"
                 >
                   🦁 APLICAR AL RETO
                 </Button>
