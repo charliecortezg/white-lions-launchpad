@@ -1,33 +1,29 @@
-import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Vision from "@/components/Vision";
-import Methodology from "@/components/Methodology";
-import Categories from "@/components/Categories";
-import Testimonials from "@/components/Testimonials";
-import Results from "@/components/Results";
-import CTASection from "@/components/CTASection";
-import Experience from "@/components/Experience";
-import Coaches from "@/components/Coaches";
-import FAQ from "@/components/FAQ";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import HeroNew from "@/components/HeroNew";
+import ClientFilter from "@/components/ClientFilter";
+import ValueProposition from "@/components/ValueProposition";
+import ChallengeOffer from "@/components/ChallengeOffer";
+import Schedule from "@/components/Schedule";
+import Director from "@/components/Director";
+import Locations from "@/components/Locations";
+import FAQNew from "@/components/FAQNew";
+import FooterNew from "@/components/FooterNew";
 import ScrollProgress from "@/components/ScrollProgress";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <ScrollProgress />
-      <Hero />
-      <About />
-      <Methodology />
-      <Categories />
-      <Testimonials />
-      <Coaches />
-      <Results />
-      <CTASection />
-      <Vision />
-      <Experience />
-      <FAQ />
-      <Footer />
+      <Navbar />
+      <HeroNew />
+      <ClientFilter />
+      <ValueProposition />
+      <ChallengeOffer />
+      <Schedule />
+      <Director />
+      <Locations />
+      <FAQNew />
+      <FooterNew />
     </div>
   );
 };
