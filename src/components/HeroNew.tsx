@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import TrialClassModal from "./TrialClassModal";
-import logoWhite from "@/assets/logo-white-lions.png";
 
 const HeroNew = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,14 +21,7 @@ const HeroNew = () => {
         }}
       />
 
-      {/* Logo - Small, top left */}
-      <div className="absolute top-6 left-6 z-20">
-        <img 
-          src={logoWhite} 
-          alt="White Lions Academy" 
-          className="h-10 md:h-12 w-auto opacity-80"
-        />
-      </div>
+      {/* Logo is in Navbar - removed from here to avoid duplicate */}
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-20">
@@ -72,7 +64,7 @@ const HeroNew = () => {
             style={{ animationDelay: '0.3s' }}
           >
             <Button 
-              variant="gold" 
+              variant="hero" 
               size="xl"
               className="text-base md:text-lg px-8 md:px-10 py-6 md:py-7 w-full sm:w-auto shadow-gold"
               onClick={() => setIsModalOpen(true)}
