@@ -26,10 +26,10 @@ const Schedule = () => {
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
-            Entrenamos cuando tú puedes.
+            Horarios de Entrenamiento
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
-            Horarios diseñados para familias con agenda ocupada.
+            Días y horarios fijos para cada deporte.
           </p>
         </AnimatedSection>
 

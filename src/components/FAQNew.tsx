@@ -10,7 +10,7 @@ const FAQNew = () => {
   const faqs = [
     {
       question: "¿Cuánto cuesta la inscripción y el uniforme?",
-      answer: "La inscripción es de $300 MXN y es válida de agosto a junio. Incluye registro a torneos y acceso completo a entrenamientos. El uniforme NO es obligatorio desde el día 1. Puedes empezar con ropa deportiva cómoda.",
+      answer: "La inscripción es de $400 MXN y es válida de agosto a junio. Incluye registro a torneos y acceso completo a entrenamientos. El uniforme NO es obligatorio desde el día 1. Puedes empezar con ropa deportiva cómoda.",
     },
     {
       question: "¿Mi hijo puede entrar sin experiencia?",
