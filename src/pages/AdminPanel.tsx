@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { KanbanBoard } from "@/components/admin/KanbanBoard";
 import { ProspectFilters } from "@/components/admin/ProspectFilters";
 import { NotesModal } from "@/components/admin/NotesModal";
+import { ProspectDetailsModal } from "@/components/admin/ProspectDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -18,6 +19,7 @@ const AdminPanel = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   const [notesModalOpen, setNotesModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
 
   // Fetch prospects via Edge Function
@@ -167,6 +169,11 @@ const AdminPanel = () => {
     }
   };
 
+  const handleViewDetails = (prospect: Prospect) => {
+    setSelectedProspect(prospect);
+    setDetailsModalOpen(true);
+  };
+
   const handleSaveNotes = (notes: string) => {
     if (selectedProspect) {
       updateNotesMutation.mutate({ id: selectedProspect.id, notes });
@@ -221,8 +228,19 @@ const AdminPanel = () => {
             onStatusChange={handleStatusChange}
             onOpenNotes={handleOpenNotes}
             onDelete={handleDelete}
+            onViewDetails={handleViewDetails}
           />
         )}
+
+        {/* Details Modal */}
+        <ProspectDetailsModal
+          isOpen={detailsModalOpen}
+          onClose={() => {
+            setDetailsModalOpen(false);
+            setSelectedProspect(null);
+          }}
+          prospect={selectedProspect}
+        />
 
         {/* Notes Modal */}
         <NotesModal
