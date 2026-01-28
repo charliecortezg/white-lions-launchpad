@@ -29,6 +29,7 @@ interface ProspectCardProps {
   onStatusChange: (id: string, status: string) => void;
   onOpenNotes: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
+  onViewDetails: (prospect: Prospect) => void;
 }
 
 const STATUS_OPTIONS = [
@@ -66,10 +67,14 @@ export const ProspectCard = ({
   prospect, 
   onStatusChange, 
   onOpenNotes,
-  onDelete
+  onDelete,
+  onViewDetails
 }: ProspectCardProps) => {
   return (
-    <Card className="bg-background/50 border-border hover:border-primary/30 transition-colors">
+    <Card 
+      className="bg-background/50 border-border hover:border-primary/30 transition-colors cursor-pointer"
+      onClick={() => onViewDetails(prospect)}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -92,7 +97,12 @@ export const ProspectCard = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
