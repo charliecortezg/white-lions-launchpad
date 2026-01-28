@@ -1,148 +1,196 @@
 
 
-# Plan: Agregar Botón "Cómo Llegar" con Link a Google Maps en los Emails
+# Plan: Panel de Seguimiento Kanban para Clases Muestra
 
 ## Resumen
 
-Agregar un botón prominente en todos los emails (confirmación y recordatorios) que lleve directamente a la ubicación del campo según el deporte seleccionado.
+Crear un panel administrativo estilo Kanban en `/admin-panel` que permita visualizar y gestionar el pipeline de clases muestra. Las tarjetas de prospectos se organizan en columnas según su status y pueden arrastrarse entre estados.
 
 ---
 
-## Enlaces de Google Maps
-
-| Ubicación | Deporte | Link |
-|-----------|---------|------|
-| Hacienda del Bosque | Fútbol | `https://maps.app.goo.gl/QUwr6WjptEKwRg6b8` |
-| Parque Quinta del Rey III | Basketball | `https://maps.app.goo.gl/1o1iuUroqA4yD86M8` |
-
----
-
-## Archivo 1: `supabase/functions/send-confirmation/index.ts`
-
-### Cambios Requeridos
-
-**1. Agregar función helper para obtener el link de Google Maps:**
+## Vista del Panel Kanban
 
 ```text
-const getLocationMapLink = (location: string): string => {
-  if (location.toLowerCase().includes('hacienda') || location.toLowerCase().includes('bosque')) {
-    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
-  }
-  if (location.toLowerCase().includes('quinta') || location.toLowerCase().includes('rey')) {
-    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
-  }
-  return '';
-};
-```
-
-**2. Agregar botón "Cómo Llegar" en el HTML del email:**
-
-Despues de la tabla de detalles (linea ~84), agregar:
-
-```text
-+--------------------------------------+
-|  📍 CÓMO LLEGAR                      |
-|  [Botón dorado con link a Maps]      |
-+--------------------------------------+
-```
-
-**Diseño del botón:**
-- Fondo dorado (#d4af37)
-- Texto negro
-- Bordes redondeados
-- Padding generoso para facil tap en movil
-- Icono de ubicación
-
----
-
-## Archivo 2: `supabase/functions/run-reminders/index.ts`
-
-### Cambios Requeridos
-
-**1. Agregar función para obtener link de Maps basado en ubicación/deporte:**
-
-Similar al archivo anterior, determinar el link según:
-- Si es Fútbol → Hacienda del Bosque
-- Si es Basketball → Parque Quinta del Rey III
-
-**2. Agregar botón en el HTML del recordatorio:**
-
-Después de la tabla de detalles (línea ~295), agregar el mismo botón "Cómo Llegar" con el link correspondiente.
-
----
-
-## Diseño del Botón en Email (HTML)
-
-```text
-<div style="text-align: center; margin: 25px 0;">
-  <a href="[LINK_MAPS]" 
-     style="display: inline-block; 
-            background-color: #d4af37; 
-            color: #1a1a2e; 
-            padding: 16px 32px; 
-            border-radius: 8px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            font-size: 16px;">
-    📍 Cómo Llegar
-  </a>
-</div>
++------------------------------------------------------------------+
+|  🦁 WHITE LIONS - Panel de Seguimiento                           |
+|  [Filtro: Deporte ▾] [Filtro: Categoría ▾] [Buscar...]           |
++------------------------------------------------------------------+
+|                                                                   |
+|  PENDIENTE (5)    ASISTIÓ (3)    NO ASISTIÓ (2)    INSCRITO (1)  |
+|  +-----------+    +-----------+   +-----------+    +-----------+ |
+|  |  Pedrito  |    |  María    |   |  Carlos   |    |  Ana      | |
+|  |  ⚽ Fútbol|    |  🏀 Basket|   |  ⚽ Fútbol|    |  ⚽ Fútbol| |
+|  |  Escuelita|    |  Infantil |   |  Juvenil A|    |  Estrella | |
+|  |  Mié 28   |    |  Mar 27   |   |  Lun 26   |    |  Lun 26   | |
+|  |  [📝 Nota]|    |  [📝 Nota]|   |  [📝 Nota]|    |  [📝 Nota]| |
+|  +-----------+    +-----------+   +-----------+    +-----------+ |
+|  |  Juan     |    |  ...      |   |  ...      |                  |
+|  +-----------+    +-----------+   +-----------+                  |
+|                                                                   |
++------------------------------------------------------------------+
 ```
 
 ---
 
-## Lógica de Selección de Link
+## Columnas del Kanban (Status)
 
-| Campo `location` contiene | Link asignado |
-|---------------------------|---------------|
-| "hacienda" o "bosque" | Hacienda del Bosque |
-| "quinta" o "rey" | Parque Quinta del Rey III |
-| Fallback: usar `sport` | Fútbol → Hacienda, Basketball → Quinta |
-
----
-
-## Resultado Esperado
-
-El padre recibe un email con:
-
-```text
-+----------------------------------------+
-|  🦁 WHITE LIONS ACADEMY                |
-|  Confirmación de Clase Muestra         |
-+----------------------------------------+
-|                                        |
-|  ¡Hola Juan!                           |
-|                                        |
-|  📋 Detalles:                          |
-|  - Jugador: Pedrito                    |
-|  - Deporte: Fútbol                     |
-|  - Fecha: miércoles 15 de enero       |
-|  - Ubicación: Hacienda del Bosque     |
-|                                        |
-|  +----------------------------------+  |
-|  |   📍 CÓMO LLEGAR                 |  |
-|  +----------------------------------+  |
-|                                        |
-|  📌 Recuerda: Llega 10 min antes...   |
-+----------------------------------------+
-```
+| Columna | Color | Descripción |
+|---------|-------|-------------|
+| Pendiente | Azul | Clase programada, aún no ocurre |
+| Asistió | Verde | El niño asistió a la clase muestra |
+| No Asistió | Rojo | No se presentó a la clase |
+| Reprogramado | Amarillo | Se agendó otra fecha |
+| Inscrito | Dorado | ¡Conversión exitosa! |
 
 ---
 
-## Seccion Tecnica
+## Funcionalidades
 
-### Archivos a Modificar
+### 1. Tarjetas de Prospecto
+Cada tarjeta muestra:
+- Nombre del jugador
+- Icono de deporte (⚽/🏀)
+- Categoría
+- Fecha programada
+- Teléfono de contacto (click para WhatsApp)
+- Botón para agregar/ver notas
+
+### 2. Cambio de Status
+- Click en botones de acción rápida en la tarjeta
+- O menú dropdown con todas las opciones
+- El status se actualiza inmediatamente en la base de datos
+
+### 3. Filtros
+- Por deporte: Fútbol / Basketball / Todos
+- Por categoría: Escuelita / Estrellita / Infantil / Juvenil
+- Búsqueda por nombre
+
+### 4. Notas
+- Modal para agregar observaciones
+- Las notas se guardan en el campo `notes` existente
+- Icono indicador cuando hay notas
+
+---
+
+## Archivos Nuevos a Crear
+
+| Archivo | Propósito |
+|---------|-----------|
+| `src/pages/AdminPanel.tsx` | Página principal del panel Kanban |
+| `src/components/admin/KanbanBoard.tsx` | Componente del tablero con columnas |
+| `src/components/admin/KanbanColumn.tsx` | Columna individual con tarjetas |
+| `src/components/admin/ProspectCard.tsx` | Tarjeta de cada prospecto |
+| `src/components/admin/NotesModal.tsx` | Modal para agregar/editar notas |
+| `src/components/admin/ProspectFilters.tsx` | Barra de filtros |
+
+---
+
+## Cambios en Archivos Existentes
 
 | Archivo | Cambio |
 |---------|--------|
-| `supabase/functions/send-confirmation/index.ts` | Agregar helper + botón HTML |
-| `supabase/functions/run-reminders/index.ts` | Agregar helper + botón HTML |
+| `src/App.tsx` | Agregar ruta `/admin-panel` |
 
-### Despliegue
+---
 
-Las Edge Functions se despliegan automáticamente al guardar los cambios.
+## Esquema de Base de Datos
 
-### Sin Dependencias Nuevas
+### Campo `status` - Valores permitidos
 
-No se requieren librerías adicionales.
+Actualmente solo existe "Pendiente". Agregaremos los demás valores posibles:
+
+```text
+Valores de status:
+- "Pendiente"     (default actual)
+- "Asistió"
+- "No Asistió"
+- "Reprogramado"
+- "Inscrito"
+```
+
+No se requiere migración de esquema ya que el campo `status` es de tipo `text` y acepta cualquier valor.
+
+---
+
+## Lógica de Consultas
+
+### Cargar Prospectos
+```text
+SELECT * FROM trial_class_registrations
+ORDER BY created_at DESC
+```
+
+### Actualizar Status
+```text
+UPDATE trial_class_registrations
+SET status = 'Asistió'
+WHERE id = [prospect_id]
+```
+
+### Actualizar Notas
+```text
+UPDATE trial_class_registrations
+SET notes = 'Muy interesado, papá preguntó por mensualidad'
+WHERE id = [prospect_id]
+```
+
+---
+
+## Diseño Visual
+
+### Estilo consistente con el tema Dark Premium:
+- Fondo: `bg-background` (#0F172A)
+- Columnas: `bg-card` (#1E293B) con bordes sutiles
+- Tarjetas: `bg-background` con hover dorado sutil
+- Headers de columna con badge de conteo
+- Iconos de deporte con colores distintivos
+
+### Acceso
+- URL: `/admin-panel`
+- Sin protección de login (URL oculta como solicitaste)
+- No aparece en la navegación pública
+
+---
+
+## Flujo de Usuario
+
+```text
+1. Admin navega a: tudominio.com/admin-panel
+
+2. Ve el tablero Kanban con todas las clases muestra
+
+3. Puede filtrar por deporte (Fútbol/Basketball)
+
+4. Click en tarjeta → Menú de opciones:
+   - Marcar como "Asistió"
+   - Marcar como "No Asistió"
+   - Reprogramar
+   - Marcar como "Inscrito"
+   - Agregar nota
+   - Llamar por WhatsApp
+
+5. Al cambiar status, la tarjeta se mueve a la columna correspondiente
+
+6. Las notas se guardan y aparece un indicador visual
+```
+
+---
+
+## Sección Técnica
+
+### Dependencias
+No se requieren nuevas dependencias. Usaremos:
+- React Query (ya instalado) para data fetching
+- Supabase client (ya configurado)
+- Componentes UI existentes (Card, Button, Dialog, etc.)
+
+### Políticas RLS
+Las políticas actuales permiten que cualquiera haga INSERT pero solo admin/staff pueden SELECT y UPDATE. Para la URL oculta sin login:
+- **Problema**: Los usuarios anónimos no podrán leer los datos por RLS
+- **Solución**: Necesitamos agregar una política temporal que permita SELECT sin autenticación, o implementar login básico
+
+**Opción recomendada**: Agregar login con usuario ya existente en Supabase Auth para aprovechar las políticas RLS que ya están configuradas para admin/staff.
+
+### Alternativa sin login
+Si insistes en URL oculta sin login, podemos crear un Edge Function que lea los datos con service_role key y los devuelva al frontend. Esto bypassea RLS pero es menos seguro.
 
