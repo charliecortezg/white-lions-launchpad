@@ -19,6 +19,30 @@ interface ConfirmationEmailRequest {
   schedule: string;
 }
 
+// Get Google Maps link based on location or sport
+const getLocationMapLink = (location: string, sport: string): string => {
+  const loc = location.toLowerCase();
+  const sp = sport.toLowerCase();
+  
+  // Check location first
+  if (loc.includes('hacienda') || loc.includes('bosque')) {
+    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+  }
+  if (loc.includes('quinta') || loc.includes('rey')) {
+    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
+  }
+  
+  // Fallback to sport
+  if (sp.includes('fútbol') || sp.includes('futbol') || sp.includes('soccer')) {
+    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+  }
+  if (sp.includes('basketball') || sp.includes('basquet') || sp.includes('básquet')) {
+    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
+  }
+  
+  return '';
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -82,6 +106,23 @@ const handler = async (req: Request): Promise<Response> => {
           </tr>
         </table>
       </div>
+
+      ${getLocationMapLink(data.location, data.sport) ? `
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${getLocationMapLink(data.location, data.sport)}" 
+           target="_blank"
+           style="display: inline-block; 
+                  background-color: #d4af37; 
+                  color: #1a1a2e; 
+                  padding: 16px 32px; 
+                  border-radius: 8px; 
+                  text-decoration: none; 
+                  font-weight: bold; 
+                  font-size: 16px;">
+          📍 Cómo Llegar
+        </a>
+      </div>
+      ` : ''}
 
       <div style="background-color: #e8f4f8; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 20px;">
         <p style="margin: 0; color: #1a1a2e; font-size: 14px;">

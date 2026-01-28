@@ -14,6 +14,30 @@ const SPANISH_MONTHS: Record<string, number> = {
   'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
 };
 
+// Get Google Maps link based on location or sport
+const getLocationMapLink = (location: string, sport: string): string => {
+  const loc = (location || '').toLowerCase();
+  const sp = (sport || '').toLowerCase();
+  
+  // Check location first
+  if (loc.includes('hacienda') || loc.includes('bosque')) {
+    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+  }
+  if (loc.includes('quinta') || loc.includes('rey')) {
+    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
+  }
+  
+  // Fallback to sport
+  if (sp.includes('fútbol') || sp.includes('futbol') || sp.includes('soccer')) {
+    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+  }
+  if (sp.includes('basketball') || sp.includes('basquet') || sp.includes('básquet')) {
+    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
+  }
+  
+  return '';
+};
+
 // Parse preferred_schedule to extract date and sport info
 // Format: "miércoles 31 de diciembre - Lunes y miércoles, 6:00–8:00 pm"
 function parsePreferredSchedule(schedule: string): { date: Date | null; sport: string; hour: number; minute: number } {
@@ -293,6 +317,23 @@ const handler = async (req: Request): Promise<Response> => {
                             </td>
                           </tr>
                         </table>
+
+                        ${getLocationMapLink(registration.preferred_location || '', parsed.sport) ? `
+                        <div style="text-align: center; margin: 25px 0;">
+                          <a href="${getLocationMapLink(registration.preferred_location || '', parsed.sport)}" 
+                             target="_blank"
+                             style="display: inline-block; 
+                                    background-color: #d4af37; 
+                                    color: #1a1a2e; 
+                                    padding: 16px 32px; 
+                                    border-radius: 8px; 
+                                    text-decoration: none; 
+                                    font-weight: bold; 
+                                    font-size: 16px;">
+                            📍 Cómo Llegar
+                          </a>
+                        </div>
+                        ` : ''}
 
                         <p style="margin: 25px 0 0 0; color: #666; font-size: 14px; line-height: 1.6;">
                           Si tienes alguna pregunta, no dudes en contactarnos respondiendo a este correo.
