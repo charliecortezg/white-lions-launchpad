@@ -5,6 +5,7 @@ import { KanbanBoard } from "@/components/admin/KanbanBoard";
 import { ProspectFilters } from "@/components/admin/ProspectFilters";
 import { NotesModal } from "@/components/admin/NotesModal";
 import { ProspectDetailsModal } from "@/components/admin/ProspectDetailsModal";
+import { CalendarModal } from "@/components/admin/CalendarModal";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -20,6 +21,7 @@ const AdminPanel = () => {
 
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
 
   // Fetch prospects via Edge Function
@@ -215,6 +217,7 @@ const AdminPanel = () => {
           onSportChange={setSportFilter}
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
+          onOpenCalendar={() => setCalendarModalOpen(true)}
         />
 
         {/* Kanban Board */}
@@ -240,6 +243,15 @@ const AdminPanel = () => {
             setSelectedProspect(null);
           }}
           prospect={selectedProspect}
+        />
+
+        {/* Calendar Modal */}
+        <CalendarModal
+          isOpen={calendarModalOpen}
+          onClose={() => setCalendarModalOpen(false)}
+          prospects={filteredProspects}
+          onStatusChange={handleStatusChange}
+          onViewDetails={handleViewDetails}
         />
 
         {/* Notes Modal */}
