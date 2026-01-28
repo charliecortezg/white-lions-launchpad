@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -6,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, CalendarDays } from "lucide-react";
 
 interface ProspectFiltersProps {
   searchTerm: string;
@@ -15,6 +16,7 @@ interface ProspectFiltersProps {
   onSportChange: (value: string) => void;
   categoryFilter: string;
   onCategoryChange: (value: string) => void;
+  onOpenCalendar: () => void;
 }
 
 export const ProspectFilters = ({
@@ -24,6 +26,7 @@ export const ProspectFilters = ({
   onSportChange,
   categoryFilter,
   onCategoryChange,
+  onOpenCalendar,
 }: ProspectFiltersProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -60,6 +63,15 @@ export const ProspectFilters = ({
           <SelectItem value="juvenil">Juvenil</SelectItem>
         </SelectContent>
       </Select>
+
+      <Button
+        variant="outline"
+        onClick={onOpenCalendar}
+        className="flex items-center gap-2"
+      >
+        <CalendarDays className="h-4 w-4" />
+        <span className="hidden sm:inline">Calendario</span>
+      </Button>
     </div>
   );
 };
