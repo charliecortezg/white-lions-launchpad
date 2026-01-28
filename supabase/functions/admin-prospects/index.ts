@@ -64,6 +64,30 @@ serve(async (req) => {
       });
     }
 
+    // DELETE - Remove prospect
+    if (req.method === "DELETE") {
+      const body = await req.json();
+      const { id } = body;
+
+      if (!id) {
+        return new Response(
+          JSON.stringify({ error: "ID is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { error } = await supabase
+        .from("trial_class_registrations")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(
       JSON.stringify({ error: "Method not allowed" }),
       { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
