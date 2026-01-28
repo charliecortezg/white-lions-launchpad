@@ -11,6 +11,7 @@ interface KanbanColumnProps {
   colorClass: string;
   onStatusChange: (id: string, status: string) => void;
   onOpenNotes: (prospect: Prospect) => void;
+  onDelete: (id: string) => void;
 }
 
 export const KanbanColumn = ({
@@ -20,6 +21,7 @@ export const KanbanColumn = ({
   colorClass,
   onStatusChange,
   onOpenNotes,
+  onDelete,
 }: KanbanColumnProps) => {
   const filteredProspects = prospects.filter((p) => p.status === status);
 
@@ -45,6 +47,7 @@ export const KanbanColumn = ({
                 prospect={prospect}
                 onStatusChange={onStatusChange}
                 onOpenNotes={onOpenNotes}
+                onDelete={onDelete}
               />
             ))
           )}

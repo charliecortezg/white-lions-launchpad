@@ -17,7 +17,8 @@ import {
   Calendar,
   Trophy,
   Clock,
-  StickyNote
+  StickyNote,
+  Trash2
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -27,6 +28,7 @@ interface ProspectCardProps {
   prospect: Prospect;
   onStatusChange: (id: string, status: string) => void;
   onOpenNotes: (prospect: Prospect) => void;
+  onDelete: (id: string) => void;
 }
 
 const STATUS_OPTIONS = [
@@ -63,7 +65,8 @@ const formatWhatsAppLink = (phone: string) => {
 export const ProspectCard = ({ 
   prospect, 
   onStatusChange, 
-  onOpenNotes 
+  onOpenNotes,
+  onDelete
 }: ProspectCardProps) => {
   return (
     <Card className="bg-background/50 border-border hover:border-primary/30 transition-colors">
@@ -125,6 +128,16 @@ export const ProspectCard = ({
                   <Phone className="h-4 w-4 text-emerald-500" />
                   WhatsApp
                 </a>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => onDelete(prospect.id)}
+                className="flex items-center gap-2 text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

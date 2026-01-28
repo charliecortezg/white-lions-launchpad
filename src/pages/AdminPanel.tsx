@@ -88,6 +88,33 @@ const AdminPanel = () => {
     },
   });
 
+  // Delete prospect mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "DELETE",
+        body: { id },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      toast({
+        title: "Prospecto eliminado",
+        description: "El registro fue eliminado correctamente.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el prospecto.",
+        variant: "destructive",
+      });
+      console.error("Delete error:", error);
+    },
+  });
+
   // Filter prospects
   const filteredProspects = useMemo(() => {
     return prospects.filter((prospect) => {
@@ -132,6 +159,12 @@ const AdminPanel = () => {
   const handleOpenNotes = (prospect: Prospect) => {
     setSelectedProspect(prospect);
     setNotesModalOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("¿Estás seguro de eliminar este prospecto?")) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const handleSaveNotes = (notes: string) => {
@@ -187,6 +220,7 @@ const AdminPanel = () => {
             prospects={filteredProspects}
             onStatusChange={handleStatusChange}
             onOpenNotes={handleOpenNotes}
+            onDelete={handleDelete}
           />
         )}
 

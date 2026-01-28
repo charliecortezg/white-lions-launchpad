@@ -7,6 +7,7 @@ interface KanbanBoardProps {
   prospects: Prospect[];
   onStatusChange: (id: string, status: string) => void;
   onOpenNotes: (prospect: Prospect) => void;
+  onDelete: (id: string) => void;
 }
 
 const COLUMNS = [
@@ -21,6 +22,7 @@ export const KanbanBoard = ({
   prospects,
   onStatusChange,
   onOpenNotes,
+  onDelete,
 }: KanbanBoardProps) => {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
@@ -33,6 +35,7 @@ export const KanbanBoard = ({
           colorClass={column.colorClass}
           onStatusChange={onStatusChange}
           onOpenNotes={onOpenNotes}
+          onDelete={onDelete}
         />
       ))}
     </div>
