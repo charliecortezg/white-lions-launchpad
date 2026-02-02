@@ -19,7 +19,6 @@ const getLocationMapLink = (location: string, sport: string): string => {
   const loc = (location || '').toLowerCase();
   const sp = (sport || '').toLowerCase();
   
-  // Check location first
   if (loc.includes('hacienda') || loc.includes('bosque')) {
     return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
   }
@@ -27,7 +26,6 @@ const getLocationMapLink = (location: string, sport: string): string => {
     return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
   }
   
-  // Fallback to sport
   if (sp.includes('fútbol') || sp.includes('futbol') || sp.includes('soccer')) {
     return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
   }
@@ -39,11 +37,9 @@ const getLocationMapLink = (location: string, sport: string): string => {
 };
 
 // Parse preferred_schedule to extract date and sport info
-// Format: "miércoles 31 de diciembre - Lunes y miércoles, 6:00–8:00 pm"
 function parsePreferredSchedule(schedule: string): { date: Date | null; sport: string; hour: number; minute: number } {
   console.log(`📅 Parsing schedule: "${schedule}"`);
   
-  // Default result
   const result = { date: null as Date | null, sport: 'Fútbol', hour: 18, minute: 0 };
   
   if (!schedule) {
@@ -51,9 +47,6 @@ function parsePreferredSchedule(schedule: string): { date: Date | null; sport: s
     return result;
   }
   
-  // Determine sport from schedule pattern
-  // Fútbol: "Lunes y miércoles, 6:00–8:00 pm" -> 18:00
-  // Basketball: "Martes y jueves, 6:30–8:00 pm" -> 18:30
   if (schedule.toLowerCase().includes('martes y jueves') || schedule.toLowerCase().includes('6:30')) {
     result.sport = 'Basketball';
     result.hour = 18;
@@ -64,8 +57,6 @@ function parsePreferredSchedule(schedule: string): { date: Date | null; sport: s
     result.minute = 0;
   }
   
-  // Extract date: "miércoles 31 de diciembre" or similar patterns
-  // Pattern: day_of_week day de month
   const datePattern = /(\d{1,2})\s+de\s+(\w+)/i;
   const match = schedule.match(datePattern);
   
@@ -75,11 +66,9 @@ function parsePreferredSchedule(schedule: string): { date: Date | null; sport: s
     const month = SPANISH_MONTHS[monthName];
     
     if (month !== undefined && day >= 1 && day <= 31) {
-      // Determine year - if month is in the past, it's next year
       const now = new Date();
       let year = now.getFullYear();
       
-      // If the month is before current month, or same month but day passed, use next year
       const currentMonth = now.getMonth();
       const currentDay = now.getDate();
       
@@ -87,19 +76,15 @@ function parsePreferredSchedule(schedule: string): { date: Date | null; sport: s
         year = year + 1;
       }
       
-      // Create date in Tijuana timezone (UTC-8)
-      // We create the date in UTC and add 8 hours to compensate for Tijuana offset
       result.date = new Date(Date.UTC(year, month, day, result.hour + 8, result.minute, 0));
       
-      console.log(`✅ Parsed date: ${result.date.toISOString()} (${day} de ${monthName} ${year}, ${result.hour}:${result.minute.toString().padStart(2, '0')})`);
+      console.log(`✅ Parsed date: ${result.date.toISOString()}`);
     } else {
       console.log(`⚠️ Could not parse month: "${monthName}" or day: ${day}`);
     }
   } else {
     console.log(`⚠️ Could not extract date from schedule: "${schedule}"`);
   }
-  
-  console.log(`📊 Result: sport=${result.sport}, hour=${result.hour}:${result.minute}`);
   
   return result;
 }
@@ -112,12 +97,10 @@ function needsReminder(classTime: Date, now: Date, reminderType: 'reminder_24h' 
   console.log(`⏰ Time check: classTime=${classTime.toISOString()}, now=${now.toISOString()}, diffHours=${diffHours.toFixed(2)}`);
   
   if (reminderType === 'reminder_24h') {
-    // Send 24h reminder if class is between 23-25 hours away
     const needs = diffHours >= 23 && diffHours <= 25;
     console.log(`   ${reminderType}: ${needs ? '✅ NEEDS REMINDER' : '❌ Not in window'} (23-25h window)`);
     return needs;
   } else {
-    // Send 2h reminder if class is between 1.5-2.5 hours away
     const needs = diffHours >= 1.5 && diffHours <= 2.5;
     console.log(`   ${reminderType}: ${needs ? '✅ NEEDS REMINDER' : '❌ Not in window'} (1.5-2.5h window)`);
     return needs;
@@ -139,7 +122,6 @@ function formatDateForEmail(date: Date): string {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -151,18 +133,18 @@ const handler = async (req: Request): Promise<Response> => {
   console.log(`Current time (Tijuana): ${now.toLocaleString('es-MX', { timeZone: 'America/Tijuana' })}`);
 
   try {
-    // Initialize Supabase client with service role for full access
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Query trial_class_registrations (the correct table!)
     const { data: registrations, error: registrationsError } = await supabase
       .from('trial_class_registrations')
       .select('*')
       .not('parent_email', 'is', null)
       .neq('status', 'cancelled')
-      .neq('status', 'Cancelado');
+      .neq('status', 'Cancelado')
+      .neq('status', 'Perdido')
+      .neq('status', 'Inscrito');
 
     if (registrationsError) {
       console.error("❌ Error fetching registrations:", registrationsError);
@@ -193,7 +175,6 @@ const handler = async (req: Request): Promise<Response> => {
         continue;
       }
 
-      // Parse the preferred_schedule to get date and sport
       const parsed = parsePreferredSchedule(registration.preferred_schedule);
       
       if (!parsed.date) {
@@ -202,14 +183,12 @@ const handler = async (req: Request): Promise<Response> => {
         continue;
       }
 
-      // Check if the class date is in the past
       if (parsed.date.getTime() < now.getTime()) {
         console.log(`⏭️ Skipping: class date is in the past`);
         results.skipped++;
         continue;
       }
 
-      // Check both reminder types
       for (const reminderType of ['reminder_24h', 'reminder_2h'] as const) {
         if (!needsReminder(parsed.date, now, reminderType)) {
           continue;
@@ -217,46 +196,45 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log(`📧 Registration ${registration.id} needs ${reminderType}!`);
 
-        // Check comm_log for existing reminder using the registration id
-        // We'll use a custom identifier since comm_log references booking_intent_id
-        const commLogIdentifier = `tcr_${registration.id}`;
+        // Check for existing reminder in email_queue
+        const dateKey = parsed.date.toISOString().split('T')[0];
+        const idempotencyKey = `${reminderType}_${registration.id}_${dateKey}`;
         
-        const { data: existingLogs, error: logError } = await supabase
+        const { data: existingEmail } = await supabase
+          .from('email_queue')
+          .select('id')
+          .eq('idempotency_key', idempotencyKey)
+          .maybeSingle();
+
+        if (existingEmail) {
+          console.log(`⏭️ ${reminderType} already exists in queue for this registration`);
+          results.skipped++;
+          continue;
+        }
+
+        // Also check comm_log
+        const { data: existingLogs } = await supabase
           .from('comm_log')
           .select('id')
           .eq('recipient_email', registration.parent_email)
           .eq('comm_type', reminderType)
-          .gte('created_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()); // Last 48 hours
-
-        if (logError) {
-          console.error(`Error checking comm_log:`, logError);
-          results.errors++;
-          continue;
-        }
-
-        // Also check if we already sent for this specific registration
-        const { data: existingForReg } = await supabase
-          .from('comm_log')
-          .select('id')
-          .eq('subject', `¡Mañana es tu clase muestra de ${parsed.sport}! 🦁`)
-          .eq('recipient_email', registration.parent_email)
           .gte('created_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString());
 
-        if ((existingLogs && existingLogs.length > 0) || (existingForReg && existingForReg.length > 0)) {
+        if (existingLogs && existingLogs.length > 0) {
           console.log(`⏭️ ${reminderType} already sent recently for this email`);
           results.skipped++;
           continue;
         }
 
-        // Prepare email content
+        // Prepare email content - UPDATED COPY
         const is24h = reminderType === 'reminder_24h';
         const subject = is24h 
-          ? `¡Mañana es tu clase muestra de ${parsed.sport}! 🦁`
-          : `¡Nos vemos en 2 horas! - White Lions Academy ⚽`;
+          ? `🦁 ¡Mañana inicia tu Reto White Lions! - ${registration.player_name}`
+          : `⏰ ¡Nos vemos en 2 horas! - White Lions Academy`;
         
         const mainMessage = is24h
-          ? "¡Mañana es tu clase muestra en White Lions! Te esperamos."
-          : "¡Nos vemos en 2 horas! Recuerda traer agua y ropa cómoda.";
+          ? `¡Mañana es el día! ${registration.player_name} comienza su Reto White Lions. Recuerda traer su kit de inicio y muchas ganas.`
+          : `¡Ya casi es hora! Nos vemos en 2 horas para el entrenamiento. Recuerda traer agua y ropa cómoda.`;
 
         const htmlContent = `
           <!DOCTYPE html>
@@ -269,16 +247,16 @@ const handler = async (req: Request): Promise<Response> => {
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa;">
               <tr>
                 <td style="padding: 40px 20px;">
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
                     
                     <!-- Header -->
                     <tr>
-                      <td style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; text-align: center;">
-                        <h1 style="margin: 0; color: #f4c430; font-size: 28px; font-weight: bold;">
+                      <td style="background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); padding: 35px; text-align: center;">
+                        <h1 style="margin: 0; color: #f59e0b; font-size: 28px; font-weight: bold;">
                           🦁 White Lions Academy
                         </h1>
-                        <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">
-                          ${is24h ? 'Recordatorio - ¡Mañana!' : '¡Ya casi es hora!'}
+                        <p style="margin: 12px 0 0 0; color: #94a3b8; font-size: 16px;">
+                          ${is24h ? '¡Mañana es el día!' : '¡Ya casi es hora!'}
                         </p>
                       </td>
                     </tr>
@@ -286,32 +264,32 @@ const handler = async (req: Request): Promise<Response> => {
                     <!-- Content -->
                     <tr>
                       <td style="padding: 40px 30px;">
-                        <h2 style="margin: 0 0 20px 0; color: #1a1a2e; font-size: 22px;">
+                        <h2 style="margin: 0 0 20px 0; color: #0F172A; font-size: 22px;">
                           ¡Hola ${registration.tutor_name || 'familia'}! 👋
                         </h2>
                         
-                        <p style="margin: 0 0 25px 0; color: #333; font-size: 18px; line-height: 1.6;">
+                        <p style="margin: 0 0 25px 0; color: #334155; font-size: 17px; line-height: 1.7;">
                           ${mainMessage}
                         </p>
 
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa; border-radius: 8px; margin: 25px 0;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); border-radius: 12px; margin: 25px 0;">
                           <tr>
                             <td style="padding: 25px;">
-                              <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">👤 Jugador:</strong> ${registration.player_name}
+                              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px;">
+                                <strong style="color: #0F172A;">👤 Jugador:</strong> ${registration.player_name}
                               </p>
-                              <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">⚽ Deporte:</strong> ${parsed.sport}
+                              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px;">
+                                <strong style="color: #0F172A;">⚽ Deporte:</strong> ${parsed.sport}
                               </p>
-                              <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">🏷️ Categoría:</strong> ${registration.category}
+                              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px;">
+                                <strong style="color: #0F172A;">🏷️ Categoría:</strong> ${registration.category}
                               </p>
-                              <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">📅 Fecha:</strong> ${formatDateForEmail(parsed.date)}
+                              <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px;">
+                                <strong style="color: #0F172A;">📅 Fecha:</strong> ${formatDateForEmail(parsed.date)}
                               </p>
                               ${registration.preferred_location ? `
-                              <p style="margin: 0; color: #666; font-size: 14px;">
-                                <strong style="color: #1a1a2e;">📍 Ubicación:</strong> ${registration.preferred_location}
+                              <p style="margin: 0; color: #64748b; font-size: 14px;">
+                                <strong style="color: #0F172A;">📍 Ubicación:</strong> ${registration.preferred_location}
                               </p>
                               ` : ''}
                             </td>
@@ -319,14 +297,14 @@ const handler = async (req: Request): Promise<Response> => {
                         </table>
 
                         ${getLocationMapLink(registration.preferred_location || '', parsed.sport) ? `
-                        <div style="text-align: center; margin: 25px 0;">
+                        <div style="text-align: center; margin: 30px 0;">
                           <a href="${getLocationMapLink(registration.preferred_location || '', parsed.sport)}" 
                              target="_blank"
                              style="display: inline-block; 
-                                    background-color: #d4af37; 
-                                    color: #1a1a2e; 
-                                    padding: 16px 32px; 
-                                    border-radius: 8px; 
+                                    background-color: #f59e0b; 
+                                    color: #0F172A; 
+                                    padding: 16px 40px; 
+                                    border-radius: 10px; 
                                     text-decoration: none; 
                                     font-weight: bold; 
                                     font-size: 16px;">
@@ -335,20 +313,31 @@ const handler = async (req: Request): Promise<Response> => {
                         </div>
                         ` : ''}
 
-                        <p style="margin: 25px 0 0 0; color: #666; font-size: 14px; line-height: 1.6;">
-                          Si tienes alguna pregunta, no dudes en contactarnos respondiendo a este correo.
+                        ${is24h ? `
+                        <div style="background: #f1f5f9; border-left: 4px solid #f59e0b; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
+                          <p style="margin: 0; color: #0F172A; font-size: 14px; line-height: 1.6;">
+                            <strong>🎁 Recuerda:</strong> Mañana recibirás tu Kit de Inicio White Lions 
+                            (camiseta, calcetas, espinilleras y termo).
+                          </p>
+                        </div>
+                        ` : ''}
+
+                        <p style="margin: 25px 0 0 0; color: #64748b; font-size: 14px; line-height: 1.6;">
+                          Si tienes alguna pregunta, responde a este correo o escríbenos por WhatsApp.
+                        </p>
+
+                        <p style="margin: 25px 0 0 0; color: #334155; font-size: 16px;">
+                          ¡Nos vemos en la cancha! 🦁<br>
+                          <strong style="color: #f59e0b;">El equipo de White Lions Academy</strong>
                         </p>
                       </td>
                     </tr>
 
                     <!-- Footer -->
                     <tr>
-                      <td style="background-color: #1a1a2e; padding: 25px 30px; text-align: center;">
-                        <p style="margin: 0; color: #999; font-size: 12px;">
-                          White Lions Academy - Formando Campeones 🏆
-                        </p>
-                        <p style="margin: 10px 0 0 0; color: #666; font-size: 11px;">
-                          Tijuana, Baja California
+                      <td style="background-color: #0F172A; padding: 25px 30px; text-align: center;">
+                        <p style="margin: 0; color: #64748b; font-size: 12px;">
+                          White Lions Academy – Formamos personas a través del deporte 🏆
                         </p>
                       </td>
                     </tr>
@@ -390,7 +379,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`✅ ${reminderType} sent successfully!`);
 
           // Log to comm_log
-          const { error: insertError } = await supabase
+          await supabase
             .from('comm_log')
             .insert({
               comm_type: reminderType,
@@ -401,15 +390,10 @@ const handler = async (req: Request): Promise<Response> => {
               sent_at: new Date().toISOString()
             });
 
-          if (insertError) {
-            console.error(`⚠️ Error logging to comm_log:`, insertError);
-          }
-
           results.sent++;
         } catch (emailError) {
           console.error(`❌ Error sending ${reminderType}:`, emailError);
           
-          // Log failed attempt
           await supabase
             .from('comm_log')
             .insert({
@@ -427,34 +411,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("\n" + "=" .repeat(60));
     console.log(`🏁 Reminder run complete!`);
-    console.log(`   📊 Processed: ${results.processed}`);
-    console.log(`   ✅ Sent: ${results.sent}`);
-    console.log(`   ⏭️ Skipped: ${results.skipped}`);
-    console.log(`   ❌ Errors: ${results.errors}`);
+    console.log(`📊 Results: ${results.sent} sent, ${results.skipped} skipped, ${results.errors} errors`);
     console.log("=" .repeat(60));
 
     return new Response(
       JSON.stringify({
         success: true,
-        timestamp: now.toISOString(),
-        results
+        results: results,
+        timestamp: now.toISOString()
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json", ...corsHeaders }
       }
     );
 
   } catch (error) {
-    console.error("❌ Fatal error in run-reminders:", error);
+    console.error("❌ Fatal error in reminder handler:", error);
     return new Response(
       JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json", ...corsHeaders }
       }
     );
   }

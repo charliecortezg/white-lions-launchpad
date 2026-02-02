@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import logoWhiteLions from "@/assets/logo-white-lions.png";
-import TrialClassModal from "./TrialClassModal";
+import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -119,7 +119,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <ChallengeRegistrationModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 };

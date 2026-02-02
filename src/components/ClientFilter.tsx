@@ -3,27 +3,34 @@ import AnimatedSection from "./AnimatedSection";
 
 const ClientFilter = () => {
   const weLookFor = [
-    "Niños que quieren divertirse y aprender disciplina",
-    "Padres que valoran la puntualidad y la estructura",
-    "Atletas que entienden que el esfuerzo vence al talento",
+    "Familias comprometidas con la formación de sus hijos",
+    "Padres que valoran la puntualidad, estructura y disciplina",
+    "Niños que quieren pertenecer a algo más grande que ellos",
+    "Atletas que entienden que el proceso es más importante que el resultado",
   ];
 
   const weAreNot = [
-    "Guardería sin supervisión",
-    "Lugar donde solo juegan los \"cracks\"",
-    "Equipo que prioriza trofeos sobre educación",
+    "Un lugar para \"probar a ver si le gusta\"",
+    "Una guardería con balones",
+    "Un equipo que prioriza trofeos sobre personas",
+    "Una academia sin seguimiento ni metodología",
   ];
 
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <AnimatedSection animation="fade-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
-            Nuestra Filosofía: Formamos Personas a través del Deporte.
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-display uppercase tracking-wide">
+              White Lions es para familias que deciden, no para familias que prueban.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-body">
+              Nuestra filosofía: Formamos personas a través del deporte.
+            </p>
+          </div>
         </AnimatedSection>
 
-        <div className="grid md:grid-cols-2 gap-8 mt-12 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 mt-8 max-w-5xl mx-auto">
           {/* Lo que sí buscamos */}
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="bento-card h-full">

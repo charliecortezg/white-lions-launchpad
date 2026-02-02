@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-training.jpg";
-import TrialClassModal from "./TrialClassModal";
+import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 import JoinFamilyModal from "./modals/JoinFamilyModal";
 
 const Hero = () => {
@@ -65,8 +65,8 @@ const Hero = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Headline */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground leading-tight opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            Agenda una
-            <span className="block text-gold">Clase Muestra</span>
+            Inicia el
+            <span className="block text-gold">Reto White Lions</span>
           </h1>
           
           {/* Subtitle */}
@@ -89,11 +89,11 @@ const Hero = () => {
               className="group text-lg md:text-xl px-10 py-6 animate-pulse-subtle hover:animate-none"
               onClick={() => setIsModalOpen(true)}
             >
-              Agendar Clase Muestra
+              🦁 Inscribirme al Reto
               <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Button>
 
-            <Button 
+            <Button
               variant="hero" 
               size="xl"
               onClick={() => setIsJoinModalOpen(true)}
@@ -102,7 +102,7 @@ const Hero = () => {
             </Button>
           </div>
 
-          <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+          <ChallengeRegistrationModal open={isModalOpen} onOpenChange={setIsModalOpen} />
           <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
 
           {/* Stats */}
