@@ -21,12 +21,12 @@ interface ConfirmationEmailRequest {
 
 // Get Google Maps link based on location or sport
 const getLocationMapLink = (location: string, sport: string): string => {
-  const loc = location.toLowerCase();
-  const sp = sport.toLowerCase();
+  const loc = (location || '').toLowerCase();
+  const sp = (sport || '').toLowerCase();
   
   // Check location first
   if (loc.includes('hacienda') || loc.includes('bosque')) {
-    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+    return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
   }
   if (loc.includes('quinta') || loc.includes('rey')) {
     return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
@@ -34,7 +34,7 @@ const getLocationMapLink = (location: string, sport: string): string => {
   
   // Fallback to sport
   if (sp.includes('fútbol') || sp.includes('futbol') || sp.includes('soccer')) {
-    return 'https://maps.app.goo.gl/QUwr6WjptEKwRg6b8';
+    return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
   }
   if (sp.includes('basketball') || sp.includes('basquet') || sp.includes('básquet')) {
     return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
