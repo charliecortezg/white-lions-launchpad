@@ -247,6 +247,38 @@ serve(async (req) => {
         });
       }
 
+      if (action === "delete") {
+        // First, delete related records in email_queue
+        await supabase
+          .from("email_queue")
+          .delete()
+          .eq("prospect_id", id);
+          
+        // Delete related reprogram_tokens
+        await supabase
+          .from("reprogram_tokens")
+          .delete()
+          .eq("prospect_id", id);
+          
+        // Delete related follow_up_tasks if any exist
+        await supabase
+          .from("follow_up_tasks")
+          .delete()
+          .eq("prospect_id", id);
+          
+        // Delete the prospect
+        const { error } = await supabase
+          .from("trial_class_registrations")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       // Default: Update status/notes
       const updateData: Record<string, unknown> = {};
       if (status !== undefined) {
