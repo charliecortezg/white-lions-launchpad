@@ -1,15 +1,15 @@
 
 
-# Plan: ALAN-lite v1 - Motor de Reglas para Pipeline de Clases Muestra
+# Plan: ALAN-lite v1 - Sistema Completo de Reactivación NO-SHOW
 
 ## Resumen Ejecutivo
 
-Implementar automatizaciones para el pipeline de clases muestra:
-- Auto-cambio a "No Asistió" después de 2 horas de gracia post-clase
-- Creación de tareas de llamada para no-shows
-- Emails automáticos de no-show (inmediato + 24h)
-- Acciones rápidas en el Kanban
-- Reprogramación con cancelación/recreación de recordatorios
+Implementar un sistema automatizado de reactivación para prospectos que no asistieron a su clase muestra, con:
+- Secuencia de 3 emails de reactivación en 72h
+- Magic Link multi-uso para reprogramación 1-click
+- Columna "Perdido" con estado terminal automático
+- Airbag anti-duplicados en el formulario
+- Sin tareas de llamadas internas (eliminadas por CEO)
 
 ---
 
@@ -19,367 +19,530 @@ Implementar automatizaciones para el pipeline de clases muestra:
 +-------------------+       +--------------------+       +-------------------+
 |  FORMULARIO WEB   | ----> | trial_class_       | <---- | ADMIN PANEL       |
 | (TrialClassModal) |       | registrations      |       | (Kanban UI)       |
+|                   |       | [DEDUPE/UPSERT]    |       | [+ Perdido column]|
 +-------------------+       +--------------------+       +-------------------+
                                     |
-                                    v
-+-------------------------------------------------------------------+
-|                    EDGE FUNCTIONS                                  |
-+-------------------------------------------------------------------+
-| run-reminders     | send-confirmation | admin-prospects           |
-| (24h/2h)          | (on signup)       | (CRUD manual)             |
-+-------------------+-------------------+---------------------------+
+           +------------------------+------------------------+
+           |                        |                        |
+           v                        v                        v
++-------------------+    +-------------------+    +-------------------+
+| send-confirmation |    | run-reminders     |    | admin-prospects   |
+| (on signup)       |    | (24h/2h)          |    | (CRUD + actions)  |
++-------------------+    +-------------------+    +-------------------+
                                     |
-                                    v
-                    +-------------------------------+
-                    | NUEVO: process-trial-pipeline |
-                    | (cron cada 15 min)            |
-                    +-------------------------------+
-                            |
-            +---------------+---------------+
-            |               |               |
-            v               v               v
-     Auto No-Show    Crear Task      Enviar/Programar
-     (si 22:00)      (call_no_show)  Emails No-Show
+                    +---------------+---------------+
+                    |                               |
+                    v                               v
+      +---------------------------+    +---------------------------+
+      | process-trial-pipeline    |    | NUEVA: /reprogramar/*     |
+      | (cron 15 min)             |    | (Magic Link pages)        |
+      +---------------------------+    +---------------------------+
+              |
+    +---------+---------+---------+
+    |         |         |         |
+    v         v         v         v
+Auto       Queue     Send      Mark
+No-Show    3 Emails  Emails    Lost
+(4h)       (+0/24/72h)  (Resend)  (78h)
 ```
 
 ---
 
 ## Parte 1: Cambios en Base de Datos (SQL Migration)
 
-### 1.1 Nuevas Columnas en `trial_class_registrations`
+### 1.1 Nuevos Campos en `trial_class_registrations`
 
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| `trial_start_at` | timestamptz | Fecha/hora exacta de la clase (calculada al insertar) |
-| `trial_duration_min` | int | Duración de la clase (default 120) |
-| `attendance_grace_min` | int | Tiempo de gracia para marcar asistencia (default 120) |
-| `attendance_marked_at` | timestamptz | Cuando se marcó asistencia |
-| `attendance_marked_by` | text | Quién marcó (email/nombre) |
-| `status_updated_at` | timestamptz | Última actualización de status |
-| `no_show_processed_at` | timestamptz | Para idempotencia del auto-no-show |
+| Campo | Tipo | Propósito |
+|-------|------|-----------|
+| `reactivation_status` | text | 'active' / 'paused' / 'completed' |
+| `reactivation_paused_until` | timestamptz | Cuando reanuda si pausado |
+| `lost_at` | timestamptz | Fecha cuando se marcó perdido |
+| `lost_reason` | text | 'opt_out' / 'no_response_72h' / 'manual' |
+| `email_normalized` | text | Email en minúsculas para dedupe |
+| `phone_normalized` | text | Teléfono limpio (solo números) |
 
-### 1.2 Nueva Tabla: `follow_up_tasks`
+### 1.2 Nueva Tabla: `reprogram_tokens` (Magic Links)
 
 ```text
 +-------------------+-------------+----------------------------------+
-| Columna           | Tipo        | Descripción                      |
+| Campo             | Tipo        | Descripción                      |
 +-------------------+-------------+----------------------------------+
 | id                | uuid PK     | Identificador único              |
-| prospect_id       | uuid FK     | Referencia a trial_class_reg     |
-| type              | text        | 'call_no_show'                   |
-| due_at            | timestamptz | Cuando se debe hacer la tarea    |
-| status            | text        | 'open' / 'done'                  |
-| assigned_to       | text        | 'Carlos' (default)               |
-| notes             | text        | Notas de la llamada              |
-| created_at        | timestamptz | Fecha creación                   |
-| completed_at      | timestamptz | Fecha completada                 |
+| prospect_id       | uuid FK     | Referencia a prospect            |
+| token_hash        | text UNIQUE | SHA256 del token (seguridad)     |
+| expires_at        | timestamptz | Expiración 72h desde creación    |
+| uses_count        | int         | Cuántas veces se usó             |
+| last_used_at      | timestamptz | Última vez que se usó            |
+| created_at        | timestamptz | Fecha de creación                |
 +-------------------+-------------+----------------------------------+
 ```
 
-### 1.3 Nueva Tabla: `email_queue`
+### 1.3 Expandir `email_queue`
 
-Cola de emails programables/cancelables para no-show emails:
+Agregar nuevos templates al CHECK constraint:
+- `no_show_3` (email final)
+- `lost_check` (job interno para marcar perdido)
 
-```text
-+-------------------+-------------+----------------------------------+
-| Columna           | Tipo        | Descripción                      |
-+-------------------+-------------+----------------------------------+
-| id                | uuid PK     | Identificador único              |
-| prospect_id       | uuid FK     | Referencia a trial_class_reg     |
-| template          | text        | 'no_show_1' / 'no_show_2'        |
-| to_email          | text        | Email destino                    |
-| scheduled_for     | timestamptz | Cuando enviar                    |
-| status            | text        | 'queued'/'sent'/'canceled'       |
-| idempotency_key   | text UNIQUE | Para evitar duplicados           |
-| sent_at           | timestamptz | Cuando se envió                  |
-| error             | text        | Mensaje de error si falló        |
-| created_at        | timestamptz | Fecha creación                   |
-+-------------------+-------------+----------------------------------+
-```
+### 1.4 Triggers de Normalización
 
-### 1.4 Trigger para Calcular `trial_start_at`
-
-Al insertar/actualizar `preferred_schedule`, calcular automáticamente `trial_start_at`:
-
-```text
-Trigger: calculate_trial_start_at
-  BEFORE INSERT OR UPDATE ON trial_class_registrations
-  Parsea "miércoles 28 de enero - Lunes y miércoles, 6:00–8:00 pm"
-  Extrae fecha + hora (18:00 para Fútbol, 18:30 para Basketball)
-  Guarda en trial_start_at
-```
+Trigger automático al INSERT/UPDATE para:
+- `email_normalized = LOWER(TRIM(parent_email))`
+- `phone_normalized = REGEXP_REPLACE(contact_phone, '[^0-9]', '', 'g')`
 
 ---
 
-## Parte 2: Edge Function `process-trial-pipeline`
+## Parte 2: Edge Function `process-trial-pipeline` (Actualizada)
 
-### 2.1 Scheduling
-
-- Ejecutar cada 15 minutos vía pg_cron
-- Timezone: America/Tijuana
-
-### 2.2 Regla 1: Auto No-Show
+### 2.1 Regla 1: Auto No-Show (ya existe, mejorar)
 
 ```text
 CUANDO:
   - status IN ('Pendiente', 'Reprogramado')
   - attendance_marked_at IS NULL
   - no_show_processed_at IS NULL
-  - now() > trial_start_at + trial_duration_min + attendance_grace_min
+  - now() > trial_start_at + 4 horas (duración + gracia)
 
-ENTONCES (atómico):
-  1. UPDATE prospect:
-     - status = 'No Asistió'
-     - status_updated_at = now()
-     - no_show_processed_at = now()
-  
-  2. INSERT follow_up_task (si no existe open para mismo prospect):
-     - type = 'call_no_show'
-     - due_at = mañana 09:00 America/Tijuana
-     - assigned_to = 'Carlos'
-  
-  3. INSERT email_queue (con idempotency_key):
-     - no_show_1: scheduled_for = now() (inmediato)
-     - no_show_2: scheduled_for = now() + 24h
+ENTONCES:
+  1. UPDATE prospect: status = 'No Asistió', no_show_processed_at = now()
+  2. Crear/reutilizar reprogram_token (72h, multi-uso)
+  3. Queue 3 emails:
+     - no_show_1: now()
+     - no_show_2: +24h
+     - no_show_3: +72h
+  4. Queue lost_check: +78h (6h después del email 3)
 ```
 
-### 2.3 Regla 2: Procesar Cola de Emails
+### 2.2 Regla 2: Procesar Cola de Emails (mejorar)
+
+Para cada email queued donde `scheduled_for <= now()`:
+
+1. Re-validar elegibilidad:
+   - Si status cambió a ('Asistió', 'Inscrito', 'Pendiente', 'Reprogramado', 'Perdido') → cancelar
+   - Si reactivation_status = 'paused' → cancelar
+
+2. Si es `lost_check`:
+   - Verificar que sigue en 'No Asistió'
+   - Marcar como 'Perdido', lost_reason = 'no_response_72h'
+   - Cancelar emails restantes
+
+3. Si es email de no-show:
+   - Obtener token activo para construir links
+   - Calcular "2 mejores opciones" con getNextBestSlots()
+   - Enviar email con HTML dinámico
+   - Marcar como sent
+
+### 2.3 Función: getNextBestSlots()
 
 ```text
-SELECT * FROM email_queue
-WHERE status = 'queued'
-  AND scheduled_for <= now()
-ORDER BY scheduled_for ASC
-LIMIT 20
-
-PARA CADA email:
-  1. Enviar vía Resend
-  2. UPDATE status = 'sent', sent_at = now()
-  3. INSERT comm_log (para auditoría)
+function getNextBestSlots(prospect, limit = 2):
+  sport = detectSport(prospect.category)
+  
+  if sport == 'Fútbol':
+    validDays = [Lun=1, Mié=3]
+    startHour = 18, startMinute = 0
+  else:  // Basketball
+    validDays = [Mar=2, Jue=4]
+    startHour = 18, startMinute = 30
+  
+  slots = []
+  date = today + 1  // empezar mañana
+  
+  while slots.length < limit AND date < today + 30:
+    if dayOfWeek(date) in validDays:
+      slots.push(date at startHour:startMinute America/Tijuana)
+    date += 1 day
+  
+  return slots
 ```
 
 ---
 
-## Parte 3: Cambios en UI (Kanban)
+## Parte 3: Nuevas Rutas de Reprogramación
 
-### 3.1 Acciones Rápidas en ProspectCard
-
-Agregar al menú de tres puntos:
-
-| Acción | Comportamiento |
-|--------|----------------|
-| **Marcar Asistió** | `status='Asistió'`, `attendance_marked_at=now()`, cerrar tasks open |
-| **Marcar No Asistió** | `status='No Asistió'`, crear task + emails (como regla automática) |
-| **Reprogramar** | Abrir modal de fecha, actualizar `trial_start_at`, cancelar emails viejos, crear nuevos recordatorios |
-| **Marcar Inscrito** | `status='Inscrito'`, cerrar tasks, cancelar emails pendientes |
-
-### 3.2 Modal de Reprogramación
+### 3.1 Página `/reprogramar` (Token Landing)
 
 ```text
-+------------------------------------------+
-| 📅 Reprogramar Clase Muestra             |
-+------------------------------------------+
-| Jugador: Addai Gamez                     |
-| Clase original: mié 28 enero, 6:00 pm    |
-|                                          |
-| Nueva fecha:                             |
-| [Calendario - solo Lun/Mié o Mar/Jue]    |
-|                                          |
-| [ Cancelar ]  [ Confirmar Reprogramación]|
-+------------------------------------------+
+URL: /reprogramar?token=abc123
+
+Flujo:
+1. Validar token (hash match, expires_at > now)
+2. Cargar datos del prospecto
+3. Mostrar UI:
+
++--------------------------------------------------+
+|  🦁 White Lions Academy                          |
++--------------------------------------------------+
+|                                                   |
+|  ¡Hola [tutor_name]! 👋                          |
+|                                                   |
+|  Queremos reservarte el mejor horario para       |
+|  [player_name].                                   |
+|                                                   |
+|  +--------------------------------------------+  |
+|  | 📅 Miércoles 5 de febrero                  |  |
+|  | ⏰ 6:00 PM                                 |  |
+|  | [     ✓ Reservar Este Horario        ]    |  |
+|  +--------------------------------------------+  |
+|                                                   |
+|  +--------------------------------------------+  |
+|  | 📅 Lunes 10 de febrero                     |  |
+|  | ⏰ 6:00 PM                                 |  |
+|  | [     ✓ Reservar Este Horario        ]    |  |
+|  +--------------------------------------------+  |
+|                                                   |
+|  [Ver más horarios disponibles →]                |
+|                                                   |
+|  ─────────────────────────────────               |
+|  [Pausar mensajes por ahora]                     |
++--------------------------------------------------+
 ```
 
-### 3.3 Vista "Tareas de Hoy"
-
-Agregar botón/pestaña en header del admin panel:
+### 3.2 Endpoint `/reprogramar/confirm`
 
 ```text
-+------------------------------------------------------------------+
-|  🦁 WHITE LIONS - Panel de Seguimiento                           |
-|  [Filtros...] [📅 Calendario] [📋 Tareas (3)]  <-- Nuevo botón   |
-+------------------------------------------------------------------+
+GET /reprogramar/confirm?token=abc123&slot=2026-02-05T18:00:00-08:00
+
+Acciones:
+1. Validar token
+2. Validar slot (pertenece a horarios válidos del deporte)
+3. Actualizar prospecto:
+   - trial_start_at = slot
+   - status = 'Reprogramado'
+   - attendance_marked_at = NULL
+   - no_show_processed_at = NULL
+   - reactivation_status = 'completed'
+4. Cancelar email_queue pendientes
+5. Recrear recordatorios 24h/2h
+6. Incrementar token uses_count
+7. Mostrar confirmación con botón Google Maps
 ```
 
-Modal de tareas:
+### 3.3 Endpoint `/reactivacion/pausar`
 
 ```text
-+------------------------------------------+
-| 📋 Tareas de Hoy - Carlos                |
-+------------------------------------------+
-| 📞 Llamar: Addai Gamez (No asistió)      |
-|    📱 686-XXX-XXXX  [Llamar] [✓ Done]    |
-+------------------------------------------+
-| 📞 Llamar: María López (No asistió)      |
-|    📱 686-YYY-YYYY  [Llamar] [✓ Done]    |
-+------------------------------------------+
+GET /reactivacion/pausar?token=abc123
+
+Acciones:
+1. Validar token
+2. Actualizar prospecto:
+   - status = 'Perdido'
+   - reactivation_status = 'paused'
+   - reactivation_paused_until = now + 30 días
+   - lost_at = now
+   - lost_reason = 'opt_out'
+3. Cancelar email_queue pendientes
+4. Mostrar confirmación
 ```
 
 ---
 
-## Parte 4: Templates de Email No-Show
+## Parte 4: Airbag Anti-Duplicados (Form Submit)
 
-### 4.1 Email No-Show Inmediato (`no_show_1`)
+### 4.1 Lógica de Dedupe/Upsert
+
+Al hacer submit del formulario TrialClassModal:
 
 ```text
-Asunto: "Te extrañamos hoy - White Lions Academy"
+1. Normalizar datos:
+   email_normalized = LOWER(TRIM(email))
+   phone_normalized = solo dígitos
+
+2. Buscar prospecto existente:
+   SELECT * FROM trial_class_registrations
+   WHERE (email_normalized = :email OR phone_normalized = :phone)
+     AND status NOT IN ('Inscrito', 'Perdido')
+     AND created_at >= now() - 45 days
+   ORDER BY created_at DESC
+   LIMIT 1
+
+3. Si existe:
+   UPDATE (no INSERT):
+     - trial_start_at = nuevo slot
+     - status = 'Reprogramado' (si estaba en No Asistió)
+     - status = 'Pendiente' (si estaba en otro estado)
+     - attendance_marked_at = NULL
+     - no_show_processed_at = NULL
+     - Cancelar emails pendientes
+     
+4. Si no existe:
+   INSERT normal
+```
+
+### 4.2 Modificar TrialClassModal
+
+Agregar lógica de dedupe antes del insert, mostrar mensaje si se actualiza registro existente.
+
+---
+
+## Parte 5: UI Kanban (Admin Panel)
+
+### 5.1 Nueva Columna "Perdido"
+
+Agregar al array de columnas:
+```text
+{ status: "Perdido", title: "Perdido", colorClass: "text-gray-400" }
+```
+
+### 5.2 Acciones Rápidas Actualizadas
+
+| Acción | Disponible en | Comportamiento |
+|--------|---------------|----------------|
+| Marcar Asistió | Pendiente, Reprogramado | status='Asistió', attendance_marked_at=now, cancelar emails |
+| Marcar No Asistió | Pendiente, Reprogramado | status='No Asistió', queue emails, crear token |
+| Reprogramar | Cualquiera menos Inscrito/Perdido | Modal con selector de fecha |
+| Marcar Inscrito | Asistió | status='Inscrito', cancelar emails |
+| Marcar Perdido | No Asistió | status='Perdido', lost_reason='manual', cancelar emails |
+
+### 5.3 Indicador Visual de Reactivación
+
+En tarjetas de "No Asistió", mostrar badge pequeño:
+- 📧 Email 1 enviado
+- 📧📧 Email 2 enviado
+- 📧📧📧 Email 3 enviado
+- ⏸️ Pausado
+
+---
+
+## Parte 6: Templates de Email No-Show
+
+### 6.1 Email 1 - Inmediato (Empatía)
+
+```text
+Asunto: "Te extrañamos hoy - White Lions Academy 🦁"
 
 Cuerpo:
-  Hola [tutor_name],
+  ¡Hola [tutor_name]! 👋
   
   Notamos que [player_name] no pudo asistir a su clase muestra de hoy.
-  ¡No te preocupes! Podemos agendar otra fecha.
+  ¡No te preocupes! Sabemos que las agendas cambian.
   
-  [Botón: Reprogramar mi Clase Muestra]
+  Te reservamos los mejores horarios disponibles:
   
-  Si tienes alguna pregunta, responde a este correo.
+  [Botón 1: 📅 Miércoles 5 de febrero - 6:00 PM]
+  [Botón 2: 📅 Lunes 10 de febrero - 6:00 PM]
+  
+  [Link: Ver más horarios →]
+  
+  ¿Preguntas? Responde a este correo.
   
   — El equipo de White Lions
 ```
 
-### 4.2 Email No-Show +24h (`no_show_2`)
+### 6.2 Email 2 - +24h (Recordatorio)
 
 ```text
 Asunto: "¿Agendamos otra fecha? - White Lions Academy"
 
 Cuerpo:
-  Hola [tutor_name],
+  ¡Hola [tutor_name]!
   
-  Queremos asegurarnos de que [player_name] tenga la oportunidad
-  de conocer nuestra academia.
+  Solo un recordatorio de que [player_name] todavía puede conocer
+  nuestra academia. ¡Nos encantaría verlo/a!
   
-  ¿Te gustaría reprogramar la clase muestra?
+  Opciones disponibles:
   
-  [Botón: Agendar Nueva Fecha]
+  [Botón 1: 📅 Opción recalculada 1]
+  [Botón 2: 📅 Opción recalculada 2]
   
-  Este enlace expira en 72 horas.
+  [Link: Ver más horarios →]
   
   — El equipo de White Lions
 ```
 
-### 4.3 Link de Reprogramación
+### 6.3 Email 3 - +72h (Cierre)
 
-- URL: `https://whitelionsacademy.com/reprogramar?token=xxxxx`
-- Token generado con UUID + expiración 72h
-- Almacenar en nueva tabla `reschedule_tokens`
+```text
+Asunto: "Cerramos tu lugar por ahora - White Lions"
+
+Cuerpo:
+  ¡Hola [tutor_name]!
+  
+  Como no hemos podido coordinar una nueva fecha para
+  [player_name], vamos a cerrar tu lugar por ahora.
+  
+  Si en el futuro quieres una clase muestra, 
+  estaremos encantados de recibirte:
+  
+  [Botón: 🗓️ Agendar Clase Muestra]
+  
+  ─────────────────────
+  [Link pequeño: No deseo recibir más mensajes]
+  
+  ¡Gracias!
+  — El equipo de White Lions
+```
 
 ---
 
-## Parte 5: Archivos a Crear
+## Parte 7: Archivos a Crear
 
 | Archivo | Propósito |
 |---------|-----------|
-| `supabase/functions/process-trial-pipeline/index.ts` | Edge function principal del motor de reglas |
-| `src/components/admin/RescheduleModal.tsx` | Modal para reprogramar clase |
-| `src/components/admin/TasksModal.tsx` | Modal para ver tareas de hoy |
+| `src/pages/Reprogramar.tsx` | Página landing de Magic Link |
+| `src/pages/ReprogramarConfirm.tsx` | Confirmación de reprogramación |
+| `src/pages/PausarReactivacion.tsx` | Opt-out de mensajes |
+| `supabase/functions/reprogramar-api/index.ts` | Edge function para validar tokens y confirmar |
 
 ---
 
-## Parte 6: Archivos a Modificar
+## Parte 8: Archivos a Modificar
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/components/admin/ProspectCard.tsx` | Agregar acciones rápidas al menú |
-| `src/components/admin/ProspectFilters.tsx` | Agregar botón de tareas |
-| `src/pages/AdminPanel.tsx` | Integrar modales y handlers |
-| `supabase/functions/admin-prospects/index.ts` | Expandir para soportar nuevas acciones |
-| `supabase/config.toml` | Agregar config para nueva edge function |
+| `supabase/functions/process-trial-pipeline/index.ts` | Agregar regla lost_check, 3 emails, tokens |
+| `supabase/functions/admin-prospects/index.ts` | Agregar acción mark_lost |
+| `src/components/admin/KanbanBoard.tsx` | Agregar columna Perdido |
+| `src/components/admin/ProspectCard.tsx` | Agregar acción Marcar Perdido |
+| `src/components/TrialClassModal.tsx` | Implementar dedupe/upsert |
+| `src/App.tsx` | Agregar rutas /reprogramar/* |
 
 ---
 
-## Parte 7: Criterios de Aceptación
+## Parte 9: Criterios de Aceptación
 
 | # | Escenario | Resultado Esperado |
 |---|-----------|-------------------|
-| 1 | Prospecto registra clase para mié 28 enero 18:00 | `trial_start_at` se calcula automáticamente |
-| 2 | A las 22:01 del 28 enero, sin marcar asistencia | Auto-cambio a "No Asistió", task creada para 29 enero 9:00am, email 1 enviado, email 2 programado +24h |
-| 3 | Staff marca "Asistió" a las 20:00 | `attendance_marked_at` = 20:00, NO se auto-cambia a No Asistió |
-| 4 | Correr cron 5 veces seguidas | Solo 1 task y 2 emails por prospecto (idempotencia) |
-| 5 | Reprogramar desde UI | Status = "Reprogramado", nueva `trial_start_at`, recordatorios viejos cancelados, nuevos creados |
-| 6 | Marcar "Inscrito" | Tasks cerradas, emails no-show cancelados |
+| 1 | **Auto No-Show**: Clase a las 18:00, no se marca asistencia | A las 22:01, status='No Asistió', 3 emails programados, token creado |
+| 2 | **Reprogramación 1-click**: Click en botón de email | Actualiza MISMO prospecto, NO crea duplicado, cancela secuencia, crea nuevos recordatorios |
+| 3 | **Opt-out**: Click "Pausar mensajes" | status='Perdido', lost_reason='opt_out', emails cancelados |
+| 4 | **Auto Lost**: No responde tras email 3 | 6h después, status='Perdido', lost_reason='no_response_72h' |
+| 5 | **Dedupe Form**: Mismo email/teléfono dentro de 45 días | UPDATE del prospecto existente, NO crea nuevo |
+| 6 | **Idempotencia**: Cron corre 5 veces seguidas | Solo 1 token, solo 3 emails, sin duplicados |
+| 7 | **Magic Link Multi-uso**: Usa link 3 veces | Funciona las 3 veces (token no se invalida), pero después de confirmar una vez el status cambia |
+
+---
+
+## Sección Técnica
+
+### Hash de Token (Seguridad)
+
+```text
+// Generar token
+const token = crypto.randomUUID();
+const tokenHash = await crypto.subtle.digest('SHA-256', 
+  new TextEncoder().encode(token)
+);
+const hashHex = Array.from(new Uint8Array(tokenHash))
+  .map(b => b.toString(16).padStart(2, '0'))
+  .join('');
+
+// Almacenar hashHex en DB, enviar token en claro por email
+```
+
+### Cálculo de Slots Disponibles
+
+```text
+function getNextBestSlots(sport: string, limit: number = 2) {
+  const now = new Date();
+  const tijuanaNow = new Date(now.toLocaleString('en-US', { 
+    timeZone: 'America/Tijuana' 
+  }));
+  
+  const validDays = sport === 'Fútbol' ? [1, 3] : [2, 4];
+  const hour = sport === 'Fútbol' ? 18 : 18;
+  const minute = sport === 'Fútbol' ? 0 : 30;
+  
+  const slots: Date[] = [];
+  const checkDate = new Date(tijuanaNow);
+  checkDate.setDate(checkDate.getDate() + 1); // Empezar mañana
+  
+  while (slots.length < limit) {
+    if (validDays.includes(checkDate.getDay())) {
+      const slot = new Date(checkDate);
+      slot.setHours(hour, minute, 0, 0);
+      slots.push(slot);
+    }
+    checkDate.setDate(checkDate.getDate() + 1);
+    if (checkDate > addDays(tijuanaNow, 30)) break;
+  }
+  
+  return slots;
+}
+```
+
+### Normalización de Datos
+
+```text
+// SQL Trigger
+CREATE OR REPLACE FUNCTION normalize_contact_data()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.parent_email IS NOT NULL THEN
+    NEW.email_normalized := LOWER(TRIM(NEW.parent_email));
+  END IF;
+  
+  IF NEW.contact_phone IS NOT NULL THEN
+    NEW.phone_normalized := REGEXP_REPLACE(NEW.contact_phone, '[^0-9]', '', 'g');
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### Idempotency Keys Actualizados
+
+```text
+// Para emails
+no_show_1_{prospect_id}_{date_YYYYMMDD}
+no_show_2_{prospect_id}_{date_YYYYMMDD}
+no_show_3_{prospect_id}_{date_YYYYMMDD}
+lost_check_{prospect_id}_{date_YYYYMMDD}
+
+// Para tokens (reutilizables)
+- Un solo token activo por prospect
+- Si existe token no expirado, reutilizar
+- Si expiró, crear nuevo
+```
+
+### URLs de Reprogramación
+
+```text
+Base URL: https://whitelionsacademy.com
+
+/reprogramar?token={uuid}
+  → Muestra 2 mejores opciones + ver más
+
+/reprogramar/confirm?token={uuid}&slot={ISO_DATETIME}
+  → Confirma la reprogramación
+
+/reactivacion/pausar?token={uuid}
+  → Opt-out de mensajes
+```
 
 ---
 
 ## Secuencia de Implementación
 
 ```text
-1. Migration SQL (tablas + trigger)
-   ↓
-2. Edge Function process-trial-pipeline
-   ↓
-3. Configurar pg_cron
-   ↓
-4. Modificar admin-prospects (nuevas acciones)
-   ↓
-5. UI: RescheduleModal + TasksModal
-   ↓
-6. UI: Actualizar ProspectCard con acciones
-   ↓
+1. SQL Migration
+   - Nuevos campos en trial_class_registrations
+   - Tabla reprogram_tokens
+   - Expandir email_queue templates
+   - Triggers de normalización
+   
+2. Edge Function: reprogramar-api
+   - Validar token
+   - Confirmar slot
+   - Pausar reactivación
+   
+3. Actualizar process-trial-pipeline
+   - Crear tokens al auto no-show
+   - Queue 3 emails + lost_check
+   - Procesar lost_check
+   
+4. Páginas de Reprogramación
+   - /reprogramar (landing)
+   - Confirmación
+   - Pausar
+   
+5. UI Admin
+   - Columna Perdido
+   - Acción Marcar Perdido
+   
+6. Dedupe en Formulario
+   - Modificar TrialClassModal
+   
 7. Testing end-to-end
-```
-
----
-
-## Sección Técnica
-
-### Cálculo de Hora de Clase
-
-```text
-function calculateTrialStartAt(preferredSchedule: string): Date {
-  // "miércoles 28 de enero - Lunes y miércoles, 6:00–8:00 pm"
-  
-  // 1. Extraer fecha: "28 de enero"
-  const dateMatch = schedule.match(/(\d{1,2})\s+de\s+(\w+)/i);
-  const day = parseInt(dateMatch[1]);
-  const month = MONTH_MAP[dateMatch[2].toLowerCase()];
-  
-  // 2. Determinar hora según deporte
-  // "Lunes y miércoles" -> Fútbol -> 18:00
-  // "Martes y jueves" -> Basketball -> 18:30
-  const isFutbol = schedule.toLowerCase().includes('lunes y miércoles');
-  const hour = isFutbol ? 18 : 18;
-  const minute = isFutbol ? 0 : 30;
-  
-  // 3. Crear timestamp en America/Tijuana
-  return new Date(year, month, day, hour, minute);
-}
-```
-
-### Ventana de Gracia
-
-```text
-Clase: 18:00 - 20:00 (120 min duración)
-Gracia: 120 min adicionales
-Deadline para marcar asistencia: 22:00
-
-Si a las 22:01 no hay attendance_marked_at:
-  → Auto No-Show
-```
-
-### Idempotency Keys
-
-```text
-// Para tareas
-task_key = `call_no_show_${prospect_id}_${date_YYYYMMDD}`
-
-// Para emails
-email_key_1 = `no_show_1_${prospect_id}_${date_YYYYMMDD}`
-email_key_2 = `no_show_2_${prospect_id}_${date_YYYYMMDD}`
-
-// Para recordatorios (existente en comm_log)
-reminder_key = `reminder_24h_${prospect_id}_${trial_start_at_date}`
-```
-
-### RLS para Nuevas Tablas
-
-```text
-follow_up_tasks:
-  - SELECT/UPDATE: admin o staff
-  - INSERT: via service_role desde edge function
-  - DELETE: admin only
-
-email_queue:
-  - SELECT: admin o staff
-  - INSERT/UPDATE: via service_role desde edge function
-  - DELETE: admin only
 ```
 
