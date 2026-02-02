@@ -79,12 +79,12 @@ serve(async (req) => {
 
         if (error) throw error;
 
-        // Close any open tasks for this prospect
+        // Cancel pending no-show emails
         await supabase
-          .from("follow_up_tasks")
-          .update({ status: "done", completed_at: now.toISOString() })
+          .from("email_queue")
+          .update({ status: "canceled" })
           .eq("prospect_id", id)
-          .eq("status", "open");
+          .eq("status", "queued");
 
         return new Response(JSON.stringify({ data }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -107,28 +107,6 @@ serve(async (req) => {
           .single();
 
         if (error) throw error;
-
-        // Create follow-up task (with idempotency)
-        const taskIdempotencyKey = `call_no_show_${id}_${getIdempotencyDate()}`;
-        
-        const { data: existingTask } = await supabase
-          .from("follow_up_tasks")
-          .select("id")
-          .eq("idempotency_key", taskIdempotencyKey)
-          .maybeSingle();
-
-        if (!existingTask) {
-          await supabase
-            .from("follow_up_tasks")
-            .insert({
-              prospect_id: id,
-              type: "call_no_show",
-              due_at: getTomorrowAt9AM().toISOString(),
-              status: "open",
-              assigned_to: "Carlos",
-              idempotency_key: taskIdempotencyKey,
-            });
-        }
 
         // Queue no-show emails (with idempotency)
         if (data.parent_email) {
@@ -198,13 +176,6 @@ serve(async (req) => {
 
         if (error) throw error;
 
-        // Close any open tasks
-        await supabase
-          .from("follow_up_tasks")
-          .update({ status: "done", completed_at: now.toISOString() })
-          .eq("prospect_id", id)
-          .eq("status", "open");
-
         // Cancel pending no-show emails
         await supabase
           .from("email_queue")
@@ -233,13 +204,6 @@ serve(async (req) => {
           .single();
 
         if (error) throw error;
-
-        // Close any open tasks
-        await supabase
-          .from("follow_up_tasks")
-          .update({ status: "done", completed_at: now.toISOString() })
-          .eq("prospect_id", id)
-          .eq("status", "open");
 
         // Cancel pending emails
         await supabase
@@ -277,13 +241,6 @@ serve(async (req) => {
           .update({ status: "canceled" })
           .eq("prospect_id", id)
           .eq("status", "queued");
-
-        // Close any open tasks
-        await supabase
-          .from("follow_up_tasks")
-          .update({ status: "done", completed_at: now.toISOString() })
-          .eq("prospect_id", id)
-          .eq("status", "open");
 
         return new Response(JSON.stringify({ data }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },

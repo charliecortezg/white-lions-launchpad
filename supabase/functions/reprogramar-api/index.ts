@@ -6,57 +6,111 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper: Get next best slots based on sport
-function getNextBestSlots(category: string, limit: number = 2): { date: Date; formatted: string; iso: string }[] {
+// Schedule type for class_schedules table
+interface ClassSchedule {
+  id: string;
+  sport: string;
+  day_of_week: number;
+  start_hour: number;
+  start_minute: number;
+  duration_minutes: number;
+  location_name: string;
+  location_zone: string | null;
+  maps_url: string | null;
+  is_active: boolean;
+}
+
+// Helper: Detect sport from category
+function detectSport(category: string): string {
+  const lower = category.toLowerCase();
+  if (lower.includes('basket') || lower.includes('básquet') || lower.includes('basquet')) {
+    return 'Basketball';
+  }
+  return 'Fútbol';
+}
+
+// Helper: Get next best slots from class_schedules table
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getNextBestSlots(
+  supabase: any,
+  category: string,
+  limit: number = 2
+): Promise<{ date: Date; formatted: string; iso: string; location: string; maps_url: string }[]> {
+  const sport = detectSport(category);
+  
+  // Fetch schedules from DB
+  const { data, error } = await supabase
+    .from('class_schedules')
+    .select('*')
+    .eq('sport', sport)
+    .eq('is_active', true);
+
+  const schedules = data as ClassSchedule[] | null;
+  if (error || !schedules || schedules.length === 0) {
+    console.error('Error fetching schedules:', error);
+    return [];
+  }
+
+  // Calculate next N slots using America/Tijuana timezone
   const now = new Date();
-  // Use Tijuana timezone
-  const tijuanaOffset = -8 * 60; // PST
-  const localOffset = now.getTimezoneOffset();
-  const diff = tijuanaOffset - localOffset;
-  const tijuanaNow = new Date(now.getTime() + diff * 60 * 1000);
+  const tijuanaFormatter = new Intl.DateTimeFormat('en-US', { 
+    timeZone: 'America/Tijuana',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  });
   
-  // Detect sport from category
-  const lowerCategory = category.toLowerCase();
-  const isFutbol = lowerCategory.includes('fútbol') || 
-                   lowerCategory.includes('futbol') || 
-                   lowerCategory.includes('escuelita') || 
-                   lowerCategory.includes('estrellita') ||
-                   lowerCategory.includes('infantil') ||
-                   lowerCategory.includes('juvenil');
-  
-  // Fútbol: Mon(1), Wed(3) at 18:00
-  // Basketball: Tue(2), Thu(4) at 18:30
-  const validDays = isFutbol ? [1, 3] : [2, 4];
-  const hour = isFutbol ? 18 : 18;
-  const minute = isFutbol ? 0 : 30;
-  
-  const slots: { date: Date; formatted: string; iso: string }[] = [];
-  const checkDate = new Date(tijuanaNow);
+  const slots: { date: Date; formatted: string; iso: string; location: string; maps_url: string }[] = [];
+  const checkDate = new Date(now);
   checkDate.setDate(checkDate.getDate() + 1); // Start tomorrow
   
   const dayNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   
-  while (slots.length < limit && checkDate.getTime() < tijuanaNow.getTime() + 30 * 24 * 60 * 60 * 1000) {
-    if (validDays.includes(checkDate.getDay())) {
-      const slotDate = new Date(checkDate);
-      slotDate.setHours(hour, minute, 0, 0);
-      
-      // Convert back to UTC for storage
-      const utcSlot = new Date(slotDate.getTime() - diff * 60 * 1000);
-      
-      const dayName = dayNames[slotDate.getDay()];
-      const monthName = monthNames[slotDate.getMonth()];
-      const timeStr = isFutbol ? '6:00 PM' : '6:30 PM';
-      
-      slots.push({
-        date: utcSlot,
-        formatted: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${slotDate.getDate()} de ${monthName} - ${timeStr}`,
-        iso: utcSlot.toISOString(),
-      });
+  let daysChecked = 0;
+  while (slots.length < limit && daysChecked < 30) {
+    // Get day of week in Tijuana timezone
+    const tijuanaParts = tijuanaFormatter.formatToParts(checkDate);
+    const getDayOfWeek = () => {
+      const tempDate = new Date(checkDate.toLocaleString('en-US', { timeZone: 'America/Tijuana' }));
+      return tempDate.getDay();
+    };
+    const dayOfWeek = getDayOfWeek();
+    
+    for (const schedule of schedules) {
+      if (schedule.day_of_week === dayOfWeek && slots.length < limit) {
+        // Create slot date in Tijuana time
+        const slotDate = new Date(checkDate);
+        
+        // Get the date parts for Tijuana
+        const yearPart = tijuanaParts.find(p => p.type === 'year')?.value || String(slotDate.getFullYear());
+        const monthPart = tijuanaParts.find(p => p.type === 'month')?.value || '01';
+        const dayPart = tijuanaParts.find(p => p.type === 'day')?.value || '01';
+        
+        // Create a date string for Tijuana timezone
+        const tijuanaDateStr = `${yearPart}-${monthPart}-${dayPart}T${String(schedule.start_hour).padStart(2, '0')}:${String(schedule.start_minute).padStart(2, '0')}:00`;
+        
+        // Parse as a Tijuana date and convert to UTC
+        const tijuanaDate = new Date(tijuanaDateStr);
+        // Tijuana is UTC-8 (PST), so we add 8 hours to get UTC
+        const utcDate = new Date(tijuanaDate.getTime() + 8 * 60 * 60 * 1000);
+        
+        const dayName = dayNames[dayOfWeek];
+        const monthName = monthNames[parseInt(monthPart) - 1];
+        const timeStr = `${schedule.start_hour > 12 ? schedule.start_hour - 12 : schedule.start_hour}:${String(schedule.start_minute).padStart(2, '0')} PM`;
+        
+        slots.push({
+          date: utcDate,
+          formatted: `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${parseInt(dayPart)} de ${monthName} - ${timeStr}`,
+          iso: utcDate.toISOString(),
+          location: schedule.location_name,
+          maps_url: schedule.maps_url || '',
+        });
+      }
     }
+    
     checkDate.setDate(checkDate.getDate() + 1);
+    daysChecked++;
   }
   
   return slots;
@@ -72,58 +126,21 @@ async function hashToken(token: string): Promise<string> {
 }
 
 // Helper: Get schedule string
-function getScheduleString(category: string, date: Date): string {
-  const lowerCategory = category.toLowerCase();
-  const isFutbol = lowerCategory.includes('fútbol') || 
-                   lowerCategory.includes('futbol') || 
-                   lowerCategory.includes('escuelita') || 
-                   lowerCategory.includes('estrellita') ||
-                   lowerCategory.includes('infantil') ||
-                   lowerCategory.includes('juvenil');
+function getScheduleString(sport: string, date: Date): string {
+  const isFutbol = sport === 'Fútbol';
   
   const dayNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
                       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   
   // Convert to Tijuana timezone for display
-  const tijuanaOffset = -8 * 60;
-  const localOffset = date.getTimezoneOffset();
-  const diff = tijuanaOffset - localOffset;
-  const tijuanaDate = new Date(date.getTime() + diff * 60 * 1000);
+  const tijuanaDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Tijuana' }));
   
   const dayName = dayNames[tijuanaDate.getDay()];
   const monthName = monthNames[tijuanaDate.getMonth()];
   const schedule = isFutbol ? 'Lunes y miércoles, 6:00–8:00 pm' : 'Martes y jueves, 6:30–8:00 pm';
   
   return `${dayName} ${tijuanaDate.getDate()} de ${monthName} - ${schedule}`;
-}
-
-// Helper: Get location based on category
-function getLocation(category: string): string {
-  const lowerCategory = category.toLowerCase();
-  const isFutbol = lowerCategory.includes('fútbol') || 
-                   lowerCategory.includes('futbol') || 
-                   lowerCategory.includes('escuelita') || 
-                   lowerCategory.includes('estrellita') ||
-                   lowerCategory.includes('infantil') ||
-                   lowerCategory.includes('juvenil');
-  
-  return isFutbol ? 'Campo Hacienda del Bosque' : 'Parque Quinta del Rey III';
-}
-
-// Helper: Get Google Maps URL
-function getMapsUrl(category: string): string {
-  const lowerCategory = category.toLowerCase();
-  const isFutbol = lowerCategory.includes('fútbol') || 
-                   lowerCategory.includes('futbol') || 
-                   lowerCategory.includes('escuelita') || 
-                   lowerCategory.includes('estrellita') ||
-                   lowerCategory.includes('infantil') ||
-                   lowerCategory.includes('juvenil');
-  
-  return isFutbol 
-    ? 'https://maps.app.goo.gl/7qjS6oXQkdCQiL6X7'
-    : 'https://maps.app.goo.gl/5n2sFhdCn7sFzQWD8';
 }
 
 serve(async (req) => {
@@ -174,10 +191,15 @@ serve(async (req) => {
     }
 
     const prospect = tokenData.prospect;
+    const sport = detectSport(prospect.category);
 
     // ACTION: GET_INFO - Return prospect info and available slots
     if (action === "get_info" || !action) {
-      const slots = getNextBestSlots(prospect.category, 2);
+      const slots = await getNextBestSlots(supabase, prospect.category, 2);
+      
+      // Get location from first slot or use fallback
+      const location = slots[0]?.location || (sport === 'Fútbol' ? 'Campo Hacienda del Bosque' : 'Parque Quinta del Rey III');
+      const mapsUrl = slots[0]?.maps_url || (sport === 'Fútbol' ? 'https://maps.app.goo.gl/7qjS6oXQkdCQiL6X7' : 'https://maps.app.goo.gl/5n2sFhdCn7sFzQWD8');
       
       return new Response(
         JSON.stringify({
@@ -187,10 +209,10 @@ serve(async (req) => {
             tutor_name: prospect.tutor_name,
             category: prospect.category,
             status: prospect.status,
-            location: getLocation(prospect.category),
-            maps_url: getMapsUrl(prospect.category),
+            location,
+            maps_url: mapsUrl,
           },
-          slots,
+          slots: slots.map(s => ({ formatted: s.formatted, iso: s.iso })),
           token_valid: true,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -221,7 +243,7 @@ serve(async (req) => {
         .from("trial_class_registrations")
         .update({
           trial_start_at: slotDate.toISOString(),
-          preferred_schedule: getScheduleString(prospect.category, slotDate),
+          preferred_schedule: getScheduleString(sport, slotDate),
           status: "Reprogramado",
           attendance_marked_at: null,
           no_show_processed_at: null,
@@ -232,19 +254,12 @@ serve(async (req) => {
 
       if (updateError) throw updateError;
 
-      // Cancel pending no-show emails
+      // Cancel pending no-show emails AND reminder emails
       await supabase
         .from("email_queue")
         .update({ status: "canceled" })
         .eq("prospect_id", prospect.id)
         .eq("status", "queued");
-
-      // Close open follow-up tasks
-      await supabase
-        .from("follow_up_tasks")
-        .update({ status: "done", completed_at: now.toISOString() })
-        .eq("prospect_id", prospect.id)
-        .eq("status", "open");
 
       // Update token usage
       await supabase
@@ -255,6 +270,11 @@ serve(async (req) => {
         })
         .eq("id", tokenData.id);
 
+      // Get location for confirmation
+      const slots = await getNextBestSlots(supabase, prospect.category, 1);
+      const location = slots[0]?.location || (sport === 'Fútbol' ? 'Campo Hacienda del Bosque' : 'Parque Quinta del Rey III');
+      const mapsUrl = slots[0]?.maps_url || (sport === 'Fútbol' ? 'https://maps.app.goo.gl/7qjS6oXQkdCQiL6X7' : 'https://maps.app.goo.gl/5n2sFhdCn7sFzQWD8');
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -263,9 +283,9 @@ serve(async (req) => {
             player_name: prospect.player_name,
             tutor_name: prospect.tutor_name,
             category: prospect.category,
-            new_date: getScheduleString(prospect.category, slotDate),
-            location: getLocation(prospect.category),
-            maps_url: getMapsUrl(prospect.category),
+            new_date: getScheduleString(sport, slotDate),
+            location,
+            maps_url: mapsUrl,
           },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -299,13 +319,6 @@ serve(async (req) => {
         .eq("prospect_id", prospect.id)
         .eq("status", "queued");
 
-      // Close open tasks
-      await supabase
-        .from("follow_up_tasks")
-        .update({ status: "done", completed_at: now.toISOString() })
-        .eq("prospect_id", prospect.id)
-        .eq("status", "open");
-
       return new Response(
         JSON.stringify({
           success: true,
@@ -321,12 +334,12 @@ serve(async (req) => {
 
     // ACTION: GET_ALL_SLOTS - Return more slots for "ver más horarios"
     if (action === "get_all_slots") {
-      const slots = getNextBestSlots(prospect.category, 8);
+      const slots = await getNextBestSlots(supabase, prospect.category, 8);
       
       return new Response(
         JSON.stringify({
           success: true,
-          slots,
+          slots: slots.map(s => ({ formatted: s.formatted, iso: s.iso })),
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
