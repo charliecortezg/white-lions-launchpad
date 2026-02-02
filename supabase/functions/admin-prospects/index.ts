@@ -190,6 +190,7 @@ serve(async (req) => {
           .update({
             status: "Inscrito",
             status_updated_at: now.toISOString(),
+            reactivation_status: "completed",
           })
           .eq("id", id)
           .select()
@@ -205,6 +206,42 @@ serve(async (req) => {
           .eq("status", "open");
 
         // Cancel pending no-show emails
+        await supabase
+          .from("email_queue")
+          .update({ status: "canceled" })
+          .eq("prospect_id", id)
+          .eq("status", "queued");
+
+        return new Response(JSON.stringify({ data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (action === "mark_lost") {
+        // Mark as lost manually
+        const { data, error } = await supabase
+          .from("trial_class_registrations")
+          .update({
+            status: "Perdido",
+            status_updated_at: now.toISOString(),
+            lost_at: now.toISOString(),
+            lost_reason: "manual",
+            reactivation_status: "completed",
+          })
+          .eq("id", id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Close any open tasks
+        await supabase
+          .from("follow_up_tasks")
+          .update({ status: "done", completed_at: now.toISOString() })
+          .eq("prospect_id", id)
+          .eq("status", "open");
+
+        // Cancel pending emails
         await supabase
           .from("email_queue")
           .update({ status: "canceled" })

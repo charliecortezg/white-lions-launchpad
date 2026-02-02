@@ -230,6 +230,44 @@ export type Database = {
           },
         ]
       }
+      reprogram_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          last_used_at: string | null
+          prospect_id: string
+          token_hash: string
+          uses_count: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_used_at?: string | null
+          prospect_id: string
+          token_hash: string
+          uses_count?: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_used_at?: string | null
+          prospect_id?: string
+          token_hash?: string
+          uses_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reprogram_tokens_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "trial_class_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trial_class_registrations: {
         Row: {
           age_or_birth_year: string
@@ -240,13 +278,19 @@ export type Database = {
           comments: string | null
           contact_phone: string
           created_at: string
+          email_normalized: string | null
           id: string
+          lost_at: string | null
+          lost_reason: string | null
           no_show_processed_at: string | null
           notes: string | null
           parent_email: string | null
+          phone_normalized: string | null
           player_name: string
           preferred_location: string
           preferred_schedule: string
+          reactivation_paused_until: string | null
+          reactivation_status: string
           status: string
           status_updated_at: string
           trial_duration_min: number
@@ -262,13 +306,19 @@ export type Database = {
           comments?: string | null
           contact_phone: string
           created_at?: string
+          email_normalized?: string | null
           id?: string
+          lost_at?: string | null
+          lost_reason?: string | null
           no_show_processed_at?: string | null
           notes?: string | null
           parent_email?: string | null
+          phone_normalized?: string | null
           player_name: string
           preferred_location: string
           preferred_schedule: string
+          reactivation_paused_until?: string | null
+          reactivation_status?: string
           status?: string
           status_updated_at?: string
           trial_duration_min?: number
@@ -284,13 +334,19 @@ export type Database = {
           comments?: string | null
           contact_phone?: string
           created_at?: string
+          email_normalized?: string | null
           id?: string
+          lost_at?: string | null
+          lost_reason?: string | null
           no_show_processed_at?: string | null
           notes?: string | null
           parent_email?: string | null
+          phone_normalized?: string | null
           player_name?: string
           preferred_location?: string
           preferred_schedule?: string
+          reactivation_paused_until?: string | null
+          reactivation_status?: string
           status?: string
           status_updated_at?: string
           trial_duration_min?: number

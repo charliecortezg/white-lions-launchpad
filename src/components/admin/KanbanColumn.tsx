@@ -17,6 +17,7 @@ interface KanbanColumnProps {
   onMarkNoShow?: (prospect: Prospect) => void;
   onReschedule?: (prospect: Prospect) => void;
   onMarkEnrolled?: (prospect: Prospect) => void;
+  onMarkLost?: (prospect: Prospect) => void;
 }
 
 export const KanbanColumn = ({
@@ -32,6 +33,7 @@ export const KanbanColumn = ({
   onMarkNoShow,
   onReschedule,
   onMarkEnrolled,
+  onMarkLost,
 }: KanbanColumnProps) => {
   const filteredProspects = prospects.filter((p) => p.status === status);
 
@@ -63,6 +65,7 @@ export const KanbanColumn = ({
                 onMarkNoShow={onMarkNoShow}
                 onReschedule={onReschedule}
                 onMarkEnrolled={onMarkEnrolled}
+                onMarkLost={onMarkLost}
               />
             ))
           )}

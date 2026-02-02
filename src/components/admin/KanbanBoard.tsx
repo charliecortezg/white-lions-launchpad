@@ -13,6 +13,7 @@ interface KanbanBoardProps {
   onMarkNoShow?: (prospect: Prospect) => void;
   onReschedule?: (prospect: Prospect) => void;
   onMarkEnrolled?: (prospect: Prospect) => void;
+  onMarkLost?: (prospect: Prospect) => void;
 }
 
 const COLUMNS = [
@@ -21,6 +22,7 @@ const COLUMNS = [
   { status: "No Asistió", title: "No Asistió", colorClass: "text-red-400" },
   { status: "Reprogramado", title: "Reprogramado", colorClass: "text-yellow-400" },
   { status: "Inscrito", title: "Inscrito", colorClass: "text-primary" },
+  { status: "Perdido", title: "Perdido", colorClass: "text-muted-foreground" },
 ];
 
 export const KanbanBoard = ({
@@ -33,6 +35,7 @@ export const KanbanBoard = ({
   onMarkNoShow,
   onReschedule,
   onMarkEnrolled,
+  onMarkLost,
 }: KanbanBoardProps) => {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
@@ -51,6 +54,7 @@ export const KanbanBoard = ({
           onMarkNoShow={onMarkNoShow}
           onReschedule={onReschedule}
           onMarkEnrolled={onMarkEnrolled}
+          onMarkLost={onMarkLost}
         />
       ))}
     </div>

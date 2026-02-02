@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import Reprogramar from "./pages/Reprogramar";
+import ReprogramarConfirm from "./pages/ReprogramarConfirm";
+import PausarReactivacion from "./pages/PausarReactivacion";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +21,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
+          <Route path="/reprogramar" element={<Reprogramar />} />
+          <Route path="/reprogramar/confirm" element={<ReprogramarConfirm />} />
+          <Route path="/reactivacion/pausar" element={<PausarReactivacion />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
