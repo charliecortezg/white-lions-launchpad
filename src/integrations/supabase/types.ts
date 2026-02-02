@@ -136,50 +136,165 @@ export type Database = {
           },
         ]
       }
+      email_queue: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          idempotency_key: string
+          prospect_id: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template: string
+          to_email: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key: string
+          prospect_id: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          to_email: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key?: string
+          prospect_id?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "trial_class_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow_up_tasks: {
+        Row: {
+          assigned_to: string
+          completed_at: string | null
+          created_at: string
+          due_at: string
+          id: string
+          idempotency_key: string | null
+          notes: string | null
+          prospect_id: string
+          status: string
+          type: string
+        }
+        Insert: {
+          assigned_to?: string
+          completed_at?: string | null
+          created_at?: string
+          due_at: string
+          id?: string
+          idempotency_key?: string | null
+          notes?: string | null
+          prospect_id: string
+          status?: string
+          type: string
+        }
+        Update: {
+          assigned_to?: string
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string
+          id?: string
+          idempotency_key?: string | null
+          notes?: string | null
+          prospect_id?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_tasks_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "trial_class_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trial_class_registrations: {
         Row: {
           age_or_birth_year: string
+          attendance_grace_min: number
+          attendance_marked_at: string | null
+          attendance_marked_by: string | null
           category: string
           comments: string | null
           contact_phone: string
           created_at: string
           id: string
+          no_show_processed_at: string | null
           notes: string | null
           parent_email: string | null
           player_name: string
           preferred_location: string
           preferred_schedule: string
           status: string
+          status_updated_at: string
+          trial_duration_min: number
+          trial_start_at: string | null
           tutor_name: string
         }
         Insert: {
           age_or_birth_year: string
+          attendance_grace_min?: number
+          attendance_marked_at?: string | null
+          attendance_marked_by?: string | null
           category: string
           comments?: string | null
           contact_phone: string
           created_at?: string
           id?: string
+          no_show_processed_at?: string | null
           notes?: string | null
           parent_email?: string | null
           player_name: string
           preferred_location: string
           preferred_schedule: string
           status?: string
+          status_updated_at?: string
+          trial_duration_min?: number
+          trial_start_at?: string | null
           tutor_name: string
         }
         Update: {
           age_or_birth_year?: string
+          attendance_grace_min?: number
+          attendance_marked_at?: string | null
+          attendance_marked_by?: string | null
           category?: string
           comments?: string | null
           contact_phone?: string
           created_at?: string
           id?: string
+          no_show_processed_at?: string | null
           notes?: string | null
           parent_email?: string | null
           player_name?: string
           preferred_location?: string
           preferred_schedule?: string
           status?: string
+          status_updated_at?: string
+          trial_duration_min?: number
+          trial_start_at?: string | null
           tutor_name?: string
         }
         Relationships: []

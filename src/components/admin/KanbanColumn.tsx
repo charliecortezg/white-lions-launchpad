@@ -13,6 +13,10 @@ interface KanbanColumnProps {
   onOpenNotes: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
   onViewDetails: (prospect: Prospect) => void;
+  onMarkAttended?: (prospect: Prospect) => void;
+  onMarkNoShow?: (prospect: Prospect) => void;
+  onReschedule?: (prospect: Prospect) => void;
+  onMarkEnrolled?: (prospect: Prospect) => void;
 }
 
 export const KanbanColumn = ({
@@ -24,6 +28,10 @@ export const KanbanColumn = ({
   onOpenNotes,
   onDelete,
   onViewDetails,
+  onMarkAttended,
+  onMarkNoShow,
+  onReschedule,
+  onMarkEnrolled,
 }: KanbanColumnProps) => {
   const filteredProspects = prospects.filter((p) => p.status === status);
 
@@ -51,6 +59,10 @@ export const KanbanColumn = ({
                 onOpenNotes={onOpenNotes}
                 onDelete={onDelete}
                 onViewDetails={onViewDetails}
+                onMarkAttended={onMarkAttended}
+                onMarkNoShow={onMarkNoShow}
+                onReschedule={onReschedule}
+                onMarkEnrolled={onMarkEnrolled}
               />
             ))
           )}

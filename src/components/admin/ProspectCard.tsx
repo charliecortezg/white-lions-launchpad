@@ -7,6 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { 
   MoreVertical, 
@@ -18,7 +21,9 @@ import {
   Trophy,
   Clock,
   StickyNote,
-  Trash2
+  Trash2,
+  UserCheck,
+  CalendarClock
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -30,6 +35,10 @@ interface ProspectCardProps {
   onOpenNotes: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
   onViewDetails: (prospect: Prospect) => void;
+  onMarkAttended?: (prospect: Prospect) => void;
+  onMarkNoShow?: (prospect: Prospect) => void;
+  onReschedule?: (prospect: Prospect) => void;
+  onMarkEnrolled?: (prospect: Prospect) => void;
 }
 
 const STATUS_OPTIONS = [
@@ -68,8 +77,15 @@ export const ProspectCard = ({
   onStatusChange, 
   onOpenNotes,
   onDelete,
-  onViewDetails
+  onViewDetails,
+  onMarkAttended,
+  onMarkNoShow,
+  onReschedule,
+  onMarkEnrolled,
 }: ProspectCardProps) => {
+  const canShowQuickActions = prospect.status === "Pendiente" || prospect.status === "Reprogramado";
+  const canEnroll = prospect.status === "Asistió";
+
   return (
     <Card 
       className="bg-background/50 border-border hover:border-primary/30 transition-colors cursor-pointer"
@@ -106,22 +122,94 @@ export const ProspectCard = ({
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {STATUS_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => onStatusChange(prospect.id, option.value)}
-                  className="flex items-center gap-2"
-                >
-                  <option.icon className={`h-4 w-4 ${option.color}`} />
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenuContent align="end" className="w-52">
+              {/* Quick Actions for pending/rescheduled */}
+              {canShowQuickActions && (
+                <>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkAttended?.(prospect);
+                    }}
+                    className="flex items-center gap-2 text-green-600"
+                  >
+                    <UserCheck className="h-4 w-4" />
+                    ✅ Marcar Asistió
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkNoShow?.(prospect);
+                    }}
+                    className="flex items-center gap-2 text-red-600"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    ❌ Marcar No Asistió
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onReschedule?.(prospect);
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <CalendarClock className="h-4 w-4" />
+                    📅 Reprogramar
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {/* Quick action for attended - can enroll */}
+              {canEnroll && (
+                <>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkEnrolled?.(prospect);
+                    }}
+                    className="flex items-center gap-2 text-primary"
+                  >
+                    <Trophy className="h-4 w-4" />
+                    🏆 Marcar Inscrito
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {/* Status submenu */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Cambiar Estado
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {STATUS_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStatusChange(prospect.id, option.value);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <option.icon className={`h-4 w-4 ${option.color}`} />
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
               
               <DropdownMenuSeparator />
               
               <DropdownMenuItem
-                onClick={() => onOpenNotes(prospect)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenNotes(prospect);
+                }}
                 className="flex items-center gap-2"
               >
                 <MessageSquare className="h-4 w-4" />
@@ -134,6 +222,7 @@ export const ProspectCard = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Phone className="h-4 w-4 text-emerald-500" />
                   WhatsApp
@@ -143,7 +232,10 @@ export const ProspectCard = ({
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onClick={() => onDelete(prospect.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(prospect.id);
+                }}
                 className="flex items-center gap-2 text-destructive focus:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
