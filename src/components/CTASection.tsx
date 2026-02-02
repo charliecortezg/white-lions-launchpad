@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import trainingImage from "@/assets/training-facility.jpg";
-import TrialClassModal from "./TrialClassModal";
+import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 import JoinFamilyModal from "./modals/JoinFamilyModal";
 import AnimatedSection from "./AnimatedSection";
 
@@ -65,8 +65,8 @@ const CTASection = () => {
 
                   <AnimatedSection animation="blur" delay={300}>
                     <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-                      Agenda tu clase muestra gratuita y descubre por qué somos la academia deportiva 
-                      preferida de Mexicali. Sin costo, sin compromiso.
+                      Inscríbete al Reto White Lions de 30 días y descubre por qué somos la academia deportiva 
+                      preferida de Mexicali. Kit de inicio incluido + garantía de satisfacción.
                     </p>
                   </AnimatedSection>
 
@@ -79,7 +79,7 @@ const CTASection = () => {
                         onClick={() => setIsTrialModalOpen(true)}
                       >
                         <CalendarCheck className="w-5 h-5" />
-                        Registrar Clase Muestra
+                        🦁 Inscribirme al Reto
                         <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                       </Button>
                       
@@ -96,9 +96,9 @@ const CTASection = () => {
                   {/* Benefits */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
                     {[
-                      { icon: '✓', title: 'Clase Gratuita', desc: 'Prueba sin costo ni compromiso' },
-                      { icon: '✓', title: 'Evaluación Inicial', desc: 'Conoce el nivel de tu hijo' },
-                      { icon: '✓', title: 'Conoce Nuestras Sedes', desc: 'Visita nuestras instalaciones' }
+                      { icon: '🎁', title: 'Kit Incluido', desc: 'Camiseta, calcetas, espinilleras y termo' },
+                      { icon: '🛡️', title: 'Garantía Real', desc: 'Devolución si no ves resultados' },
+                      { icon: '📈', title: '30 Días Completos', desc: 'Experiencia deportiva real' }
                     ].map((benefit, index) => (
                       <AnimatedSection key={index} animation="fade-up" delay={500 + index * 100}>
                         <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 border border-primary-foreground/20">
@@ -116,7 +116,7 @@ const CTASection = () => {
         </div>
       </div>
 
-      <TrialClassModal open={isTrialModalOpen} onOpenChange={setIsTrialModalOpen} />
+      <ChallengeRegistrationModal open={isTrialModalOpen} onOpenChange={setIsTrialModalOpen} />
       <JoinFamilyModal open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen} />
     </section>
   );

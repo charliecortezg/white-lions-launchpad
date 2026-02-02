@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import TrialClassModal from "./TrialClassModal";
+import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 
 const HeroNew = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,8 +21,6 @@ const HeroNew = () => {
         }}
       />
 
-      {/* Logo is in Navbar - removed from here to avoid duplicate */}
-
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-20">
         <div className="max-w-2xl mx-auto text-center space-y-8">
@@ -33,7 +31,7 @@ const HeroNew = () => {
           >
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             <span className="text-sm text-primary font-medium font-body">
-              Cupos limitados para el grupo de 6–11 años
+              Cupos limitados · Niños de 6 a 11 años
             </span>
           </div>
 
@@ -42,10 +40,8 @@ const HeroNew = () => {
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight font-display animate-fade-in-up"
             style={{ animationDelay: '0.1s' }}
           >
-            Tu hijo merece un{' '}
-            <span className="text-primary">sistema</span>,{' '}
-            <br className="hidden sm:block" />
-            no solo un equipo.
+            White Lions no es una prueba,{' '}
+            <span className="text-primary">es una decisión.</span>
           </h1>
           
           {/* Subtitle */}
@@ -53,10 +49,19 @@ const HeroNew = () => {
             className="text-base md:text-lg text-muted-foreground font-light max-w-xl mx-auto leading-relaxed font-body animate-fade-in-up"
             style={{ animationDelay: '0.2s' }}
           >
-            Fútbol y Basketball para niños y jóvenes de 6 a 15 años en Mexicali.
+            30 días de entrenamiento estructurado, kit de inicio incluido
             <br className="hidden md:block" />
-            Entrenamos con disciplina, metodología y seguimiento real.
+            y la experiencia completa de pertenecer a una comunidad deportiva real.
           </p>
+
+          {/* Price highlight */}
+          <div 
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm animate-fade-in-up"
+            style={{ animationDelay: '0.25s' }}
+          >
+            <span className="text-2xl md:text-3xl font-bold text-primary font-display">$700 MXN</span>
+            <span className="text-sm text-muted-foreground font-body">Kit + 30 días</span>
+          </div>
 
           {/* Single CTA Button */}
           <div 
@@ -69,9 +74,17 @@ const HeroNew = () => {
               className="text-base md:text-lg px-8 md:px-10 py-6 md:py-7 w-full sm:w-auto shadow-gold"
               onClick={() => setIsModalOpen(true)}
             >
-              🦁 Iniciar el Reto de 30 Días
+              🦁 Inscribirse al Reto White Lions
             </Button>
           </div>
+
+          {/* Guarantee micro-text */}
+          <p 
+            className="text-xs text-muted-foreground/70 font-body animate-fade-in-up"
+            style={{ animationDelay: '0.35s' }}
+          >
+            Garantía: Si no ves organización, te devolvemos tu inversión menos el kit.
+          </p>
 
         </div>
       </div>
@@ -79,7 +92,7 @@ const HeroNew = () => {
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
-      <TrialClassModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <ChallengeRegistrationModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </section>
   );
 };

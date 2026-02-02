@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CheckCircle2, MapPin, Clock, Users, Target, Dumbbell, Mail } from "lucide-react";
+import { CalendarIcon, CheckCircle2, MapPin, Clock, Gift, Shield, Mail } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,19 +26,19 @@ const formSchema = z.object({
     required_error: "Selecciona un deporte",
   }),
   category: z.string().min(1, "Selecciona una categoría"),
-  trial_date: z.date({
-    required_error: "Selecciona una fecha para la clase muestra",
+  start_date: z.date({
+    required_error: "Selecciona una fecha de inicio",
   }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-interface TrialClassModalProps {
+interface ChallengeRegistrationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
+const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistrationModalProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
@@ -51,10 +51,10 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const selectedSport = form.watch("sport");
   const selectedBirthYear = form.watch("birth_year");
 
-  // Obtener años válidos según el deporte
+  // Solo fútbol para niños de 6 a 11 años (2014-2019)
   const getValidYears = (sport: string | undefined) => {
     if (sport === "Fútbol") {
-      return Array.from({ length: 10 }, (_, i) => (2019 - i).toString()); // 2019 a 2010
+      return Array.from({ length: 6 }, (_, i) => (2019 - i).toString()); // 2019 a 2014
     } else if (sport === "Basketball") {
       return Array.from({ length: 4 }, (_, i) => (2017 - i).toString()); // 2017 a 2014
     }
@@ -71,8 +71,6 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
       if (year >= 2018) return ["Escuelita"];
       if (year >= 2016 && year <= 2017) return ["Estrellita"];
       if (year >= 2014 && year <= 2015) return ["Infantil"];
-      if (year >= 2012 && year <= 2013) return ["Juvenil A"];
-      if (year >= 2010 && year <= 2011) return ["Juvenil B"];
       return [];
     } else if (sport === "Basketball") {
       if (year >= 2016 && year <= 2017) return ["Estrellita"];
@@ -82,21 +80,21 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     return [];
   };
 
-  // Fecha mínima de reserva: 12 de enero de 2025 (regreso de vacaciones)
-  const vacationEndDate = new Date(2025, 0, 12); // 12 de enero de 2025
-  vacationEndDate.setHours(0, 0, 0, 0);
+  // Fecha mínima de inicio: próxima semana
+  const getMinStartDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 7);
+    today.setHours(0, 0, 0, 0);
+    return today;
+  };
 
   // Función para filtrar días válidos según el deporte
   const isValidDate = (date: Date) => {
     const day = getDay(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const minDate = getMinStartDate();
     
-    // Bloquear fechas pasadas
-    if (date < today) return false;
-    
-    // Bloquear fechas antes del regreso de vacaciones (12 de enero 2025)
-    if (date < vacationEndDate) return false;
+    // Bloquear fechas antes del mínimo
+    if (date < minDate) return false;
 
     if (selectedSport === "Fútbol") {
       // Lunes (1) y Miércoles (3)
@@ -112,14 +110,13 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   const getNextAvailableDate = (sport: string | undefined): Date | undefined => {
     if (!sport) return undefined;
     
-    // Comenzar desde la fecha de regreso de vacaciones
-    const startDate = new Date(Math.max(new Date().getTime(), vacationEndDate.getTime()));
-    const validDays = sport === "Fútbol" ? [1, 3] : [2, 4]; // Lun/Mié o Mar/Jue
+    const startDate = getMinStartDate();
+    const validDays = sport === "Fútbol" ? [1, 3] : [2, 4];
     
     for (let i = 0; i <= 14; i++) {
       const checkDate = new Date(startDate);
       checkDate.setDate(startDate.getDate() + i);
-      if (validDays.includes(getDay(checkDate)) && checkDate >= vacationEndDate) {
+      if (validDays.includes(getDay(checkDate))) {
         return checkDate;
       }
     }
@@ -153,7 +150,7 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     try {
       const location = getLocation(data.sport);
       const schedule = getSchedule(data.sport);
-      const formattedDate = format(data.trial_date, "EEEE d 'de' MMMM", { locale: es });
+      const formattedDate = format(data.start_date, "EEEE d 'de' MMMM", { locale: es });
       
       // Normalize email and phone for deduplication
       const emailNormalized = normalizeEmail(data.tutor_email);
@@ -258,16 +255,16 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
       form.reset();
 
       toast({
-        title: isUpdate ? "¡Reservación actualizada!" : "¡Registro exitoso!",
+        title: isUpdate ? "¡Inscripción actualizada!" : "¡Bienvenido al Reto White Lions!",
         description: isUpdate 
-          ? "Hemos actualizado tu reservación existente con la nueva fecha."
-          : "Hemos enviado un correo de confirmación a tu email.",
+          ? "Hemos actualizado tu inscripción con la nueva fecha."
+          : "Te enviamos un correo con los próximos pasos.",
       });
     } catch (error) {
       console.error("Error al guardar:", error);
       toast({
         title: "Error",
-        description: "Hubo un problema al enviar tu registro. Intenta de nuevo.",
+        description: "Hubo un problema al procesar tu inscripción. Intenta de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -297,10 +294,12 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
         </button>
 
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-navy text-center">
-            Agenda tu Clase Muestra
+          <DialogTitle className="text-3xl font-bold text-foreground text-center font-display uppercase">
+            🦁 Reto White Lions – 30 Días
           </DialogTitle>
-          <p className="text-center text-muted-foreground">Completa el registro en pocos pasos</p>
+          <p className="text-center text-muted-foreground font-body">
+            Inscríbete y recibe tu Kit de Inicio
+          </p>
         </DialogHeader>
 
         {!isSubmitted ? (
@@ -325,8 +324,8 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                           className={cn(
                             "p-6 rounded-xl border-2 transition-all text-left",
                             field.value === "Fútbol"
-                              ? "border-gold bg-gold/10 shadow-lg"
-                              : "border-border hover:border-gold/50 hover:bg-muted/50"
+                              ? "border-primary bg-primary/10 shadow-lg"
+                              : "border-border hover:border-primary/50 hover:bg-muted/50"
                           )}
                         >
                           <span className="text-4xl block mb-2">⚽</span>
@@ -343,8 +342,8 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                           className={cn(
                             "p-6 rounded-xl border-2 transition-all text-left",
                             field.value === "Basketball"
-                              ? "border-gold bg-gold/10 shadow-lg"
-                              : "border-border hover:border-gold/50 hover:bg-muted/50"
+                              ? "border-primary bg-primary/10 shadow-lg"
+                              : "border-border hover:border-primary/50 hover:bg-muted/50"
                           )}
                         >
                           <span className="text-4xl block mb-2">🏀</span>
@@ -397,7 +396,7 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                       </SelectContent>
                     </Select>
                     <FormDescription className="text-xs">
-                      Si no recuerdas el año exacto, puedes elegir uno aproximado.
+                      El Reto está disponible para niños de 6 a 11 años.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -434,32 +433,27 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
               {selectedSport && (
                 <div className="bg-muted/30 rounded-xl p-5 space-y-4 border border-border/50">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-foreground">{getLocation(selectedSport)}</p>
                       <p className="text-sm text-muted-foreground">{getLocationZone(selectedSport)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-gold flex-shrink-0" />
+                    <Clock className="w-5 h-5 text-primary flex-shrink-0" />
                     <p className="text-sm text-muted-foreground">{getSchedule(selectedSport)}</p>
                   </div>
                   
                   <div className="pt-3 border-t border-border/50">
-                    <p className="text-sm font-semibold text-foreground mb-2">¿Qué incluye la clase muestra?</p>
-                    <div className="grid grid-cols-1 gap-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Dumbbell className="w-4 h-4 text-gold/70" />
-                        <span>Actividad guiada</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="w-4 h-4 text-gold/70" />
-                        <span>Grupo acorde a la edad</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Target className="w-4 h-4 text-gold/70" />
-                        <span>Sesión introductoria</span>
-                      </div>
+                    <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <Gift className="w-4 h-4 text-primary" />
+                      Tu Kit de Inicio incluye:
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                      <span>👕 Camiseta oficial</span>
+                      <span>🧦 Calcetas deportivas</span>
+                      <span>🛡️ Espinilleras</span>
+                      <span>🥤 Termo White Lions</span>
                     </div>
                   </div>
                 </div>
@@ -500,7 +494,7 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                         </div>
                       </FormControl>
                       <FormDescription className="text-xs">
-                        Te enviaremos la confirmación de tu registro a este correo.
+                        Te enviaremos la confirmación y los pasos para el pago.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -522,17 +516,17 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                 />
                 
                 <p className="text-xs text-muted-foreground">
-                  Usaremos estos datos únicamente para fines relacionados con tu registro.
+                  Usaremos estos datos únicamente para coordinar tu inscripción al Reto.
                 </p>
               </div>
 
               {selectedSport && (
                 <FormField
                   control={form.control}
-                  name="trial_date"
+                  name="start_date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Fecha de Clase Muestra</FormLabel>
+                      <FormLabel>Fecha de Inicio del Reto</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -573,7 +567,7 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                           <button
                             type="button"
                             onClick={() => field.onChange(nextAvailableDate)}
-                            className="text-xs text-gold hover:text-gold/80 underline text-left w-fit"
+                            className="text-xs text-primary hover:text-primary/80 underline text-left w-fit"
                           >
                             Próxima fecha: {format(nextAvailableDate, "EEEE d 'de' MMMM", { locale: es })}
                           </button>
@@ -585,29 +579,54 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                 />
               )}
 
-              <Button type="submit" className="w-full" variant="gold" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Enviando..." : "Confirmar registro"}
+              {/* Price Summary */}
+              <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-foreground">Total a pagar:</span>
+                  <span className="text-2xl font-bold text-primary font-display">$700 MXN</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Incluye Kit de Inicio ($300 MXN de valor) + 30 días de entrenamiento
+                </p>
+              </div>
+
+              {/* Guarantee */}
+              <div className="flex items-start gap-3 p-3 bg-card/50 border border-border/50 rounded-lg">
+                <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">Garantía:</strong> Si no ves organización, te devolvemos $400 MXN (inversión menos el kit).
+                </p>
+              </div>
+
+              <Button type="submit" className="w-full" variant="hero" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Procesando..." : "🦁 Inscribirme al Reto"}
               </Button>
             </form>
           </Form>
         ) : (
           <div className="py-8 space-y-6">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-gold/10 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-10 h-10 text-gold" />
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-10 h-10 text-primary" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-navy mb-1">Registro enviado correctamente</h3>
-                <p className="text-muted-foreground">
-                  Hemos recibido la información de tu registro.
+                <h3 className="text-2xl font-bold text-foreground mb-1 font-display uppercase">
+                  ¡Bienvenido a White Lions!
+                </h3>
+                <p className="text-muted-foreground font-body">
+                  Tomaste una gran decisión. Tu hijo ya es parte de la familia.
                 </p>
               </div>
             </div>
 
             {submittedData && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
-                <p className="text-sm font-semibold text-foreground mb-3">Resumen del registro</p>
+                <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu inscripción</p>
                 <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Jugador</span>
+                    <span className="font-medium">{submittedData.player_name}</span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Deporte</span>
                     <span className="font-medium">{submittedData.sport}</span>
@@ -617,22 +636,31 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
                     <span className="font-medium">{submittedData.category}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fecha</span>
+                    <span className="text-muted-foreground">Fecha de inicio</span>
                     <span className="font-medium capitalize">
-                      {format(submittedData.trial_date, "EEEE d 'de' MMMM", { locale: es })}
+                      {format(submittedData.start_date, "EEEE d 'de' MMMM", { locale: es })}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Sede</span>
                     <span className="font-medium">{getLocation(submittedData.sport)}</span>
                   </div>
+                  <div className="flex justify-between pt-2 border-t border-border/50">
+                    <span className="text-muted-foreground font-semibold">Total</span>
+                    <span className="font-bold text-primary">$700 MXN</span>
+                  </div>
                 </div>
               </div>
             )}
 
-            <p className="text-center text-sm text-muted-foreground">
-              Gracias por completar el registro.
-            </p>
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
+              <p className="text-sm text-foreground font-medium mb-2">
+                📧 Revisa tu correo electrónico
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio.
+              </p>
+            </div>
 
             <Button onClick={handleClose} variant="outline" size="lg" className="w-full">
               Cerrar
@@ -644,4 +672,4 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
   );
 };
 
-export default TrialClassModal;
+export default ChallengeRegistrationModal;
