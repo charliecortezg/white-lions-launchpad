@@ -256,8 +256,8 @@ const AdminPanel = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { data, error } = await supabase.functions.invoke("admin-prospects", {
-        method: "DELETE",
-        body: { id },
+        method: "POST",
+        body: { id, action: "delete" },
       });
       if (error) throw error;
       return data;
