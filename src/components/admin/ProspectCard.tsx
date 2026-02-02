@@ -23,7 +23,8 @@ import {
   StickyNote,
   Trash2,
   UserCheck,
-  CalendarClock
+  CalendarClock,
+  UserX
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -39,6 +40,7 @@ interface ProspectCardProps {
   onMarkNoShow?: (prospect: Prospect) => void;
   onReschedule?: (prospect: Prospect) => void;
   onMarkEnrolled?: (prospect: Prospect) => void;
+  onMarkLost?: (prospect: Prospect) => void;
 }
 
 const STATUS_OPTIONS = [
@@ -47,6 +49,7 @@ const STATUS_OPTIONS = [
   { value: "No Asistió", label: "No Asistió", icon: XCircle, color: "text-red-400" },
   { value: "Reprogramado", label: "Reprogramado", icon: Calendar, color: "text-yellow-400" },
   { value: "Inscrito", label: "Inscrito", icon: Trophy, color: "text-primary" },
+  { value: "Perdido", label: "Perdido", icon: UserX, color: "text-muted-foreground" },
 ];
 
 const getSportIcon = (category: string) => {
@@ -82,9 +85,11 @@ export const ProspectCard = ({
   onMarkNoShow,
   onReschedule,
   onMarkEnrolled,
+  onMarkLost,
 }: ProspectCardProps) => {
   const canShowQuickActions = prospect.status === "Pendiente" || prospect.status === "Reprogramado";
   const canEnroll = prospect.status === "Asistió";
+  const canMarkLost = prospect.status === "No Asistió";
 
   return (
     <Card 
@@ -175,6 +180,23 @@ export const ProspectCard = ({
                   >
                     <Trophy className="h-4 w-4" />
                     🏆 Marcar Inscrito
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {/* Quick action for no-show - can mark lost */}
+              {canMarkLost && (
+                <>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkLost?.(prospect);
+                    }}
+                    className="flex items-center gap-2 text-muted-foreground"
+                  >
+                    <UserX className="h-4 w-4" />
+                    💤 Marcar Perdido
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>

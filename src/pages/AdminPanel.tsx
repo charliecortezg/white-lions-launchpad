@@ -167,6 +167,33 @@ const AdminPanel = () => {
     },
   });
 
+  // Mark lost mutation
+  const markLostMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "POST",
+        body: { id, action: "mark_lost" },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      toast({
+        title: "Prospecto perdido",
+        description: "El prospecto se marcó como perdido.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo marcar como perdido.",
+        variant: "destructive",
+      });
+      console.error("Mark lost error:", error);
+    },
+  });
+
   // Reschedule mutation
   const rescheduleMutation = useMutation({
     mutationFn: async ({ id, newSchedule, trialStartAt }: { id: string; newSchedule: string; trialStartAt: string }) => {
@@ -327,6 +354,10 @@ const AdminPanel = () => {
     markEnrolledMutation.mutate({ id: prospect.id });
   };
 
+  const handleMarkLost = (prospect: Prospect) => {
+    markLostMutation.mutate({ id: prospect.id });
+  };
+
   const handleOpenReschedule = (prospect: Prospect) => {
     setSelectedProspect(prospect);
     setRescheduleModalOpen(true);
@@ -405,6 +436,7 @@ const AdminPanel = () => {
             onMarkNoShow={handleMarkNoShow}
             onReschedule={handleOpenReschedule}
             onMarkEnrolled={handleMarkEnrolled}
+            onMarkLost={handleMarkLost}
           />
         )}
 
