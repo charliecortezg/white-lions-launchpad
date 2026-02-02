@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.run-reminders]
 verify_jwt = false
+
+[functions.admin-prospects]
+verify_jwt = false
+
+[functions.process-trial-pipeline]
+verify_jwt = false

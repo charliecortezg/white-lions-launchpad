@@ -9,6 +9,10 @@ interface KanbanBoardProps {
   onOpenNotes: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
   onViewDetails: (prospect: Prospect) => void;
+  onMarkAttended?: (prospect: Prospect) => void;
+  onMarkNoShow?: (prospect: Prospect) => void;
+  onReschedule?: (prospect: Prospect) => void;
+  onMarkEnrolled?: (prospect: Prospect) => void;
 }
 
 const COLUMNS = [
@@ -25,6 +29,10 @@ export const KanbanBoard = ({
   onOpenNotes,
   onDelete,
   onViewDetails,
+  onMarkAttended,
+  onMarkNoShow,
+  onReschedule,
+  onMarkEnrolled,
 }: KanbanBoardProps) => {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
@@ -39,6 +47,10 @@ export const KanbanBoard = ({
           onOpenNotes={onOpenNotes}
           onDelete={onDelete}
           onViewDetails={onViewDetails}
+          onMarkAttended={onMarkAttended}
+          onMarkNoShow={onMarkNoShow}
+          onReschedule={onReschedule}
+          onMarkEnrolled={onMarkEnrolled}
         />
       ))}
     </div>

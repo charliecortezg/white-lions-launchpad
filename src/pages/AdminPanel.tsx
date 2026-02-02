@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { KanbanBoard } from "@/components/admin/KanbanBoard";
@@ -6,6 +6,8 @@ import { ProspectFilters } from "@/components/admin/ProspectFilters";
 import { NotesModal } from "@/components/admin/NotesModal";
 import { ProspectDetailsModal } from "@/components/admin/ProspectDetailsModal";
 import { CalendarModal } from "@/components/admin/CalendarModal";
+import { RescheduleModal } from "@/components/admin/RescheduleModal";
+import { TasksModal } from "@/components/admin/TasksModal";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -22,7 +24,28 @@ const AdminPanel = () => {
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [tasksModalOpen, setTasksModalOpen] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
+  const [taskCount, setTaskCount] = useState(0);
+
+  // Fetch task count for badge
+  useEffect(() => {
+    const fetchTaskCount = async () => {
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+      
+      const { count } = await supabase
+        .from('follow_up_tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'open')
+        .lte('due_at', endOfToday.toISOString());
+      
+      setTaskCount(count || 0);
+    };
+    
+    fetchTaskCount();
+  }, []);
 
   // Fetch prospects via Edge Function
   const { data: prospects = [], isLoading, error } = useQuery({
@@ -60,6 +83,116 @@ const AdminPanel = () => {
         variant: "destructive",
       });
       console.error("Update error:", error);
+    },
+  });
+
+  // Mark attended mutation
+  const markAttendedMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "POST",
+        body: { id, action: "mark_attended" },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      toast({
+        title: "¡Asistencia registrada!",
+        description: "El prospecto asistió a su clase muestra.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo registrar la asistencia.",
+        variant: "destructive",
+      });
+      console.error("Mark attended error:", error);
+    },
+  });
+
+  // Mark no-show mutation
+  const markNoShowMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "POST",
+        body: { id, action: "mark_no_show" },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      toast({
+        title: "No asistió",
+        description: "Se registró la inasistencia y se programó seguimiento.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo registrar la inasistencia.",
+        variant: "destructive",
+      });
+      console.error("Mark no-show error:", error);
+    },
+  });
+
+  // Mark enrolled mutation
+  const markEnrolledMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "POST",
+        body: { id, action: "mark_enrolled" },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      toast({
+        title: "🏆 ¡Inscrito!",
+        description: "¡Felicidades! El prospecto se convirtió en alumno.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo marcar como inscrito.",
+        variant: "destructive",
+      });
+      console.error("Mark enrolled error:", error);
+    },
+  });
+
+  // Reschedule mutation
+  const rescheduleMutation = useMutation({
+    mutationFn: async ({ id, newSchedule, trialStartAt }: { id: string; newSchedule: string; trialStartAt: string }) => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "POST",
+        body: { id, action: "reschedule", newSchedule, trialStartAt },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-prospects"] });
+      setRescheduleModalOpen(false);
+      setSelectedProspect(null);
+      toast({
+        title: "Reprogramado",
+        description: "La clase muestra se reprogramó correctamente.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "No se pudo reprogramar la clase.",
+        variant: "destructive",
+      });
+      console.error("Reschedule error:", error);
     },
   });
 
@@ -182,11 +315,45 @@ const AdminPanel = () => {
     }
   };
 
+  const handleMarkAttended = (prospect: Prospect) => {
+    markAttendedMutation.mutate({ id: prospect.id });
+  };
+
+  const handleMarkNoShow = (prospect: Prospect) => {
+    markNoShowMutation.mutate({ id: prospect.id });
+  };
+
+  const handleMarkEnrolled = (prospect: Prospect) => {
+    markEnrolledMutation.mutate({ id: prospect.id });
+  };
+
+  const handleOpenReschedule = (prospect: Prospect) => {
+    setSelectedProspect(prospect);
+    setRescheduleModalOpen(true);
+  };
+
+  const handleReschedule = (prospectId: string, newDate: Date, newScheduleText: string) => {
+    // Determine hour based on sport
+    const isBasketball = selectedProspect?.category?.toLowerCase().includes("basket");
+    const hour = isBasketball ? 18 : 18;
+    const minute = isBasketball ? 30 : 0;
+    
+    // Create trial_start_at timestamp
+    const trialStartAt = new Date(newDate);
+    trialStartAt.setHours(hour, minute, 0, 0);
+    
+    rescheduleMutation.mutate({
+      id: prospectId,
+      newSchedule: newScheduleText,
+      trialStartAt: trialStartAt.toISOString(),
+    });
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-400 mb-2">Error</h1>
+          <h1 className="text-2xl font-bold text-destructive mb-2">Error</h1>
           <p className="text-muted-foreground">No se pudieron cargar los datos.</p>
         </div>
       </div>
@@ -218,6 +385,8 @@ const AdminPanel = () => {
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
           onOpenCalendar={() => setCalendarModalOpen(true)}
+          onOpenTasks={() => setTasksModalOpen(true)}
+          taskCount={taskCount}
         />
 
         {/* Kanban Board */}
@@ -232,6 +401,10 @@ const AdminPanel = () => {
             onOpenNotes={handleOpenNotes}
             onDelete={handleDelete}
             onViewDetails={handleViewDetails}
+            onMarkAttended={handleMarkAttended}
+            onMarkNoShow={handleMarkNoShow}
+            onReschedule={handleOpenReschedule}
+            onMarkEnrolled={handleMarkEnrolled}
           />
         )}
 
@@ -265,6 +438,24 @@ const AdminPanel = () => {
           currentNotes={selectedProspect?.notes || null}
           onSave={handleSaveNotes}
           isSaving={updateNotesMutation.isPending}
+        />
+
+        {/* Reschedule Modal */}
+        <RescheduleModal
+          isOpen={rescheduleModalOpen}
+          onClose={() => {
+            setRescheduleModalOpen(false);
+            setSelectedProspect(null);
+          }}
+          prospect={selectedProspect}
+          onReschedule={handleReschedule}
+          isLoading={rescheduleMutation.isPending}
+        />
+
+        {/* Tasks Modal */}
+        <TasksModal
+          isOpen={tasksModalOpen}
+          onClose={() => setTasksModalOpen(false)}
         />
       </div>
     </div>
