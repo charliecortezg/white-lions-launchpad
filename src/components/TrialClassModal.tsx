@@ -144,29 +144,92 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
     return "";
   };
 
+  // Normalize functions for deduplication
+  const normalizeEmail = (email: string) => email.toLowerCase().trim();
+  const normalizePhone = (phone: string) => phone.replace(/[^0-9]/g, '');
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
       const location = getLocation(data.sport);
       const schedule = getSchedule(data.sport);
       const formattedDate = format(data.trial_date, "EEEE d 'de' MMMM", { locale: es });
-
-      // Save to database
-      const { error } = await supabase
+      
+      // Normalize email and phone for deduplication
+      const emailNormalized = normalizeEmail(data.tutor_email);
+      const phoneNormalized = normalizePhone(data.contact_phone);
+      
+      // Calculate date threshold (45 days ago)
+      const thresholdDate = new Date();
+      thresholdDate.setDate(thresholdDate.getDate() - 45);
+      
+      // Check for existing open prospect with same email or phone
+      const { data: existingProspects, error: searchError } = await supabase
         .from("trial_class_registrations")
-        .insert([{
-          player_name: data.player_name,
-          age_or_birth_year: data.birth_year,
-          tutor_name: data.tutor_name,
-          contact_phone: data.contact_phone,
-          parent_email: data.tutor_email,
-          category: data.category,
-          preferred_location: location,
-          preferred_schedule: `${formattedDate} - ${schedule}`,
-          comments: null,
-        }]);
+        .select("id, status")
+        .or(`email_normalized.eq.${emailNormalized},phone_normalized.eq.${phoneNormalized}`)
+        .not("status", "in", "(Inscrito,Perdido)")
+        .gte("created_at", thresholdDate.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      if (error) throw error;
+      if (searchError) {
+        console.warn("Search error (proceeding with insert):", searchError);
+      }
+
+      const existingProspect = existingProspects?.[0];
+      let isUpdate = false;
+
+      if (existingProspect) {
+        // UPDATE existing prospect (dedupe/upsert)
+        isUpdate = true;
+        const newStatus = existingProspect.status === 'No Asistió' ? 'Reprogramado' : 'Pendiente';
+        
+        const { error: updateError } = await supabase
+          .from("trial_class_registrations")
+          .update({
+            player_name: data.player_name,
+            age_or_birth_year: data.birth_year,
+            tutor_name: data.tutor_name,
+            contact_phone: data.contact_phone,
+            parent_email: data.tutor_email,
+            category: data.category,
+            preferred_location: location,
+            preferred_schedule: `${formattedDate} - ${schedule}`,
+            status: newStatus,
+            attendance_marked_at: null,
+            no_show_processed_at: null,
+            status_updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingProspect.id);
+
+        if (updateError) throw updateError;
+        
+        // Cancel any pending no-show emails for this prospect
+        await supabase
+          .from("email_queue")
+          .update({ status: "canceled" })
+          .eq("prospect_id", existingProspect.id)
+          .eq("status", "queued");
+          
+      } else {
+        // INSERT new prospect
+        const { error: insertError } = await supabase
+          .from("trial_class_registrations")
+          .insert([{
+            player_name: data.player_name,
+            age_or_birth_year: data.birth_year,
+            tutor_name: data.tutor_name,
+            contact_phone: data.contact_phone,
+            parent_email: data.tutor_email,
+            category: data.category,
+            preferred_location: location,
+            preferred_schedule: `${formattedDate} - ${schedule}`,
+            comments: null,
+          }]);
+
+        if (insertError) throw insertError;
+      }
 
       // Send confirmation email
       try {
@@ -195,8 +258,10 @@ const TrialClassModal = ({ open, onOpenChange }: TrialClassModalProps) => {
       form.reset();
 
       toast({
-        title: "¡Registro exitoso!",
-        description: "Hemos enviado un correo de confirmación a tu email.",
+        title: isUpdate ? "¡Reservación actualizada!" : "¡Registro exitoso!",
+        description: isUpdate 
+          ? "Hemos actualizado tu reservación existente con la nueva fecha."
+          : "Hemos enviado un correo de confirmación a tu email.",
       });
     } catch (error) {
       console.error("Error al guardar:", error);

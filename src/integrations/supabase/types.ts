@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      class_schedules: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          location_name: string
+          location_zone: string | null
+          maps_url: string | null
+          sport: string
+          start_hour: number
+          start_minute: number
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          location_name: string
+          location_zone?: string | null
+          maps_url?: string | null
+          sport: string
+          start_hour: number
+          start_minute: number
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          location_name?: string
+          location_zone?: string | null
+          maps_url?: string | null
+          sport?: string
+          start_hour?: number
+          start_minute?: number
+        }
+        Relationships: []
+      }
       comm_log: {
         Row: {
           body_preview: string | null
@@ -142,6 +184,7 @@ export type Database = {
           error: string | null
           id: string
           idempotency_key: string
+          payload: Json | null
           prospect_id: string
           scheduled_for: string
           sent_at: string | null
@@ -154,6 +197,7 @@ export type Database = {
           error?: string | null
           id?: string
           idempotency_key: string
+          payload?: Json | null
           prospect_id: string
           scheduled_for: string
           sent_at?: string | null
@@ -166,6 +210,7 @@ export type Database = {
           error?: string | null
           id?: string
           idempotency_key?: string
+          payload?: Json | null
           prospect_id?: string
           scheduled_for?: string
           sent_at?: string | null
@@ -229,6 +274,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_runs: {
+        Row: {
+          created_at: string
+          error_count: number | null
+          finished_at: string | null
+          id: string
+          job_name: string
+          last_error: string | null
+          processed_count: number | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_count?: number | null
+          finished_at?: string | null
+          id?: string
+          job_name: string
+          last_error?: string | null
+          processed_count?: number | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error_count?: number | null
+          finished_at?: string | null
+          id?: string
+          job_name?: string
+          last_error?: string | null
+          processed_count?: number | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
       }
       reprogram_tokens: {
         Row: {
