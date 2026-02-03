@@ -13,17 +13,19 @@ interface JoinFamilyModalProps {
 }
 
 const JoinFamilyModal = ({ open, onOpenChange }: JoinFamilyModalProps) => {
+  // Basketball pausado temporalmente - solo mostramos Fútbol
   const locations = [
     {
       name: "Fútbol – Campo Hacienda del Bosque",
       address: "Av Bosque Almendros S/N, Del Bosque",
       mapLink: "https://maps.app.goo.gl/fxARNWmBn1RixYPZV"
     },
-    {
-      name: "Basketball – Quinta del Rey III",
-      address: "Residencial Quinta del Rey, 3ra Etapa",
-      mapLink: "https://maps.app.goo.gl/NRWYDi000BtXGXM8u"
-    }
+    // Basketball pausado temporalmente
+    // {
+    //   name: "Basketball – Quinta del Rey III",
+    //   address: "Residencial Quinta del Rey, 3ra Etapa",
+    //   mapLink: "https://maps.app.goo.gl/NRWYDi000BtXGXM8u"
+    // }
   ];
 
   return (
@@ -52,14 +54,11 @@ const JoinFamilyModal = ({ open, onOpenChange }: JoinFamilyModalProps) => {
                 Incluye inscripción a torneos del curso actual + derecho a entrenamientos + derecho a certificaciones internas White Lions
               </p>
               <div className="border-t border-border pt-3 mt-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-muted-foreground">Mensualidad Fútbol</span>
-                  <span className="font-bold text-navy">$450 MXN</span>
-                </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Mensualidad Basketball</span>
-                  <span className="font-bold text-navy">$400 MXN</span>
+                  <span className="text-muted-foreground">Mensualidad Fútbol</span>
+                  <span className="font-bold text-navy">$500 MXN</span>
                 </div>
+                {/* Basketball pausado temporalmente */}
               </div>
             </div>
           </div>

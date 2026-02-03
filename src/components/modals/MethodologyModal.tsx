@@ -70,7 +70,8 @@ const MethodologyModal = ({ open, onOpenChange }: MethodologyModalProps) => {
             </div>
           </div>
 
-          {/* Sistema de Niveles - Basketball */}
+          {/* Sistema de Niveles - Basketball (Pausado temporalmente) */}
+          {/* 
           <div className="bg-muted/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <Trophy className="w-6 h-6 text-gold" />
@@ -82,6 +83,7 @@ const MethodologyModal = ({ open, onOpenChange }: MethodologyModalProps) => {
               Actualmente se encuentra en desarrollo usando la misma metodología institucional White Lions Methodology.
             </p>
           </div>
+          */}
         </div>
       </DialogContent>
     </Dialog>

@@ -2,23 +2,25 @@ import { Clock, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 const Schedule = () => {
+  // Basketball pausado temporalmente - solo mostramos Fútbol
   const schedules = [
     {
       sport: "Fútbol",
       emoji: "⚽",
       location: "Hacienda del Bosque",
       sessions: [
-        { days: "Lunes y Miércoles", time: "6:00 PM – 7:30 PM", category: "Todas las categorías" },
+        { days: "Lunes y Miércoles", time: "6:00 PM – 8:00 PM", category: "Todas las categorías" },
       ],
     },
-    {
-      sport: "Basketball",
-      emoji: "🏀",
-      location: "Parque Quinta del Rey III",
-      sessions: [
-        { days: "Martes y Jueves", time: "6:30 PM – 8:00 PM", category: "Todas las categorías" },
-      ],
-    },
+    // Basketball pausado temporalmente
+    // {
+    //   sport: "Basketball",
+    //   emoji: "🏀",
+    //   location: "Parque Quinta del Rey III",
+    //   sessions: [
+    //     { days: "Martes y Jueves", time: "6:30 PM – 8:00 PM", category: "Todas las categorías" },
+    //   ],
+    // },
   ];
 
   return (
@@ -33,9 +35,9 @@ const Schedule = () => {
           </p>
         </AnimatedSection>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {schedules.map((schedule, index) => (
-            <AnimatedSection key={index} animation="fade-up" delay={index * 100}>
+        <div className="flex justify-center max-w-4xl mx-auto">
+          {schedules.map((schedule) => (
+            <AnimatedSection key={schedule.sport} animation="fade-up" className="w-full max-w-md">
               <div className="bento-card overflow-hidden p-0">
                 {/* Header */}
                 <div className="bg-primary/20 p-6 text-center border-b border-border">

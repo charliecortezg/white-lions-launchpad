@@ -24,9 +24,10 @@ interface RescheduleModalProps {
   isLoading?: boolean;
 }
 
+// Basketball pausado temporalmente
 const SCHEDULE_OPTIONS = [
   { value: "lunes_miercoles", label: "Lunes y miércoles, 6:00–8:00 pm", sport: "Fútbol" },
-  { value: "martes_jueves", label: "Martes y jueves, 6:30–8:00 pm", sport: "Basketball" },
+  // { value: "martes_jueves", label: "Martes y jueves, 6:30–8:00 pm", sport: "Basketball" },
 ];
 
 export const RescheduleModal = ({
@@ -107,7 +108,7 @@ export const RescheduleModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5 text-primary" />
-            Reprogramar Clase Muestra
+            Reprogramar Inicio del Reto
           </DialogTitle>
         </DialogHeader>
 

@@ -30,7 +30,7 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué debe llevar mi hijo al primer día?",
-      answer: "Ropa deportiva cómoda, tenis adecuados para el deporte (tacos para fútbol, tenis de cancha para basket), agua y muchas ganas. Nosotros te entregaremos el kit de inicio y proporcionamos los balones de entrenamiento.",
+      answer: "Ropa deportiva cómoda, tacos de fútbol, agua y muchas ganas. Nosotros te entregaremos el kit de inicio y proporcionamos los balones de entrenamiento.",
     },
     {
       question: "¿Las academias son mixtas?",

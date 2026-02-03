@@ -30,13 +30,13 @@ const Coaches = () => {
   const coaches = [
     {
       name: "Carlos Cortez",
-      role: "Director Deportivo / Coach Basketball",
-      certifications: ["Introducción al Deporte – Barça Innovation Hub", "Certificado Profesional Dirección Deportiva – Barça Innovation Hub", "FIFA Coach Academy", "Barça Coach Academy Nivel I", "NBA Coach Academy"],
-      specialty: "Coach de Estrellita e Infantil Basketball. Encargado de administración y gestión deportiva"
+      role: "Director Deportivo",
+      certifications: ["Introducción al Deporte – Barça Innovation Hub", "Certificado Profesional Dirección Deportiva – Barça Innovation Hub", "FIFA Coach Academy", "Barça Coach Academy Nivel I"],
+      specialty: "Encargado de administración y gestión deportiva"
     },
     {
       name: "Jaime Estrella",
-      role: "Entrenador",
+      role: "Entrenador Principal",
       certifications: ["Lic. Actividad Física y Deporte", "White Lions Coach Academy", "FIFA Coach Academy", "Barça Coach Academy Nivel I"],
       specialty: "Entrenador de Fútbol Estrellita e Infantil"
     }
