@@ -1,117 +1,143 @@
 
+# Plan: Pausar Programa de Basketball (Mantener Solo Fútbol)
 
-# Plan: Arreglar Eliminación de Prospectos
+## Resumen
 
-## Problema Identificado
-
-El error ocurre porque el SDK de Supabase Functions no envía correctamente el body en requests DELETE. Los logs de la Edge Function muestran:
-
-```
-Error: SyntaxError: Unexpected end of JSON input
-```
-
-Esto sucede en la línea 274 de `admin-prospects/index.ts` cuando intenta hacer `await req.json()` en un DELETE request que llega sin body.
-
-## Solución Recomendada
-
-Cambiar la lógica de eliminación para usar **POST con action="delete"** en lugar de DELETE method. Esto es más robusto y consistente con las otras acciones que ya usan POST.
+Pausar temporalmente toda la funcionalidad de Basketball en el sitio web y sistema, manteniendo:
+- El código guardado (comentado/condicionalizado) para reactivación futura
+- Los datos existentes en la base de datos intactos
+- Solo Fútbol visible y disponible para inscripciones
 
 ---
 
-## Cambios en la Edge Function
+## Estrategia: Pausa Suave
 
-**Archivo:** `supabase/functions/admin-prospects/index.ts`
+En lugar de eliminar el código de Basketball, lo vamos a **desactivar** de forma que sea fácil reactivarlo en el futuro. Esto se logra mediante:
 
-Agregar un nuevo case en el POST handler:
-
-```typescript
-if (action === "delete") {
-  // First, delete related records in email_queue
-  await supabase
-    .from("email_queue")
-    .delete()
-    .eq("prospect_id", id);
-    
-  // Delete related reprogram_tokens
-  await supabase
-    .from("reprogram_tokens")
-    .delete()
-    .eq("prospect_id", id);
-    
-  // Delete the prospect
-  const { error } = await supabase
-    .from("trial_class_registrations")
-    .delete()
-    .eq("id", id);
-
-  if (error) throw error;
-
-  return new Response(JSON.stringify({ success: true }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-```
-
-**Nota importante:** También se deben eliminar los registros relacionados en `email_queue` y `reprogram_tokens` antes de eliminar el prospecto, ya que aunque no hay FK constraints, mantiene la integridad de los datos.
+1. **Base de datos**: Marcar schedules de Basketball como `is_active = false`
+2. **UI**: Ocultar opciones de Basketball en formularios y secciones
+3. **Código**: Mantener la lógica pero condicionalizada
 
 ---
 
-## Cambios en el Frontend
+## Parte 1: Base de Datos
 
-**Archivo:** `src/pages/AdminPanel.tsx`
+### Desactivar schedules de Basketball
 
-Cambiar la mutación de DELETE para usar POST:
-
-```typescript
-// Delete prospect mutation
-const deleteMutation = useMutation({
-  mutationFn: async (id: string) => {
-    const { data, error } = await supabase.functions.invoke("admin-prospects", {
-      method: "POST",  // Cambiado de DELETE a POST
-      body: { id, action: "delete" },  // Agregar action
-    });
-    if (error) throw error;
-    return data;
-  },
-  // ... resto igual
-});
+```sql
+UPDATE class_schedules 
+SET is_active = false 
+WHERE sport = 'Basketball';
 ```
+
+Esto preserva los registros para reactivación futura y afecta las funciones que leen horarios desde la tabla.
+
+---
+
+## Parte 2: Componentes a Modificar
+
+### 2.1 `ChallengeRegistrationModal.tsx`
+**Cambios:**
+- Remover el botón de selección de Basketball
+- Hacer que Fútbol sea la selección por defecto
+- Ocultar la lógica de categorías/horarios de Basketball
+
+**Antes:** Grid con 2 botones (Fútbol | Basketball)
+**Después:** Un solo deporte, auto-seleccionado como "Fútbol"
+
+### 2.2 `Schedule.tsx`
+**Cambios:**
+- Filtrar el array `schedules` para mostrar solo Fútbol
+- Ajustar layout a una sola tarjeta centrada
+
+### 2.3 `Locations.tsx`
+**Cambios:**
+- Filtrar el array `locations` para mostrar solo Fútbol
+- Ajustar layout a una sola tarjeta centrada
+
+### 2.4 `FAQNew.tsx`
+**Cambios:**
+- Modificar la pregunta sobre "tenis de cancha para basket" → solo mencionar fútbol
+- Mantener el resto igual
+
+### 2.5 `Navbar.tsx`
+**Cambios:**
+- Remover el link "Basketball" de la navegación
+- Mantener solo: Inicio, Fútbol, Ubicaciones
+
+### 2.6 `JoinFamilyModal.tsx`
+**Cambios:**
+- Remover la ubicación de Basketball
+- Remover la mensualidad de Basketball
+- Mostrar solo información de Fútbol
+
+### 2.7 `MethodologyModal.tsx`
+**Cambios:**
+- Mantener la sección de Basketball pero con un mensaje de "Próximamente" o similar
+- O simplemente ocultarla temporalmente
+
+### 2.8 `RescheduleModal.tsx` (Admin)
+**Cambios:**
+- Filtrar opciones de reprogramación para no mostrar Basketball
+- Solo aplica a nuevos prospectos, los existentes de Basketball mantienen sus opciones
+
+### 2.9 `Coaches.tsx`
+**Cambios:**
+- Actualizar el rol de Carlos Cortez (remover "Coach Basketball")
+- O mantenerlo pero no visible si la sección no se muestra
+
+---
+
+## Parte 3: Edge Functions
+
+Las Edge Functions (`process-trial-pipeline`, `reprogramar-api`, `run-reminders`) ya leen los schedules desde la tabla `class_schedules` con filtro `is_active = true`, por lo que al desactivar Basketball en la base de datos, automáticamente dejarán de ofrecer esos horarios.
+
+---
+
+## Parte 4: Mantener Datos Históricos
+
+Los prospectos existentes de Basketball se mantienen intactos en `trial_class_registrations`. Simplemente ya no se podrán crear nuevos registros de Basketball desde la UI.
 
 ---
 
 ## Archivos a Modificar
 
-| Archivo | Cambio |
-|---------|--------|
-| `supabase/functions/admin-prospects/index.ts` | Agregar handler para `action === "delete"` en POST |
-| `src/pages/AdminPanel.tsx` | Cambiar `method: "DELETE"` a `method: "POST"` con `action: "delete"` |
+| Archivo | Cambio Principal |
+|---------|------------------|
+| `src/components/ChallengeRegistrationModal.tsx` | Auto-seleccionar Fútbol, ocultar botón Basketball |
+| `src/components/Schedule.tsx` | Filtrar a solo Fútbol |
+| `src/components/Locations.tsx` | Filtrar a solo Fútbol |
+| `src/components/Navbar.tsx` | Remover link "Basketball" |
+| `src/components/FAQNew.tsx` | Actualizar pregunta sobre equipamiento |
+| `src/components/modals/JoinFamilyModal.tsx` | Remover info de Basketball |
+| `src/components/modals/MethodologyModal.tsx` | Ocultar o marcar Basketball como "próximamente" |
+| `src/components/admin/RescheduleModal.tsx` | Filtrar opciones de Basketball |
+| `src/components/Coaches.tsx` | Actualizar rol de Carlos |
 
 ---
 
-## Opcional: Mantener Compatibilidad con DELETE
+## Secuencia de Implementación
 
-Si quieres mantener el método DELETE funcionando (para APIs RESTful), puedes hacer que lea el ID de los query parameters:
-
-```typescript
-// DELETE - Remove prospect (using query param for ID)
-if (req.method === "DELETE") {
-  const url = new URL(req.url);
-  const id = url.searchParams.get("id");
-  
-  if (!id) {
-    return new Response(
-      JSON.stringify({ error: "ID is required as query parameter" }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-  // ... resto del delete logic
-}
-```
+1. **SQL**: Desactivar schedules de Basketball (`is_active = false`)
+2. **Frontend**: Actualizar todos los componentes para ocultar Basketball
+3. **Verificar**: Probar que el formulario solo muestre Fútbol
+4. **Admin**: Asegurar que los prospectos existentes de Basketball sigan siendo visibles pero no editables a nuevos horarios de basket
 
 ---
 
-## Pruebas de Aceptación
+## Criterios de Éxito
 
-1. **Eliminar prospecto dummy:** Ir al admin panel, hacer click en Eliminar en cualquier tarjeta → debe eliminarse sin error
-2. **Verificar integridad:** Después de eliminar, verificar que no quedan registros huérfanos en `email_queue` ni `reprogram_tokens`
+- Formulario de inscripción solo muestra Fútbol
+- Sección de horarios solo muestra Fútbol  
+- Sección de ubicaciones solo muestra la sede de Fútbol
+- Navegación no menciona Basketball
+- Prospectos históricos de Basketball se mantienen en el sistema
+- El código de Basketball queda guardado para reactivación futura
 
+---
+
+## Reversibilidad
+
+Para reactivar Basketball en el futuro:
+1. `UPDATE class_schedules SET is_active = true WHERE sport = 'Basketball';`
+2. Revertir los cambios en los componentes (descomentar/reactivar condiciones)
