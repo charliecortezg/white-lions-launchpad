@@ -124,7 +124,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   };
 
   const getLocationZone = (sport: string | undefined) => {
-    if (sport === "Fútbol") return "Zona Haciendas, Mexicali";
+    if (sport === "Fútbol") return "Zona Juventud 2000, Mexicali";
     if (sport === "Basketball") return "Fracc. Quinta del Rey, Mexicali";
     return "";
   };
