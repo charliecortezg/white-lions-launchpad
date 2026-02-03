@@ -22,9 +22,9 @@ const formSchema = z.object({
   tutor_email: z.string().email("Ingresa un correo electrónico válido"),
   contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
   birth_year: z.string().min(4, "Selecciona el año de nacimiento"),
-  sport: z.enum(["Fútbol", "Basketball"], {
+  sport: z.enum(["Fútbol"], {
     required_error: "Selecciona un deporte",
-  }),
+  }).default("Fútbol"),
   category: z.string().min(1, "Selecciona una categoría"),
   start_date: z.date({
     required_error: "Selecciona una fecha de inicio",
@@ -46,37 +46,31 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      sport: "Fútbol", // Basketball pausado temporalmente
+    },
   });
 
-  const selectedSport = form.watch("sport");
+  // Basketball pausado - solo Fútbol disponible
+  const selectedSport = "Fútbol";
   const selectedBirthYear = form.watch("birth_year");
 
   // Solo fútbol para niños de 6 a 11 años (2014-2019)
-  const getValidYears = (sport: string | undefined) => {
-    if (sport === "Fútbol") {
-      return Array.from({ length: 6 }, (_, i) => (2019 - i).toString()); // 2019 a 2014
-    } else if (sport === "Basketball") {
-      return Array.from({ length: 4 }, (_, i) => (2017 - i).toString()); // 2017 a 2014
-    }
-    return [];
+  // Basketball pausado temporalmente
+  const getValidYears = () => {
+    return Array.from({ length: 6 }, (_, i) => (2019 - i).toString()); // 2019 a 2014
   };
 
-  // Función para determinar categorías según deporte y año de nacimiento
-  const getCategories = (sport: string | undefined, birthYear: string | undefined) => {
-    if (!sport || !birthYear) return [];
+  // Función para determinar categorías según año de nacimiento (Solo Fútbol)
+  // Basketball pausado temporalmente
+  const getCategories = (birthYear: string | undefined) => {
+    if (!birthYear) return [];
 
     const year = parseInt(birthYear);
 
-    if (sport === "Fútbol") {
-      if (year >= 2018) return ["Escuelita"];
-      if (year >= 2016 && year <= 2017) return ["Estrellita"];
-      if (year >= 2014 && year <= 2015) return ["Infantil"];
-      return [];
-    } else if (sport === "Basketball") {
-      if (year >= 2016 && year <= 2017) return ["Estrellita"];
-      if (year >= 2014 && year <= 2015) return ["Infantil"];
-      return [];
-    }
+    if (year >= 2018) return ["Escuelita"];
+    if (year >= 2016 && year <= 2017) return ["Estrellita"];
+    if (year >= 2014 && year <= 2015) return ["Infantil"];
     return [];
   };
 
@@ -279,7 +273,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
     onOpenChange(false);
   };
 
-  const categories = getCategories(selectedSport, selectedBirthYear);
+  const categories = getCategories(selectedBirthYear);
   const nextAvailableDate = getNextAvailableDate(selectedSport);
 
   return (
@@ -305,57 +299,12 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
         {!isSubmitted ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-              {/* Sport Selection - Cards */}
-              <FormField
-                control={form.control}
-                name="sport"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Selecciona un deporte</FormLabel>
-                    <FormControl>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            field.onChange("Fútbol");
-                            form.setValue("birth_year", "");
-                            form.setValue("category", "");
-                          }}
-                          className={cn(
-                            "p-6 rounded-xl border-2 transition-all text-left",
-                            field.value === "Fútbol"
-                              ? "border-primary bg-primary/10 shadow-lg"
-                              : "border-border hover:border-primary/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <span className="text-4xl block mb-2">⚽</span>
-                          <span className="font-semibold text-lg block">Fútbol</span>
-                          <span className="text-xs text-muted-foreground">Lun y Mié</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            field.onChange("Basketball");
-                            form.setValue("birth_year", "");
-                            form.setValue("category", "");
-                          }}
-                          className={cn(
-                            "p-6 rounded-xl border-2 transition-all text-left",
-                            field.value === "Basketball"
-                              ? "border-primary bg-primary/10 shadow-lg"
-                              : "border-border hover:border-primary/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <span className="text-4xl block mb-2">🏀</span>
-                          <span className="font-semibold text-lg block">Basketball</span>
-                          <span className="text-xs text-muted-foreground">Mar y Jue</span>
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Sport Selection - Solo Fútbol (Basketball pausado) */}
+              <div className="bg-primary/10 border-2 border-primary rounded-xl p-6 text-center">
+                <span className="text-4xl block mb-2">⚽</span>
+                <span className="font-semibold text-lg block text-foreground">Fútbol</span>
+                <span className="text-xs text-muted-foreground">Lunes y Miércoles</span>
+              </div>
 
               <FormField
                 control={form.control}
@@ -388,7 +337,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {getValidYears(selectedSport).map((year) => (
+                        {getValidYears().map((year) => (
                           <SelectItem key={year} value={year}>
                             {year}
                           </SelectItem>

@@ -25,10 +25,11 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  // Basketball pausado temporalmente
   const navLinks = [
     { label: "Inicio", id: "hero" },
     { label: "Fútbol", id: "pricing" },
-    { label: "Basketball", id: "pricing" },
+    // { label: "Basketball", id: "pricing" }, // Pausado temporalmente
     { label: "Ubicaciones", id: "ubicaciones" },
   ];
 
