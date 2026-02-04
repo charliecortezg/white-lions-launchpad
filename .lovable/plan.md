@@ -1,264 +1,350 @@
 
-# Plan: Actualización Copy & Pricing 2026 — White Lions Academies
+# Plan: Multi-Step Onboarding Wizard — Reto White Lions
 
 ## Resumen Ejecutivo
 
-Actualizar todo el copy del sitio web para posicionar el **Reto White Lions – 30 días** a **$1,100 MXN** como la opción principal y más segura de entrada, usando la nueva estructura de precios como anclaje estratégico.
+Transformar el formulario actual de registro (ChallengeRegistrationModal.tsx) de una sola vista larga en un **wizard de 4 pasos** con progressive disclosure, optimizado para conversión mobile-first.
 
 ---
 
-## Cambios Principales de Precios
+## Análisis del Estado Actual
 
-| Concepto | Precio Anterior | Precio Nuevo |
-|----------|-----------------|--------------|
-| Reto White Lions – 30 días | $700 MXN | **$1,100 MXN** |
-| Inscripción Estándar | No existía | **$950 MXN** |
-| Mensualidad Regular | $500 MXN | **$500 MXN** (sin cambio) |
-| Evaluación Individual | No existía | **$300 MXN** |
+### Campos Actuales (Orden Actual)
+1. Deporte (auto-seleccionado: Fútbol)
+2. Nombre del jugador
+3. Año de nacimiento
+4. Categoría (condicional)
+5. Info de ubicación/horario (solo lectura)
+6. Kit de inicio (solo lectura)
+7. Nombre del tutor
+8. Email del tutor
+9. Teléfono WhatsApp
+10. Fecha de inicio del reto
+11. Precio y garantía
+12. Botón submit
 
----
-
-## Parte 1: HeroNew.tsx (Hero Section)
-
-### Copy Nuevo
-
-```
-Badge: "🟡 Cupos limitados · Niños de 6 a 11 años"
-
-Headline: "WHITE LIONS NO ES UNA ACTIVIDAD. ES UNA DECISIÓN PARA TU HIJO."
-
-Subheadline: "Un sistema deportivo diseñado para que tu hijo se divierta más, 
-deje el celular y construya hábitos positivos a través del fútbol."
-
-Supporting line: "Entrenamiento estructurado · Comunidad real · Seguimiento del progreso"
-
-Precio ancla: "Desde $500 MXN al mes"
-Sub-texto: "👉 La mayoría de las familias inicia con el Reto White Lions"
-
-CTA: "🦁 Iniciar con el Reto White Lions"
-
-Micro-copy: "Empieza con 30 días. La decisión final es tuya."
-```
+**Problema**: Todo se muestra de golpe → fricción cognitiva alta en móvil.
 
 ---
 
-## Parte 2: Nueva Sección — "El Problema" (ProblemSection.tsx)
+## Nueva Estructura: 4 Pasos
 
-### Ubicación
-Después del Hero, antes de ClientFilter
+### STEP 1 — Datos del Jugador
+**Campos visibles:**
+- Nombre del jugador
+- Año de nacimiento (select)
+- Categoría (auto-mostrada al seleccionar año)
 
-### Copy Exacto
+**Validación antes de continuar:**
+- `player_name` mínimo 2 caracteres
+- `birth_year` seleccionado
+- `category` seleccionada
 
-```
-Título: "Hoy no es fácil encontrar una actividad que realmente ayude a tu hijo"
-
-Texto: "Muchos padres buscan algo más que 'entretener' a sus hijos."
-
-Lista (bullets):
-- Que se muevan más
-- Que desarrollen disciplina
-- Que salgan de la rutina de pantallas
-- Que pertenezcan a un entorno sano
-
-Cierre: "White Lions existe para cubrir exactamente eso."
-```
+**CTA:** "Continuar →"
 
 ---
 
-## Parte 3: ClientFilter.tsx (Para Quién Es / No Es)
+### STEP 2 — La Experiencia del Reto
+**Elementos visibles (solo lectura):**
+- Ubicación: Campo Hacienda del Bosque
+- Horario: Lunes y miércoles, 6:00–8:00 pm
+- Kit de inicio (lista visual)
+- **Campo editable:** Fecha de inicio del reto
 
-### Copy Actualizado
+**Validación antes de continuar:**
+- `start_date` seleccionada
 
-```
-Título: "¿White Lions es para tu familia?"
-
-SÍ es para familias que:
-- Buscan estructura, no solo juegos
-- Valoran disciplina y constancia
-- Quieren ver progreso real
-- Están dispuestas a comprometerse
-
-NO es para quienes:
-- Solo buscan partidos o trofeos
-- Cambian de actividad cada mes
-- No respetan reglas ni procesos
-
-Micro-copy final: "White Lions no es para todos. Es para familias 
-que toman en serio el desarrollo de sus hijos."
-```
+**CTA:** "Quiero apartar mi lugar →"
 
 ---
 
-## Parte 4: ChallengeOffer.tsx (Oferta Principal + Comparativo)
+### STEP 3 — Datos del Tutor
+**Campos visibles:**
+- Nombre del tutor
+- Correo electrónico
+- Teléfono WhatsApp
 
-### Estructura Completamente Nueva
+**Validación antes de continuar:**
+- `tutor_name` mínimo 2 caracteres
+- `tutor_email` válido
+- `contact_phone` mínimo 10 dígitos
 
-#### A) Sección del Reto (Hero de la oferta)
+**CTA:** "Ver total y garantía →"
 
+---
+
+### STEP 4 — Precio y Cierre
+**Elementos visibles:**
+- Total a pagar: $1,100 MXN
+- Desglose: Kit + 30 días + Garantía
+- Garantía completa (texto)
+- Botón final de submit
+
+**CTA Final:** "🦁 Iniciar Reto White Lions"
+
+---
+
+## Arquitectura Técnica
+
+### Estado del Wizard
+```typescript
+const [step, setStep] = useState(1);
+const TOTAL_STEPS = 4;
 ```
-Título: "Reto White Lions – 30 días"
-Precio: "$1,100 MXN"
 
-Texto: "El Reto White Lions es la forma más segura y recomendada de iniciar.
-Durante 30 días tu hijo:"
-
-Lista:
-- Vive la experiencia real de la academia
-- Entrena con metodología estructurada
-- Se integra a un grupo con reglas y valores
-- Comienza un proceso de seguimiento deportivo
-
-Incluye:
-- Entrenamientos
-- Kit de inicio White Lions
-- Acompañamiento inicial
-- Garantía de satisfacción
-
-Garantía: "Si después de 30 días tu hijo no se divierte más, no se mueve más 
-y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el kit)."
-
-CTA: "🦁 Iniciar el Reto White Lions"
+### Validación Por Paso
+```typescript
+const validateStep = async (currentStep: number): Promise<boolean> => {
+  switch (currentStep) {
+    case 1:
+      return form.trigger(["player_name", "birth_year", "category"]);
+    case 2:
+      return form.trigger(["start_date"]);
+    case 3:
+      return form.trigger(["tutor_name", "tutor_email", "contact_phone"]);
+    case 4:
+      return true; // Submit final
+    default:
+      return false;
+  }
+};
 ```
 
-#### B) Tabla Comparativa de Opciones (Anclaje)
+### Navegación
+```typescript
+const nextStep = async () => {
+  const isValid = await validateStep(step);
+  if (isValid && step < TOTAL_STEPS) {
+    setStep(step + 1);
+  }
+};
 
-```
-Título: "Formas de iniciar en White Lions"
-
-┌─────────────────────────────────────────────────────────────────────┐
-│ 🔹 OPCIÓN RECOMENDADA                                               │
-│ Reto White Lions – 30 días                                          │
-│ $1,100 MXN                                                          │
-│ ✔ Kit  ✔ Garantía  ✔ Experiencia completa                          │
-│ 👉 La mayoría de las familias inicia aquí.                          │
-├─────────────────────────────────────────────────────────────────────┤
-│ 🔹 OPCIÓN DIRECTA                                                   │
-│ Inscripción Estándar                                                │
-│ $950 MXN                                                            │
-│ Incluye registro + primer mes                                       │
-│ ❌ Sin kit  ❌ Sin garantía                                          │
-│ 👉 Solo para quienes ya conocen el sistema White Lions.             │
-├─────────────────────────────────────────────────────────────────────┤
-│ 🔹 CONTINUIDAD                                                      │
-│ Mensualidad Regular                                                 │
-│ $500 MXN / mes                                                      │
-│ Entrenamientos + evaluaciones mensuales + STRYK                     │
-├─────────────────────────────────────────────────────────────────────┤
-│ 🔹 SERVICIO EXTERNO                                                 │
-│ Evaluación Individual                                               │
-│ $300 MXN                                                            │
-│ Para jugadores externos a la academia.                              │
-└─────────────────────────────────────────────────────────────────────┘
+const prevStep = () => {
+  if (step > 1) setStep(step - 1);
+};
 ```
 
 ---
 
-## Parte 5: FAQNew.tsx
+## Componentes UI Nuevos
 
-### Actualizar precios en respuestas
+### 1. Progress Indicator
+```text
+┌─────────────────────────────────────────────┐
+│  ● ─── ○ ─── ○ ─── ○    Paso 1 de 4         │
+│  [======                           ]         │
+└─────────────────────────────────────────────┘
+```
 
-- Reto: $1,100 MXN (antes $700)
-- Mencionar la Inscripción Estándar ($950) como alternativa
-- Actualizar el cálculo de la garantía (reembolso menos kit)
+Implementación:
+- Barra de progreso visual (25%, 50%, 75%, 100%)
+- Texto "Paso X de 4"
+- Íconos de paso activo/completado/pendiente
 
----
+### 2. Animaciones Entre Pasos
+```typescript
+// Clases de transición (CSS)
+.step-enter { opacity: 0; transform: translateX(20px); }
+.step-enter-active { opacity: 1; transform: translateX(0); transition: all 0.3s ease; }
+.step-exit { opacity: 1; transform: translateX(0); }
+.step-exit-active { opacity: 0; transform: translateX(-20px); transition: all 0.3s ease; }
+```
 
-## Parte 6: Index.tsx (Orden de Secciones)
-
-### Nuevo orden
-
-```tsx
-<Navbar />
-<HeroNew />            // Hero actualizado
-<ProblemSection />     // NUEVA sección "El Problema"
-<ClientFilter />       // "¿Para quién es?"
-<ValueProposition />   // Por qué el Reto
-<ChallengeOffer />     // Oferta principal + Comparativo
-<Schedule />
-<Director />
-<Locations />
-<FAQNew />
-<FooterNew />
+Alternativa simple con Tailwind:
+```typescript
+className={cn(
+  "transition-all duration-300 ease-out",
+  step === currentStep ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+)}
 ```
 
 ---
 
-## Parte 7: Actualizar Modal de Registro
+## Estructura del Componente Refactorizado
+
+```text
+<Dialog>
+  <DialogContent>
+    <DialogHeader>
+      <Title>🦁 Reto White Lions – 30 Días</Title>
+      <ProgressIndicator step={step} totalSteps={4} />
+    </DialogHeader>
+
+    <Form>
+      {/* STEP 1: Datos del Jugador */}
+      {step === 1 && (
+        <StepContainer>
+          <PlayerNameField />
+          <BirthYearField />
+          <CategoryField />
+          <ContinueButton onClick={nextStep}>Continuar</ContinueButton>
+        </StepContainer>
+      )}
+
+      {/* STEP 2: La Experiencia */}
+      {step === 2 && (
+        <StepContainer>
+          <LocationInfo />     {/* Solo lectura */}
+          <ScheduleInfo />     {/* Solo lectura */}
+          <KitInfo />          {/* Solo lectura */}
+          <StartDateField />   {/* Editable */}
+          <BackButton onClick={prevStep} />
+          <ContinueButton onClick={nextStep}>Quiero apartar mi lugar</ContinueButton>
+        </StepContainer>
+      )}
+
+      {/* STEP 3: Datos del Tutor */}
+      {step === 3 && (
+        <StepContainer>
+          <TutorNameField />
+          <TutorEmailField />
+          <PhoneField />
+          <BackButton onClick={prevStep} />
+          <ContinueButton onClick={nextStep}>Ver total y garantía</ContinueButton>
+        </StepContainer>
+      )}
+
+      {/* STEP 4: Precio y Cierre */}
+      {step === 4 && (
+        <StepContainer>
+          <PriceSummary />
+          <GuaranteeText />
+          <BackButton onClick={prevStep} />
+          <SubmitButton type="submit">🦁 Iniciar Reto White Lions</SubmitButton>
+        </StepContainer>
+      )}
+    </Form>
+  </DialogContent>
+</Dialog>
+```
+
+---
+
+## Copy Específico Por Paso
+
+### Step 1
+- **Título del paso:** "Cuéntanos sobre el jugador"
+- **Subtítulo:** "El Reto está diseñado para niños de 6 a 11 años"
+
+### Step 2
+- **Título del paso:** "Tu experiencia White Lions"
+- **Subtítulo:** "Esto es lo que vivirá tu hijo durante 30 días"
+
+### Step 3
+- **Título del paso:** "¿Cómo te contactamos?"
+- **Subtítulo:** "Usaremos estos datos para coordinar el inicio del Reto"
+
+### Step 4
+- **Título del paso:** "Estás a un paso de comenzar"
+- **Subtítulo:** "Revisa el total y confirma tu inscripción"
+
+---
+
+## Cambios en el Archivo
 
 ### ChallengeRegistrationModal.tsx
 
-- Actualizar el precio mostrado de $700 → $1,100 MXN
-- Mantener la lógica de registro igual
+| Sección | Cambio |
+|---------|--------|
+| Estado | Agregar `step` y funciones de navegación |
+| Render | Dividir campos en 4 bloques condicionales |
+| UI | Agregar ProgressIndicator |
+| Botones | Cambiar submit por navegación multi-step |
+| Animaciones | Agregar transiciones fade/slide |
+| Reset | Resetear `step` a 1 al cerrar |
 
 ---
 
-## Archivos a Crear/Modificar
+## Mobile-First Considerations
 
-| Archivo | Acción |
-|---------|--------|
-| `src/components/ProblemSection.tsx` | **CREAR** — Sección "El Problema" |
-| `src/components/HeroNew.tsx` | **MODIFICAR** — Nuevo copy y estructura |
-| `src/components/ClientFilter.tsx` | **MODIFICAR** — Nuevo copy |
-| `src/components/ChallengeOffer.tsx` | **MODIFICAR** — Precios y comparativo |
-| `src/components/FAQNew.tsx` | **MODIFICAR** — Actualizar precios |
-| `src/components/ChallengeRegistrationModal.tsx` | **MODIFICAR** — Precio $1,100 |
-| `src/pages/Index.tsx` | **MODIFICAR** — Agregar ProblemSection |
+1. **Un solo scroll por paso** (máximo)
+2. **Botones sticky en bottom** para fácil acceso
+3. **Inputs grandes** (h-12 en lugar de h-10)
+4. **Espaciado amplio** entre elementos
+5. **Progress bar visible siempre** (sticky top)
+
+---
+
+## Diagrama de Flujo del Usuario
+
+```text
+┌──────────────────┐
+│   Usuario abre   │
+│      modal       │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│   PASO 1         │
+│   Datos Jugador  │───► Valida → ✗ Muestra error
+│   (10 segundos)  │
+└────────┬─────────┘
+         │ ✓
+         ▼
+┌──────────────────┐
+│   PASO 2         │
+│   Experiencia    │───► Ve valor ANTES del precio
+│   + Fecha inicio │
+└────────┬─────────┘
+         │ ✓
+         ▼
+┌──────────────────┐
+│   PASO 3         │
+│   Datos Tutor    │───► Compromiso emocional
+│                  │
+└────────┬─────────┘
+         │ ✓
+         ▼
+┌──────────────────┐
+│   PASO 4         │
+│   Precio final   │───► Decisión informada
+│   + Garantía     │
+└────────┬─────────┘
+         │ Submit
+         ▼
+┌──────────────────┐
+│   Confirmación   │
+│   + Email sent   │
+└──────────────────┘
+```
 
 ---
 
 ## Criterios de Éxito
 
-1. El Reto White Lions ($1,100) es la opción más visible y recomendada
-2. Los precios funcionan como anclaje (la tabla muestra que el Reto tiene más valor)
-3. Un solo CTA principal en todo el flujo
-4. Lenguaje dirigido a padres (no a niños ni entrenadores)
-5. Mobile-first: sin párrafos largos, todo escaneable
-6. Narrativa: decisión → problema → solución → oferta → acción
+| Métrica | Objetivo |
+|---------|----------|
+| Tiempo Step 1 | < 10 segundos |
+| Drop-off rate | Menor que formulario actual |
+| Mobile completion | Fluido sin scroll excesivo |
+| Percepción de valor | Usuario ve experiencia antes del precio |
+| Fricción cognitiva | Mínima (1 decisión por pantalla) |
 
 ---
 
-## Diagrama de Flujo de Conversión
+## Archivos a Modificar
 
-```text
-                    ┌──────────────┐
-                    │    HERO      │
-                    │   $500/mes   │◄── Ancla mental
-                    │   (CTA Reto) │
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │  PROBLEMA    │
-                    │ (Pantallas,  │◄── Conexión emocional
-                    │  disciplina) │
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │ ¿PARA QUIÉN? │
-                    │ (Filtro)     │◄── Auto-calificación
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │  PROPUESTA   │
-                    │  DE VALOR    │◄── Justificación del Reto
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │   OFERTA     │
-                    │  $1,100 Reto │◄── Decisión principal
-                    │ + Comparativo│
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │   REGISTRO   │
-                    │   (Modal)    │◄── Conversión
-                    └──────────────┘
-```
+| Archivo | Acción |
+|---------|--------|
+| `src/components/ChallengeRegistrationModal.tsx` | **REFACTORIZAR** — Agregar lógica multi-step |
 
 ---
 
-## Notas Técnicas
+## Lo que NO Cambia
 
-- **NO cambiar**: Branding, colores, tipografía, infraestructura de pagos
-- **SÍ cambiar**: Copy, jerarquía de mensajes, presentación de precios, micro-copy
-- Mantener diseño mobile-first con tarjetas bento existentes
-- La tabla comparativa usa el sistema de tarjetas actual pero con jerarquía visual clara
+- ✅ Schema de validación Zod (mismo)
+- ✅ Lógica de submit a Supabase (mismo)
+- ✅ Envío de email de confirmación (mismo)
+- ✅ Pantalla de éxito post-submit (mismo)
+- ✅ Branding, colores, tipografía (mismo)
+- ✅ Estructura del Dialog (mismo)
+
+---
+
+## Notas de Implementación
+
+1. **Form.trigger()** permite validar campos específicos sin hacer submit
+2. **Mantener un solo `<form>`** — no múltiples submits
+3. **El submit real solo ocurre en Step 4**
+4. **Agregar botón "Atrás"** en steps 2, 3, 4
+5. **Resetear step a 1** cuando se cierra el modal
