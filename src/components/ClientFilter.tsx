@@ -3,17 +3,16 @@ import AnimatedSection from "./AnimatedSection";
 
 const ClientFilter = () => {
   const weLookFor = [
-    "Familias comprometidas con la formación de sus hijos",
-    "Padres que valoran la puntualidad, estructura y disciplina",
-    "Niños que quieren pertenecer a algo más grande que ellos",
-    "Atletas que entienden que el proceso es más importante que el resultado",
+    "Buscan estructura, no solo juegos",
+    "Valoran disciplina y constancia",
+    "Quieren ver progreso real",
+    "Están dispuestas a comprometerse",
   ];
 
   const weAreNot = [
-    "Un lugar para \"probar a ver si le gusta\"",
-    "Una guardería con balones",
-    "Un equipo que prioriza trofeos sobre personas",
-    "Una academia sin seguimiento ni metodología",
+    "Solo buscan partidos o trofeos",
+    "Cambian de actividad cada mes",
+    "No respetan reglas ni procesos",
   ];
 
   return (
@@ -22,11 +21,8 @@ const ClientFilter = () => {
         <AnimatedSection animation="fade-up">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-display uppercase tracking-wide">
-              White Lions es para familias que deciden, no para familias que prueban.
+              ¿White Lions es para tu familia?
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-body">
-              Nuestra filosofía: Formamos personas a través del deporte.
-            </p>
           </div>
         </AnimatedSection>
 
@@ -38,7 +34,7 @@ const ClientFilter = () => {
                 <span className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Check className="w-5 h-5 text-primary" />
                 </span>
-                Lo que SÍ buscamos
+                SÍ es para familias que
               </h3>
               <ul className="space-y-4">
                 {weLookFor.map((item, index) => (
@@ -58,7 +54,7 @@ const ClientFilter = () => {
                 <span className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
                   <X className="w-5 h-5 text-destructive" />
                 </span>
-                Lo que NO somos
+                NO es para quienes
               </h3>
               <ul className="space-y-4">
                 {weAreNot.map((item, index) => (
@@ -71,6 +67,18 @@ const ClientFilter = () => {
             </div>
           </AnimatedSection>
         </div>
+
+        {/* Micro-copy final */}
+        <AnimatedSection animation="fade-up" delay={300}>
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground font-body text-lg max-w-xl mx-auto">
+              White Lions no es para todos.{" "}
+              <span className="text-foreground font-medium">
+                Es para familias que toman en serio el desarrollo de sus hijos.
+              </span>
+            </p>
+          </div>
+        </AnimatedSection>
       </div>
     </section>
   );
