@@ -10,19 +10,23 @@ const FAQNew = () => {
   const faqs = [
     {
       question: "¿Qué es el Reto White Lions de 30 Días?",
-      answer: "Es tu primer mes completo como parte de la familia White Lions. No es una prueba ni una clase muestra. Son 30 días de entrenamiento estructurado con todas las herramientas que necesitas: kit de inicio incluido, integración completa al grupo y seguimiento desde el día 1. El costo es de $700 MXN (pago único).",
+      answer: "Es tu primer mes completo como parte de la familia White Lions. No es una prueba ni una clase muestra. Son 30 días de entrenamiento estructurado con todas las herramientas que necesitas: kit de inicio incluido, integración completa al grupo y seguimiento desde el día 1. El costo es de $1,100 MXN (pago único).",
     },
     {
       question: "¿Qué incluye el Kit de Inicio?",
-      answer: "El kit incluye: Camiseta oficial White Lions, calcetas deportivas, espinilleras de entrenamiento y un termo White Lions. Valorado en $300 MXN aproximadamente. Es tuyo desde el momento en que te inscribes al Reto.",
+      answer: "El kit incluye: Camiseta oficial White Lions, calcetas deportivas, espinilleras de entrenamiento y un termo White Lions. Es tuyo desde el momento en que te inscribes al Reto.",
     },
     {
       question: "¿Cómo funciona la garantía?",
-      answer: "Si al finalizar los 30 días no ves la organización y estructura que prometemos, te devolvemos tu inversión ($700 MXN) menos el valor del kit que ya te entregamos ($300 MXN). Sin preguntas, sin complicaciones. Así de seguros estamos de lo que ofrecemos.",
+      answer: "Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el valor del kit que ya te entregamos). Sin preguntas, sin complicaciones. Así de seguros estamos de lo que ofrecemos.",
     },
     {
       question: "¿Cuánto cuesta continuar después del Reto?",
-      answer: "La mensualidad regular después del Reto es de $500 MXN. No hay reinscripción anual ni costos ocultos. Si decides continuar, simplemente pagas la mensualidad y sigues entrenando.",
+      answer: "La mensualidad regular después del Reto es de $500 MXN. No hay reinscripción anual ni costos ocultos. Si decides continuar, simplemente pagas la mensualidad y sigues entrenando. También ofrecemos evaluaciones mensuales y acceso a la plataforma STRYK para seguimiento del progreso.",
+    },
+    {
+      question: "¿Hay otra forma de inscribirse sin el Reto?",
+      answer: "Sí, ofrecemos la Inscripción Estándar por $950 MXN que incluye registro + primer mes. Sin embargo, esta opción no incluye kit ni garantía, y está pensada solo para familias que ya conocen el sistema White Lions. Para la mayoría, el Reto es la mejor manera de empezar.",
     },
     {
       question: "¿Mi hijo puede entrar sin experiencia?",

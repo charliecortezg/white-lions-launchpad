@@ -23,7 +23,7 @@ const HeroNew = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-20">
-        <div className="max-w-2xl mx-auto text-center space-y-8">
+        <div className="max-w-3xl mx-auto text-center space-y-8">
           
           {/* Micro-badge - Cupos limitados */}
           <div 
@@ -37,36 +37,53 @@ const HeroNew = () => {
 
           {/* H1 - Main headline */}
           <h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight font-display animate-fade-in-up"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight font-display animate-fade-in-up uppercase"
             style={{ animationDelay: '0.1s' }}
           >
-            White Lions no es una prueba,{' '}
-            <span className="text-primary">es una decisión.</span>
+            White Lions no es una actividad.{' '}
+            <span className="text-primary block mt-2">Es una decisión para tu hijo.</span>
           </h1>
           
           {/* Subtitle */}
           <p 
-            className="text-base md:text-lg text-muted-foreground font-light max-w-xl mx-auto leading-relaxed font-body animate-fade-in-up"
+            className="text-base md:text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed font-body animate-fade-in-up"
             style={{ animationDelay: '0.2s' }}
           >
-            30 días de entrenamiento estructurado, kit de inicio incluido
-            <br className="hidden md:block" />
-            y la experiencia completa de pertenecer a una comunidad deportiva real.
+            Un sistema deportivo diseñado para que tu hijo se divierta más, 
+            deje el celular y construya hábitos positivos a través del fútbol.
           </p>
 
-          {/* Price highlight */}
+          {/* Supporting line */}
           <div 
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm animate-fade-in-up"
+            className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-sm text-muted-foreground/80 animate-fade-in-up"
             style={{ animationDelay: '0.25s' }}
           >
-            <span className="text-2xl md:text-3xl font-bold text-primary font-display">$700 MXN</span>
-            <span className="text-sm text-muted-foreground font-body">Kit + 30 días</span>
+            <span>Entrenamiento estructurado</span>
+            <span className="hidden md:inline text-primary">·</span>
+            <span>Comunidad real</span>
+            <span className="hidden md:inline text-primary">·</span>
+            <span>Seguimiento del progreso</span>
+          </div>
+
+          {/* Price anchor */}
+          <div 
+            className="inline-flex flex-col items-center gap-2 px-6 py-4 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm animate-fade-in-up"
+            style={{ animationDelay: '0.3s' }}
+          >
+            <div className="flex items-baseline gap-2">
+              <span className="text-sm text-muted-foreground font-body">Desde</span>
+              <span className="text-2xl md:text-3xl font-bold text-primary font-display">$500 MXN</span>
+              <span className="text-sm text-muted-foreground font-body">al mes</span>
+            </div>
+            <span className="text-sm text-muted-foreground font-body">
+              👉 La mayoría de las familias inicia con el Reto White Lions
+            </span>
           </div>
 
           {/* Single CTA Button */}
           <div 
             className="pt-4 animate-fade-in-up"
-            style={{ animationDelay: '0.3s' }}
+            style={{ animationDelay: '0.35s' }}
           >
             <Button 
               variant="hero" 
@@ -74,16 +91,16 @@ const HeroNew = () => {
               className="text-base md:text-lg px-8 md:px-10 py-6 md:py-7 w-full sm:w-auto shadow-gold"
               onClick={() => setIsModalOpen(true)}
             >
-              🦁 Inscribirse al Reto White Lions
+              🦁 Iniciar con el Reto White Lions
             </Button>
           </div>
 
           {/* Guarantee micro-text */}
           <p 
             className="text-xs text-muted-foreground/70 font-body animate-fade-in-up"
-            style={{ animationDelay: '0.35s' }}
+            style={{ animationDelay: '0.4s' }}
           >
-            Garantía: Si no ves organización, te devolvemos tu inversión menos el kit.
+            Empieza con 30 días. La decisión final es tuya.
           </p>
 
         </div>

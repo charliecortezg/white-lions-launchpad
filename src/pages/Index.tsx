@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroNew from "@/components/HeroNew";
+import ProblemSection from "@/components/ProblemSection";
 import ClientFilter from "@/components/ClientFilter";
 import ValueProposition from "@/components/ValueProposition";
 import ChallengeOffer from "@/components/ChallengeOffer";
@@ -16,6 +17,7 @@ const Index = () => {
       <ScrollProgress />
       <Navbar />
       <HeroNew />
+      <ProblemSection />
       <ClientFilter />
       <ValueProposition />
       <ChallengeOffer />

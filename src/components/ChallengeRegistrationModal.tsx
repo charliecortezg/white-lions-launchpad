@@ -532,10 +532,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
               <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-foreground">Total a pagar:</span>
-                  <span className="text-2xl font-bold text-primary font-display">$700 MXN</span>
+                  <span className="text-2xl font-bold text-primary font-display">$1,100 MXN</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Incluye Kit de Inicio ($300 MXN de valor) + 30 días de entrenamiento
+                  Incluye Kit de Inicio + 30 días de entrenamiento + Garantía
                 </p>
               </div>
 
@@ -543,7 +543,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
               <div className="flex items-start gap-3 p-3 bg-card/50 border border-border/50 rounded-lg">
                 <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground">
-                  <strong className="text-foreground">Garantía:</strong> Si no ves organización, te devolvemos $400 MXN (inversión menos el kit).
+                  <strong className="text-foreground">Garantía:</strong> Si después de 30 días tu hijo no se adapta, te devolvemos tu dinero (menos el kit).
                 </p>
               </div>
 
@@ -596,7 +596,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   </div>
                   <div className="flex justify-between pt-2 border-t border-border/50">
                     <span className="text-muted-foreground font-semibold">Total</span>
-                    <span className="font-bold text-primary">$700 MXN</span>
+                    <span className="font-bold text-primary">$1,100 MXN</span>
                   </div>
                 </div>
               </div>
