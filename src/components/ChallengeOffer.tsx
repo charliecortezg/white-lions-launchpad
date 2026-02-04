@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X, Gift, Shield, Calendar, Users, Star, Zap } from "lucide-react";
+import { Check, Gift, Shield, Star } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 
@@ -41,7 +41,7 @@ const ChallengeOffer = () => {
 
         {/* Main Offer Card */}
         <AnimatedSection animation="fade-up" delay={100}>
-          <div className="max-w-4xl mx-auto mb-16">
+          <div className="max-w-4xl mx-auto">
             <div className="bento-card border-2 border-primary/40 overflow-hidden relative">
               {/* Recommended badge */}
               <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase">
@@ -130,108 +130,6 @@ const ChallengeOffer = () => {
                     🦁 Iniciar el Reto White Lions
                   </Button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* Pricing Comparison Table */}
-        <AnimatedSection animation="fade-up" delay={200}>
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-center text-foreground mb-8 font-display uppercase">
-              Formas de iniciar en White Lions
-            </h3>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Reto - Recomendado */}
-              <div className="bento-card border-2 border-primary/40 relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap">
-                  Recomendado
-                </div>
-                <div className="pt-4">
-                  <h4 className="text-sm text-primary font-bold uppercase font-display mb-2">
-                    Reto White Lions
-                  </h4>
-                  <p className="text-3xl font-bold text-foreground font-display mb-2">$1,100</p>
-                  <p className="text-xs text-muted-foreground font-body mb-4">30 días</p>
-                  <ul className="space-y-2 text-xs">
-                    <li className="flex items-center gap-2 text-foreground">
-                      <Check className="w-3 h-3 text-primary" /> Kit incluido
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground">
-                      <Check className="w-3 h-3 text-primary" /> Garantía
-                    </li>
-                    <li className="flex items-center gap-2 text-foreground">
-                      <Check className="w-3 h-3 text-primary" /> Experiencia completa
-                    </li>
-                  </ul>
-                  <p className="text-xs text-muted-foreground mt-4 font-body">
-                    👉 La mayoría inicia aquí
-                  </p>
-                </div>
-              </div>
-
-              {/* Inscripción Estándar */}
-              <div className="bento-card">
-                <h4 className="text-sm text-muted-foreground font-bold uppercase font-display mb-2">
-                  Inscripción Estándar
-                </h4>
-                <p className="text-3xl font-bold text-foreground font-display mb-2">$950</p>
-                <p className="text-xs text-muted-foreground font-body mb-4">Registro + primer mes</p>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <X className="w-3 h-3 text-destructive" /> Sin kit
-                  </li>
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <X className="w-3 h-3 text-destructive" /> Sin garantía
-                  </li>
-                </ul>
-                <p className="text-xs text-muted-foreground mt-4 font-body">
-                  Solo para quienes ya conocen el sistema
-                </p>
-              </div>
-
-              {/* Mensualidad */}
-              <div className="bento-card">
-                <h4 className="text-sm text-muted-foreground font-bold uppercase font-display mb-2">
-                  Mensualidad Regular
-                </h4>
-                <p className="text-3xl font-bold text-foreground font-display mb-2">$500</p>
-                <p className="text-xs text-muted-foreground font-body mb-4">Por mes</p>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-foreground">
-                    <Check className="w-3 h-3 text-primary" /> Entrenamientos
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <Check className="w-3 h-3 text-primary" /> Evaluaciones mensuales
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <Check className="w-3 h-3 text-primary" /> Plataforma STRYK
-                  </li>
-                </ul>
-                <p className="text-xs text-muted-foreground mt-4 font-body">
-                  Continuidad después del Reto
-                </p>
-              </div>
-
-              {/* Evaluación Individual */}
-              <div className="bento-card">
-                <h4 className="text-sm text-muted-foreground font-bold uppercase font-display mb-2">
-                  Evaluación Individual
-                </h4>
-                <p className="text-3xl font-bold text-foreground font-display mb-2">$300</p>
-                <p className="text-xs text-muted-foreground font-body mb-4">Por sesión</p>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-foreground">
-                    <Zap className="w-3 h-3 text-primary" /> Evaluación técnica
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <Zap className="w-3 h-3 text-primary" /> Reporte personalizado
-                  </li>
-                </ul>
-                <p className="text-xs text-muted-foreground mt-4 font-body">
-                  Para jugadores externos
-                </p>
               </div>
             </div>
           </div>

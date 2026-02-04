@@ -4,6 +4,7 @@ import ProblemSection from "@/components/ProblemSection";
 import ClientFilter from "@/components/ClientFilter";
 import ValueProposition from "@/components/ValueProposition";
 import ChallengeOffer from "@/components/ChallengeOffer";
+import MonthlyPlansSection from "@/components/MonthlyPlansSection";
 import Schedule from "@/components/Schedule";
 import Director from "@/components/Director";
 import Locations from "@/components/Locations";
@@ -21,6 +22,7 @@ const Index = () => {
       <ClientFilter />
       <ValueProposition />
       <ChallengeOffer />
+      <MonthlyPlansSection />
       <Schedule />
       <Director />
       <Locations />
