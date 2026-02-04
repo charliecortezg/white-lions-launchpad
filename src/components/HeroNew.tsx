@@ -71,7 +71,7 @@ const HeroNew = () => {
             style={{ animationDelay: '0.3s' }}
           >
             <div className="flex items-baseline gap-2">
-              <span className="text-sm text-muted-foreground font-body">Desde</span>
+              <span className="text-sm text-muted-foreground font-body">Planes desde</span>
               <span className="text-2xl md:text-3xl font-bold text-primary font-display">$500 MXN</span>
               <span className="text-sm text-muted-foreground font-body">al mes</span>
             </div>
