@@ -1,143 +1,264 @@
 
-# Plan: Pausar Programa de Basketball (Mantener Solo Fútbol)
+# Plan: Actualización Copy & Pricing 2026 — White Lions Academies
 
-## Resumen
+## Resumen Ejecutivo
 
-Pausar temporalmente toda la funcionalidad de Basketball en el sitio web y sistema, manteniendo:
-- El código guardado (comentado/condicionalizado) para reactivación futura
-- Los datos existentes en la base de datos intactos
-- Solo Fútbol visible y disponible para inscripciones
+Actualizar todo el copy del sitio web para posicionar el **Reto White Lions – 30 días** a **$1,100 MXN** como la opción principal y más segura de entrada, usando la nueva estructura de precios como anclaje estratégico.
 
 ---
 
-## Estrategia: Pausa Suave
+## Cambios Principales de Precios
 
-En lugar de eliminar el código de Basketball, lo vamos a **desactivar** de forma que sea fácil reactivarlo en el futuro. Esto se logra mediante:
-
-1. **Base de datos**: Marcar schedules de Basketball como `is_active = false`
-2. **UI**: Ocultar opciones de Basketball en formularios y secciones
-3. **Código**: Mantener la lógica pero condicionalizada
+| Concepto | Precio Anterior | Precio Nuevo |
+|----------|-----------------|--------------|
+| Reto White Lions – 30 días | $700 MXN | **$1,100 MXN** |
+| Inscripción Estándar | No existía | **$950 MXN** |
+| Mensualidad Regular | $500 MXN | **$500 MXN** (sin cambio) |
+| Evaluación Individual | No existía | **$300 MXN** |
 
 ---
 
-## Parte 1: Base de Datos
+## Parte 1: HeroNew.tsx (Hero Section)
 
-### Desactivar schedules de Basketball
+### Copy Nuevo
 
-```sql
-UPDATE class_schedules 
-SET is_active = false 
-WHERE sport = 'Basketball';
+```
+Badge: "🟡 Cupos limitados · Niños de 6 a 11 años"
+
+Headline: "WHITE LIONS NO ES UNA ACTIVIDAD. ES UNA DECISIÓN PARA TU HIJO."
+
+Subheadline: "Un sistema deportivo diseñado para que tu hijo se divierta más, 
+deje el celular y construya hábitos positivos a través del fútbol."
+
+Supporting line: "Entrenamiento estructurado · Comunidad real · Seguimiento del progreso"
+
+Precio ancla: "Desde $500 MXN al mes"
+Sub-texto: "👉 La mayoría de las familias inicia con el Reto White Lions"
+
+CTA: "🦁 Iniciar con el Reto White Lions"
+
+Micro-copy: "Empieza con 30 días. La decisión final es tuya."
 ```
 
-Esto preserva los registros para reactivación futura y afecta las funciones que leen horarios desde la tabla.
+---
+
+## Parte 2: Nueva Sección — "El Problema" (ProblemSection.tsx)
+
+### Ubicación
+Después del Hero, antes de ClientFilter
+
+### Copy Exacto
+
+```
+Título: "Hoy no es fácil encontrar una actividad que realmente ayude a tu hijo"
+
+Texto: "Muchos padres buscan algo más que 'entretener' a sus hijos."
+
+Lista (bullets):
+- Que se muevan más
+- Que desarrollen disciplina
+- Que salgan de la rutina de pantallas
+- Que pertenezcan a un entorno sano
+
+Cierre: "White Lions existe para cubrir exactamente eso."
+```
 
 ---
 
-## Parte 2: Componentes a Modificar
+## Parte 3: ClientFilter.tsx (Para Quién Es / No Es)
 
-### 2.1 `ChallengeRegistrationModal.tsx`
-**Cambios:**
-- Remover el botón de selección de Basketball
-- Hacer que Fútbol sea la selección por defecto
-- Ocultar la lógica de categorías/horarios de Basketball
+### Copy Actualizado
 
-**Antes:** Grid con 2 botones (Fútbol | Basketball)
-**Después:** Un solo deporte, auto-seleccionado como "Fútbol"
+```
+Título: "¿White Lions es para tu familia?"
 
-### 2.2 `Schedule.tsx`
-**Cambios:**
-- Filtrar el array `schedules` para mostrar solo Fútbol
-- Ajustar layout a una sola tarjeta centrada
+SÍ es para familias que:
+- Buscan estructura, no solo juegos
+- Valoran disciplina y constancia
+- Quieren ver progreso real
+- Están dispuestas a comprometerse
 
-### 2.3 `Locations.tsx`
-**Cambios:**
-- Filtrar el array `locations` para mostrar solo Fútbol
-- Ajustar layout a una sola tarjeta centrada
+NO es para quienes:
+- Solo buscan partidos o trofeos
+- Cambian de actividad cada mes
+- No respetan reglas ni procesos
 
-### 2.4 `FAQNew.tsx`
-**Cambios:**
-- Modificar la pregunta sobre "tenis de cancha para basket" → solo mencionar fútbol
-- Mantener el resto igual
-
-### 2.5 `Navbar.tsx`
-**Cambios:**
-- Remover el link "Basketball" de la navegación
-- Mantener solo: Inicio, Fútbol, Ubicaciones
-
-### 2.6 `JoinFamilyModal.tsx`
-**Cambios:**
-- Remover la ubicación de Basketball
-- Remover la mensualidad de Basketball
-- Mostrar solo información de Fútbol
-
-### 2.7 `MethodologyModal.tsx`
-**Cambios:**
-- Mantener la sección de Basketball pero con un mensaje de "Próximamente" o similar
-- O simplemente ocultarla temporalmente
-
-### 2.8 `RescheduleModal.tsx` (Admin)
-**Cambios:**
-- Filtrar opciones de reprogramación para no mostrar Basketball
-- Solo aplica a nuevos prospectos, los existentes de Basketball mantienen sus opciones
-
-### 2.9 `Coaches.tsx`
-**Cambios:**
-- Actualizar el rol de Carlos Cortez (remover "Coach Basketball")
-- O mantenerlo pero no visible si la sección no se muestra
+Micro-copy final: "White Lions no es para todos. Es para familias 
+que toman en serio el desarrollo de sus hijos."
+```
 
 ---
 
-## Parte 3: Edge Functions
+## Parte 4: ChallengeOffer.tsx (Oferta Principal + Comparativo)
 
-Las Edge Functions (`process-trial-pipeline`, `reprogramar-api`, `run-reminders`) ya leen los schedules desde la tabla `class_schedules` con filtro `is_active = true`, por lo que al desactivar Basketball en la base de datos, automáticamente dejarán de ofrecer esos horarios.
+### Estructura Completamente Nueva
+
+#### A) Sección del Reto (Hero de la oferta)
+
+```
+Título: "Reto White Lions – 30 días"
+Precio: "$1,100 MXN"
+
+Texto: "El Reto White Lions es la forma más segura y recomendada de iniciar.
+Durante 30 días tu hijo:"
+
+Lista:
+- Vive la experiencia real de la academia
+- Entrena con metodología estructurada
+- Se integra a un grupo con reglas y valores
+- Comienza un proceso de seguimiento deportivo
+
+Incluye:
+- Entrenamientos
+- Kit de inicio White Lions
+- Acompañamiento inicial
+- Garantía de satisfacción
+
+Garantía: "Si después de 30 días tu hijo no se divierte más, no se mueve más 
+y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el kit)."
+
+CTA: "🦁 Iniciar el Reto White Lions"
+```
+
+#### B) Tabla Comparativa de Opciones (Anclaje)
+
+```
+Título: "Formas de iniciar en White Lions"
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🔹 OPCIÓN RECOMENDADA                                               │
+│ Reto White Lions – 30 días                                          │
+│ $1,100 MXN                                                          │
+│ ✔ Kit  ✔ Garantía  ✔ Experiencia completa                          │
+│ 👉 La mayoría de las familias inicia aquí.                          │
+├─────────────────────────────────────────────────────────────────────┤
+│ 🔹 OPCIÓN DIRECTA                                                   │
+│ Inscripción Estándar                                                │
+│ $950 MXN                                                            │
+│ Incluye registro + primer mes                                       │
+│ ❌ Sin kit  ❌ Sin garantía                                          │
+│ 👉 Solo para quienes ya conocen el sistema White Lions.             │
+├─────────────────────────────────────────────────────────────────────┤
+│ 🔹 CONTINUIDAD                                                      │
+│ Mensualidad Regular                                                 │
+│ $500 MXN / mes                                                      │
+│ Entrenamientos + evaluaciones mensuales + STRYK                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ 🔹 SERVICIO EXTERNO                                                 │
+│ Evaluación Individual                                               │
+│ $300 MXN                                                            │
+│ Para jugadores externos a la academia.                              │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Parte 4: Mantener Datos Históricos
+## Parte 5: FAQNew.tsx
 
-Los prospectos existentes de Basketball se mantienen intactos en `trial_class_registrations`. Simplemente ya no se podrán crear nuevos registros de Basketball desde la UI.
+### Actualizar precios en respuestas
 
----
-
-## Archivos a Modificar
-
-| Archivo | Cambio Principal |
-|---------|------------------|
-| `src/components/ChallengeRegistrationModal.tsx` | Auto-seleccionar Fútbol, ocultar botón Basketball |
-| `src/components/Schedule.tsx` | Filtrar a solo Fútbol |
-| `src/components/Locations.tsx` | Filtrar a solo Fútbol |
-| `src/components/Navbar.tsx` | Remover link "Basketball" |
-| `src/components/FAQNew.tsx` | Actualizar pregunta sobre equipamiento |
-| `src/components/modals/JoinFamilyModal.tsx` | Remover info de Basketball |
-| `src/components/modals/MethodologyModal.tsx` | Ocultar o marcar Basketball como "próximamente" |
-| `src/components/admin/RescheduleModal.tsx` | Filtrar opciones de Basketball |
-| `src/components/Coaches.tsx` | Actualizar rol de Carlos |
+- Reto: $1,100 MXN (antes $700)
+- Mencionar la Inscripción Estándar ($950) como alternativa
+- Actualizar el cálculo de la garantía (reembolso menos kit)
 
 ---
 
-## Secuencia de Implementación
+## Parte 6: Index.tsx (Orden de Secciones)
 
-1. **SQL**: Desactivar schedules de Basketball (`is_active = false`)
-2. **Frontend**: Actualizar todos los componentes para ocultar Basketball
-3. **Verificar**: Probar que el formulario solo muestre Fútbol
-4. **Admin**: Asegurar que los prospectos existentes de Basketball sigan siendo visibles pero no editables a nuevos horarios de basket
+### Nuevo orden
+
+```tsx
+<Navbar />
+<HeroNew />            // Hero actualizado
+<ProblemSection />     // NUEVA sección "El Problema"
+<ClientFilter />       // "¿Para quién es?"
+<ValueProposition />   // Por qué el Reto
+<ChallengeOffer />     // Oferta principal + Comparativo
+<Schedule />
+<Director />
+<Locations />
+<FAQNew />
+<FooterNew />
+```
+
+---
+
+## Parte 7: Actualizar Modal de Registro
+
+### ChallengeRegistrationModal.tsx
+
+- Actualizar el precio mostrado de $700 → $1,100 MXN
+- Mantener la lógica de registro igual
+
+---
+
+## Archivos a Crear/Modificar
+
+| Archivo | Acción |
+|---------|--------|
+| `src/components/ProblemSection.tsx` | **CREAR** — Sección "El Problema" |
+| `src/components/HeroNew.tsx` | **MODIFICAR** — Nuevo copy y estructura |
+| `src/components/ClientFilter.tsx` | **MODIFICAR** — Nuevo copy |
+| `src/components/ChallengeOffer.tsx` | **MODIFICAR** — Precios y comparativo |
+| `src/components/FAQNew.tsx` | **MODIFICAR** — Actualizar precios |
+| `src/components/ChallengeRegistrationModal.tsx` | **MODIFICAR** — Precio $1,100 |
+| `src/pages/Index.tsx` | **MODIFICAR** — Agregar ProblemSection |
 
 ---
 
 ## Criterios de Éxito
 
-- Formulario de inscripción solo muestra Fútbol
-- Sección de horarios solo muestra Fútbol  
-- Sección de ubicaciones solo muestra la sede de Fútbol
-- Navegación no menciona Basketball
-- Prospectos históricos de Basketball se mantienen en el sistema
-- El código de Basketball queda guardado para reactivación futura
+1. El Reto White Lions ($1,100) es la opción más visible y recomendada
+2. Los precios funcionan como anclaje (la tabla muestra que el Reto tiene más valor)
+3. Un solo CTA principal en todo el flujo
+4. Lenguaje dirigido a padres (no a niños ni entrenadores)
+5. Mobile-first: sin párrafos largos, todo escaneable
+6. Narrativa: decisión → problema → solución → oferta → acción
 
 ---
 
-## Reversibilidad
+## Diagrama de Flujo de Conversión
 
-Para reactivar Basketball en el futuro:
-1. `UPDATE class_schedules SET is_active = true WHERE sport = 'Basketball';`
-2. Revertir los cambios en los componentes (descomentar/reactivar condiciones)
+```text
+                    ┌──────────────┐
+                    │    HERO      │
+                    │   $500/mes   │◄── Ancla mental
+                    │   (CTA Reto) │
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │  PROBLEMA    │
+                    │ (Pantallas,  │◄── Conexión emocional
+                    │  disciplina) │
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │ ¿PARA QUIÉN? │
+                    │ (Filtro)     │◄── Auto-calificación
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │  PROPUESTA   │
+                    │  DE VALOR    │◄── Justificación del Reto
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │   OFERTA     │
+                    │  $1,100 Reto │◄── Decisión principal
+                    │ + Comparativo│
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │   REGISTRO   │
+                    │   (Modal)    │◄── Conversión
+                    └──────────────┘
+```
+
+---
+
+## Notas Técnicas
+
+- **NO cambiar**: Branding, colores, tipografía, infraestructura de pagos
+- **SÍ cambiar**: Copy, jerarquía de mensajes, presentación de precios, micro-copy
+- Mantener diseño mobile-first con tarjetas bento existentes
+- La tabla comparativa usa el sistema de tarjetas actual pero con jerarquía visual clara
