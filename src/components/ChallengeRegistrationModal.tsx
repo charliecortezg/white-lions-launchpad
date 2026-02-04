@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, CheckCircle2, MapPin, Clock, Gift, Shield, Mail } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { CalendarIcon, CheckCircle2, MapPin, Clock, Gift, Shield, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +39,17 @@ interface ChallengeRegistrationModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const TOTAL_STEPS = 4;
+
+const stepTitles = [
+  { title: "Cuéntanos sobre el jugador", subtitle: "El Reto está diseñado para niños de 6 a 11 años" },
+  { title: "Tu experiencia White Lions", subtitle: "Esto es lo que vivirá tu hijo durante 30 días" },
+  { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio del Reto" },
+  { title: "Estás a un paso de comenzar", subtitle: "Revisa el total y confirma tu inscripción" },
+];
+
 const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistrationModalProps) => {
+  const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
@@ -47,34 +58,33 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sport: "Fútbol", // Basketball pausado temporalmente
+      sport: "Fútbol",
     },
   });
 
-  // Basketball pausado - solo Fútbol disponible
+  // Reset step when modal closes
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+    }
+  }, [open]);
+
   const selectedSport = "Fútbol";
   const selectedBirthYear = form.watch("birth_year");
 
-  // Solo fútbol para niños de 6 a 11 años (2014-2019)
-  // Basketball pausado temporalmente
   const getValidYears = () => {
-    return Array.from({ length: 6 }, (_, i) => (2019 - i).toString()); // 2019 a 2014
+    return Array.from({ length: 6 }, (_, i) => (2019 - i).toString());
   };
 
-  // Función para determinar categorías según año de nacimiento (Solo Fútbol)
-  // Basketball pausado temporalmente
   const getCategories = (birthYear: string | undefined) => {
     if (!birthYear) return [];
-
     const year = parseInt(birthYear);
-
     if (year >= 2018) return ["Escuelita"];
     if (year >= 2016 && year <= 2017) return ["Estrellita"];
     if (year >= 2014 && year <= 2015) return ["Infantil"];
     return [];
   };
 
-  // Fecha mínima de inicio: próxima semana
   const getMinStartDate = () => {
     const today = new Date();
     today.setDate(today.getDate() + 7);
@@ -82,31 +92,22 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
     return today;
   };
 
-  // Función para filtrar días válidos según el deporte
   const isValidDate = (date: Date) => {
     const day = getDay(date);
     const minDate = getMinStartDate();
-    
-    // Bloquear fechas antes del mínimo
     if (date < minDate) return false;
-
     if (selectedSport === "Fútbol") {
-      // Lunes (1) y Miércoles (3)
       return day === 1 || day === 3;
     } else if (selectedSport === "Basketball") {
-      // Martes (2) y Jueves (4)
       return day === 2 || day === 4;
     }
     return false;
   };
 
-  // Obtener la próxima fecha disponible
   const getNextAvailableDate = (sport: string | undefined): Date | undefined => {
     if (!sport) return undefined;
-    
     const startDate = getMinStartDate();
     const validDays = sport === "Fútbol" ? [1, 3] : [2, 4];
-    
     for (let i = 0; i <= 14; i++) {
       const checkDate = new Date(startDate);
       checkDate.setDate(startDate.getDate() + i);
@@ -135,9 +136,35 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
     return "";
   };
 
-  // Normalize functions for deduplication
   const normalizeEmail = (email: string) => email.toLowerCase().trim();
   const normalizePhone = (phone: string) => phone.replace(/[^0-9]/g, '');
+
+  // Step validation
+  const validateStep = async (currentStep: number): Promise<boolean> => {
+    switch (currentStep) {
+      case 1:
+        return form.trigger(["player_name", "birth_year", "category"]);
+      case 2:
+        return form.trigger(["start_date"]);
+      case 3:
+        return form.trigger(["tutor_name", "tutor_email", "contact_phone"]);
+      case 4:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const nextStep = async () => {
+    const isValid = await validateStep(step);
+    if (isValid && step < TOTAL_STEPS) {
+      setStep(step + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
+  };
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -146,15 +173,12 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
       const schedule = getSchedule(data.sport);
       const formattedDate = format(data.start_date, "EEEE d 'de' MMMM", { locale: es });
       
-      // Normalize email and phone for deduplication
       const emailNormalized = normalizeEmail(data.tutor_email);
       const phoneNormalized = normalizePhone(data.contact_phone);
       
-      // Calculate date threshold (45 days ago)
       const thresholdDate = new Date();
       thresholdDate.setDate(thresholdDate.getDate() - 45);
       
-      // Check for existing open prospect with same email or phone
       const { data: existingProspects, error: searchError } = await supabase
         .from("trial_class_registrations")
         .select("id, status")
@@ -172,7 +196,6 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
       let isUpdate = false;
 
       if (existingProspect) {
-        // UPDATE existing prospect (dedupe/upsert)
         isUpdate = true;
         const newStatus = existingProspect.status === 'No Asistió' ? 'Reprogramado' : 'Pendiente';
         
@@ -196,7 +219,6 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
         if (updateError) throw updateError;
         
-        // Cancel any pending no-show emails for this prospect
         await supabase
           .from("email_queue")
           .update({ status: "canceled" })
@@ -204,7 +226,6 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
           .eq("status", "queued");
           
       } else {
-        // INSERT new prospect
         const { error: insertError } = await supabase
           .from("trial_class_registrations")
           .insert([{
@@ -222,7 +243,6 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
         if (insertError) throw insertError;
       }
 
-      // Send confirmation email
       try {
         const { error: emailError } = await supabase.functions.invoke('send-confirmation', {
           body: {
@@ -269,12 +289,14 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   const handleClose = () => {
     setIsSubmitted(false);
     setSubmittedData(null);
+    setStep(1);
     form.reset();
     onOpenChange(false);
   };
 
   const categories = getCategories(selectedBirthYear);
   const nextAvailableDate = getNextAvailableDate(selectedSport);
+  const progressValue = (step / TOTAL_STEPS) * 100;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -287,99 +309,153 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
           ✕
         </button>
 
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-foreground text-center font-display uppercase">
+        <DialogHeader className="space-y-4">
+          <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase">
             🦁 Reto White Lions – 30 Días
           </DialogTitle>
-          <p className="text-center text-muted-foreground font-body">
-            Inscríbete y recibe tu Kit de Inicio
-          </p>
+          
+          {!isSubmitted && (
+            <div className="space-y-3">
+              {/* Progress Indicator */}
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>Paso {step} de {TOTAL_STEPS}</span>
+                <div className="flex gap-1.5">
+                  {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        i + 1 <= step ? "bg-primary" : "bg-muted"
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Progress value={progressValue} className="h-2" />
+              
+              {/* Step Title */}
+              <div className="text-center pt-2">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {stepTitles[step - 1].title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {stepTitles[step - 1].subtitle}
+                </p>
+              </div>
+            </div>
+          )}
         </DialogHeader>
 
         {!isSubmitted ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-              {/* Sport Selection - Solo Fútbol (Basketball pausado) */}
-              <div className="bg-primary/10 border-2 border-primary rounded-xl p-6 text-center">
-                <span className="text-4xl block mb-2">⚽</span>
-                <span className="font-semibold text-lg block text-foreground">Fútbol</span>
-                <span className="text-xs text-muted-foreground">Lunes y Miércoles</span>
-              </div>
+              
+              {/* STEP 1: Datos del Jugador */}
+              <div className={cn(
+                "space-y-5 transition-all duration-300 ease-out",
+                step === 1 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+              )}>
+                {/* Sport Selection - Solo Fútbol */}
+                <div className="bg-primary/10 border-2 border-primary rounded-xl p-4 text-center">
+                  <span className="text-3xl block mb-1">⚽</span>
+                  <span className="font-semibold text-foreground">Fútbol</span>
+                  <span className="text-xs text-muted-foreground block">Lunes y Miércoles</span>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="player_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre del Jugador</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre completo del jugador" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="birth_year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Año de Nacimiento</FormLabel>
-                    <Select
-                      disabled={!selectedSport}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona el año" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {getValidYears().map((year) => (
-                          <SelectItem key={year} value={year}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription className="text-xs">
-                      El Reto está disponible para niños de 6 a 11 años.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {categories.length > 0 && (
                 <FormField
                   control={form.control}
-                  name="category"
+                  name="player_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Categoría</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una categoría" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {cat}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Nombre del Jugador</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nombre completo del jugador" 
+                          className="h-12"
+                          {...field} 
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
 
-              {selectedSport && (
+                <FormField
+                  control={form.control}
+                  name="birth_year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Año de Nacimiento</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Selecciona el año" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {getValidYears().map((year) => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-xs">
+                        El Reto está disponible para niños de 6 a 11 años.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {categories.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categoría</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Selecciona una categoría" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((cat) => (
+                              <SelectItem key={cat} value={cat}>
+                                {cat}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <Button 
+                  type="button" 
+                  onClick={nextStep} 
+                  className="w-full" 
+                  variant="hero" 
+                  size="lg"
+                >
+                  Continuar
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* STEP 2: La Experiencia del Reto */}
+              <div className={cn(
+                "space-y-5 transition-all duration-300 ease-out",
+                step === 2 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+              )}>
+                {/* Location & Schedule Info */}
                 <div className="bg-muted/30 rounded-xl p-5 space-y-4 border border-border/50">
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
@@ -406,70 +482,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     </div>
                   </div>
                 </div>
-              )}
 
-              <div className="space-y-4 pt-2">
-                <p className="text-sm font-medium text-foreground">Datos del tutor</p>
-                
-                <FormField
-                  control={form.control}
-                  name="tutor_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre del Tutor</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre completo del tutor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="tutor_email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Correo Electrónico del Tutor *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            type="email" 
-                            placeholder="correo@ejemplo.com" 
-                            className="pl-10"
-                            {...field} 
-                          />
-                        </div>
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Te enviaremos la confirmación y los pasos para el pago.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="contact_phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teléfono de Contacto (WhatsApp)</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="686 123 4567" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <p className="text-xs text-muted-foreground">
-                  Usaremos estos datos únicamente para coordinar tu inscripción al Reto.
-                </p>
-              </div>
-
-              {selectedSport && (
                 <FormField
                   control={form.control}
                   name="start_date"
@@ -482,7 +495,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
+                                "w-full h-12 pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -508,9 +521,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                       </Popover>
                       <div className="flex flex-col gap-1">
                         <p className="text-xs text-muted-foreground">
-                          {selectedSport === "Fútbol" 
-                            ? "Solo puedes seleccionar lunes y miércoles"
-                            : "Solo puedes seleccionar martes y jueves"}
+                          Solo puedes seleccionar lunes y miércoles
                         </p>
                         {nextAvailableDate && !field.value && (
                           <button
@@ -526,30 +537,182 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     </FormItem>
                   )}
                 />
-              )}
 
-              {/* Price Summary */}
-              <div className="bg-primary/10 border border-primary/30 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-foreground">Total a pagar:</span>
-                  <span className="text-2xl font-bold text-primary font-display">$1,100 MXN</span>
+                <div className="flex gap-3 pt-2">
+                  <Button 
+                    type="button" 
+                    onClick={prevStep} 
+                    variant="outline" 
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 h-5 w-5" />
+                    Atrás
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={nextStep} 
+                    className="flex-[2]" 
+                    variant="hero" 
+                    size="lg"
+                  >
+                    Quiero apartar mi lugar
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Incluye Kit de Inicio + 30 días de entrenamiento + Garantía
-                </p>
               </div>
 
-              {/* Guarantee */}
-              <div className="flex items-start gap-3 p-3 bg-card/50 border border-border/50 rounded-lg">
-                <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  <strong className="text-foreground">Garantía:</strong> Si después de 30 días tu hijo no se adapta, te devolvemos tu dinero (menos el kit).
-                </p>
+              {/* STEP 3: Datos del Tutor */}
+              <div className={cn(
+                "space-y-5 transition-all duration-300 ease-out",
+                step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+              )}>
+                <FormField
+                  control={form.control}
+                  name="tutor_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre del Tutor</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nombre completo del tutor" 
+                          className="h-12"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tutor_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico del Tutor</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="email" 
+                            placeholder="correo@ejemplo.com" 
+                            className="pl-10 h-12"
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Te enviaremos la confirmación y los pasos para el pago.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contact_phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono de Contacto (WhatsApp)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="tel" 
+                          placeholder="686 123 4567" 
+                          className="h-12"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex gap-3 pt-2">
+                  <Button 
+                    type="button" 
+                    onClick={prevStep} 
+                    variant="outline" 
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 h-5 w-5" />
+                    Atrás
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={nextStep} 
+                    className="flex-[2]" 
+                    variant="hero" 
+                    size="lg"
+                  >
+                    Ver total y garantía
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
               </div>
 
-              <Button type="submit" className="w-full" variant="hero" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Procesando..." : "🦁 Inscribirme al Reto"}
-              </Button>
+              {/* STEP 4: Precio y Cierre */}
+              <div className={cn(
+                "space-y-5 transition-all duration-300 ease-out",
+                step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+              )}>
+                {/* Price Summary */}
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-lg text-foreground">Total a pagar:</span>
+                    <span className="text-3xl font-bold text-primary font-display">$1,100 MXN</span>
+                  </div>
+                  <div className="space-y-2 text-sm text-muted-foreground border-t border-border/50 pt-3">
+                    <div className="flex justify-between">
+                      <span>Kit de Inicio White Lions</span>
+                      <span className="text-foreground">Incluido</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>30 días de entrenamiento</span>
+                      <span className="text-foreground">Incluido</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Garantía de satisfacción</span>
+                      <span className="text-foreground">Incluida</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guarantee */}
+                <div className="flex items-start gap-3 p-4 bg-card/50 border border-border/50 rounded-xl">
+                  <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-foreground text-sm mb-1">Garantía de Satisfacción</p>
+                    <p className="text-xs text-muted-foreground">
+                      Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el kit).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button 
+                    type="button" 
+                    onClick={prevStep} 
+                    variant="outline" 
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 h-5 w-5" />
+                    Atrás
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="flex-[2]" 
+                    variant="hero" 
+                    size="lg" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Procesando..." : "🦁 Iniciar Reto White Lions"}
+                  </Button>
+                </div>
+              </div>
             </form>
           </Form>
         ) : (
