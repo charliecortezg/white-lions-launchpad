@@ -1,350 +1,315 @@
 
-# Plan: Multi-Step Onboarding Wizard — Reto White Lions
+
+# Plan: Reestructuración de Precios con Efecto Señuelo (Decoy Effect)
 
 ## Resumen Ejecutivo
 
-Transformar el formulario actual de registro (ChallengeRegistrationModal.tsx) de una sola vista larga en un **wizard de 4 pasos** con progressive disclosure, optimizado para conversión mobile-first.
+Separar la estrategia de **Venta de Entrada** (Reto de 30 días) de la **Venta de Retención** (Planes Mensuales), aplicando el Efecto Señuelo para empujar al usuario hacia el plan de mayor valor ($700 Elite).
 
 ---
 
-## Análisis del Estado Actual
+## Problema Actual
 
-### Campos Actuales (Orden Actual)
-1. Deporte (auto-seleccionado: Fútbol)
-2. Nombre del jugador
-3. Año de nacimiento
-4. Categoría (condicional)
-5. Info de ubicación/horario (solo lectura)
-6. Kit de inicio (solo lectura)
-7. Nombre del tutor
-8. Email del tutor
-9. Teléfono WhatsApp
-10. Fecha de inicio del reto
-11. Precio y garantía
-12. Botón submit
-
-**Problema**: Todo se muestra de golpe → fricción cognitiva alta en móvil.
+1. **Hero** muestra "Desde $500 MXN" — ancla muy baja sin contexto
+2. **Sección de Precios** mezcla 4 opciones que no compiten entre sí
+3. **Parálisis por análisis**: El usuario no sabe si elegir Reto, Inscripción, Mensualidad o Evaluación
+4. **Sin separación clara** entre oferta de entrada y retención
 
 ---
 
-## Nueva Estructura: 4 Pasos
+## Solución: Arquitectura de 2 Fases
 
-### STEP 1 — Datos del Jugador
-**Campos visibles:**
-- Nombre del jugador
-- Año de nacimiento (select)
-- Categoría (auto-mostrada al seleccionar año)
+### Fase 1: Venta de Entrada (El Reto)
+Solo el Reto White Lions ($1,100) se muestra como la puerta de entrada.
 
-**Validación antes de continuar:**
-- `player_name` mínimo 2 caracteres
-- `birth_year` seleccionado
-- `category` seleccionada
-
-**CTA:** "Continuar →"
+### Fase 2: Venta de Retención (Planes Mensuales)
+Nueva sección después del Reto: "Después del reto, tú eliges el nivel de compromiso".
 
 ---
 
-### STEP 2 — La Experiencia del Reto
-**Elementos visibles (solo lectura):**
-- Ubicación: Campo Hacienda del Bosque
-- Horario: Lunes y miércoles, 6:00–8:00 pm
-- Kit de inicio (lista visual)
-- **Campo editable:** Fecha de inicio del reto
+## Cambios a Implementar
 
-**Validación antes de continuar:**
-- `start_date` seleccionada
+### 1. HeroNew.tsx — Ancla de Precio
 
-**CTA:** "Quiero apartar mi lugar →"
-
----
-
-### STEP 3 — Datos del Tutor
-**Campos visibles:**
-- Nombre del tutor
-- Correo electrónico
-- Teléfono WhatsApp
-
-**Validación antes de continuar:**
-- `tutor_name` mínimo 2 caracteres
-- `tutor_email` válido
-- `contact_phone` mínimo 10 dígitos
-
-**CTA:** "Ver total y garantía →"
-
----
-
-### STEP 4 — Precio y Cierre
-**Elementos visibles:**
-- Total a pagar: $1,100 MXN
-- Desglose: Kit + 30 días + Garantía
-- Garantía completa (texto)
-- Botón final de submit
-
-**CTA Final:** "🦁 Iniciar Reto White Lions"
-
----
-
-## Arquitectura Técnica
-
-### Estado del Wizard
-```typescript
-const [step, setStep] = useState(1);
-const TOTAL_STEPS = 4;
+**Antes:**
+```
+Desde $500 MXN al mes
 ```
 
-### Validación Por Paso
-```typescript
-const validateStep = async (currentStep: number): Promise<boolean> => {
-  switch (currentStep) {
-    case 1:
-      return form.trigger(["player_name", "birth_year", "category"]);
-    case 2:
-      return form.trigger(["start_date"]);
-    case 3:
-      return form.trigger(["tutor_name", "tutor_email", "contact_phone"]);
-    case 4:
-      return true; // Submit final
-    default:
-      return false;
-  }
-};
+**Después:**
+```
+Planes desde $500 MXN al mes
 ```
 
-### Navegación
-```typescript
-const nextStep = async () => {
-  const isValid = await validateStep(step);
-  if (isValid && step < TOTAL_STEPS) {
-    setStep(step + 1);
-  }
-};
-
-const prevStep = () => {
-  if (step > 1) setStep(step - 1);
-};
-```
+Este pequeño cambio evita comprometerse con el precio más bajo como único referente.
 
 ---
 
-## Componentes UI Nuevos
+### 2. ChallengeOffer.tsx — Separación y Efecto Señuelo
 
-### 1. Progress Indicator
-```text
-┌─────────────────────────────────────────────┐
-│  ● ─── ○ ─── ○ ─── ○    Paso 1 de 4         │
-│  [======                           ]         │
-└─────────────────────────────────────────────┘
-```
+#### A) Eliminar la tabla comparativa actual (4 opciones confusas)
 
-Implementación:
-- Barra de progreso visual (25%, 50%, 75%, 100%)
-- Texto "Paso X de 4"
-- Íconos de paso activo/completado/pendiente
+#### B) Mantener solo la oferta del Reto ($1,100) como oferta de entrada
 
-### 2. Animaciones Entre Pasos
-```typescript
-// Clases de transición (CSS)
-.step-enter { opacity: 0; transform: translateX(20px); }
-.step-enter-active { opacity: 1; transform: translateX(0); transition: all 0.3s ease; }
-.step-exit { opacity: 1; transform: translateX(0); }
-.step-exit-active { opacity: 0; transform: translateX(-20px); transition: all 0.3s ease; }
-```
+#### C) Crear nueva sección: "El Camino al Éxito"
 
-Alternativa simple con Tailwind:
-```typescript
-className={cn(
-  "transition-all duration-300 ease-out",
-  step === currentStep ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
-)}
-```
+**Título:** "Después del Reto, tú eliges el nivel de compromiso de tu hijo"
+
+**Subtítulo:** "El Reto es solo el comienzo. Aquí está cómo continúa la transformación."
 
 ---
 
-## Estructura del Componente Refactorizado
+### 3. Nueva Sección: MonthlyPlansSection.tsx (Efecto Señuelo)
+
+Tres tarjetas horizontales con jerarquía visual clara:
+
+#### Tarjeta 1: ENTRENAMIENTO ($500 MXN/mes)
+- **Lenguaje:** "Fútbol + App para ganar puntos por esfuerzo"
+- **Beneficios:**
+  - Clases de fútbol con metodología White Lions
+  - Acceso a la app para ver puntos de disciplina
+  - Entrenamientos divertidos y estructurados
+- **Visual:** Tarjeta normal, borde sutil
+
+#### Tarjeta 2: LIDERAZGO ($675 MXN/mes) — El Señuelo
+- **Lenguaje:** "Fútbol + App + Escuela para Padres Líderes"
+- **Beneficios:**
+  - Todo lo de Entrenamiento
+  - Clase mensual en vivo para papás
+  - Cómo formar el carácter de tus hijos
+- **Visual:** Tarjeta normal, ligeramente más grande
+- **Psicología:** Salto de $175 (+35%) se siente grande
+
+#### Tarjeta 3: ELITE WHITE LIONS ($700 MXN/mes) — El Ganador
+- **Lenguaje:** "Fútbol + App + Escuela para Padres + Mapa de Crecimiento + Medalla de Oro"
+- **Beneficios:**
+  - Todo lo de Liderazgo
+  - Reporte Especial de comportamiento mensual
+  - Medalla Digital de Honor en la app para el papá
+  - Acceso prioritario a eventos especiales
+- **Visual:** 
+  - Tarjeta MÁS GRANDE (scale-105 o padding extra)
+  - Borde DORADO/NARANJA brillante
+  - Sticker: "EL MÁS ELEGIDO"
+  - Fondo con gradiente sutil dorado
+- **Psicología:** Solo $25 más que Liderazgo (+3.7%) = decisión obvia
+
+---
+
+## Arquitectura de la Nueva Sección
 
 ```text
-<Dialog>
-  <DialogContent>
-    <DialogHeader>
-      <Title>🦁 Reto White Lions – 30 Días</Title>
-      <ProgressIndicator step={step} totalSteps={4} />
-    </DialogHeader>
+<section id="monthly-plans">
+  
+  <!-- Header -->
+  <AnimatedSection>
+    <h2>Después del Reto, tú eliges el nivel de compromiso</h2>
+    <p>El Reto es solo el comienzo. Aquí está cómo continúa la transformación.</p>
+  </AnimatedSection>
 
-    <Form>
-      {/* STEP 1: Datos del Jugador */}
-      {step === 1 && (
-        <StepContainer>
-          <PlayerNameField />
-          <BirthYearField />
-          <CategoryField />
-          <ContinueButton onClick={nextStep}>Continuar</ContinueButton>
-        </StepContainer>
-      )}
+  <!-- 3 Cards Grid -->
+  <AnimatedSection>
+    <div className="grid md:grid-cols-3 gap-6">
+      
+      <!-- Card 1: Entrenamiento -->
+      <PlanCard 
+        name="Entrenamiento"
+        price={500}
+        tagline="Fútbol + App para ganar puntos"
+        features={[...]}
+      />
+      
+      <!-- Card 2: Liderazgo (Decoy) -->
+      <PlanCard 
+        name="Liderazgo"
+        price={675}
+        tagline="+ Escuela para Padres Líderes"
+        features={[...]}
+      />
+      
+      <!-- Card 3: Elite (Winner) -->
+      <PlanCard 
+        name="Elite White Lions"
+        price={700}
+        tagline="La experiencia completa"
+        features={[...]}
+        highlighted={true}
+        badge="EL MÁS ELEGIDO"
+      />
+      
+    </div>
+  </AnimatedSection>
 
-      {/* STEP 2: La Experiencia */}
-      {step === 2 && (
-        <StepContainer>
-          <LocationInfo />     {/* Solo lectura */}
-          <ScheduleInfo />     {/* Solo lectura */}
-          <KitInfo />          {/* Solo lectura */}
-          <StartDateField />   {/* Editable */}
-          <BackButton onClick={prevStep} />
-          <ContinueButton onClick={nextStep}>Quiero apartar mi lugar</ContinueButton>
-        </StepContainer>
-      )}
-
-      {/* STEP 3: Datos del Tutor */}
-      {step === 3 && (
-        <StepContainer>
-          <TutorNameField />
-          <TutorEmailField />
-          <PhoneField />
-          <BackButton onClick={prevStep} />
-          <ContinueButton onClick={nextStep}>Ver total y garantía</ContinueButton>
-        </StepContainer>
-      )}
-
-      {/* STEP 4: Precio y Cierre */}
-      {step === 4 && (
-        <StepContainer>
-          <PriceSummary />
-          <GuaranteeText />
-          <BackButton onClick={prevStep} />
-          <SubmitButton type="submit">🦁 Iniciar Reto White Lions</SubmitButton>
-        </StepContainer>
-      )}
-    </Form>
-  </DialogContent>
-</Dialog>
+  <!-- Micro-copy -->
+  <p>Los planes mensuales comienzan después del Reto de 30 días.</p>
+  
+</section>
 ```
 
 ---
 
-## Copy Específico Por Paso
+## Especificaciones Visuales
 
-### Step 1
-- **Título del paso:** "Cuéntanos sobre el jugador"
-- **Subtítulo:** "El Reto está diseñado para niños de 6 a 11 años"
+### Tarjeta Elite (Resaltada)
+```css
+/* Tailwind classes */
+- scale-105 (ligeramente más grande)
+- border-2 border-primary (borde dorado)
+- bg-gradient-to-b from-primary/10 to-transparent
+- shadow-gold (sombra dorada)
+- relative (para el badge)
 
-### Step 2
-- **Título del paso:** "Tu experiencia White Lions"
-- **Subtítulo:** "Esto es lo que vivirá tu hijo durante 30 días"
+/* Badge "EL MÁS ELEGIDO" */
+- absolute -top-3 left-1/2 -translate-x-1/2
+- bg-primary text-primary-foreground
+- font-bold uppercase text-xs
+- px-4 py-1 rounded-full
+- animate-pulse (opcional)
+```
 
-### Step 3
-- **Título del paso:** "¿Cómo te contactamos?"
-- **Subtítulo:** "Usaremos estos datos para coordinar el inicio del Reto"
-
-### Step 4
-- **Título del paso:** "Estás a un paso de comenzar"
-- **Subtítulo:** "Revisa el total y confirma tu inscripción"
+### Iconografía
+- Entrenamiento: Ícono de balón
+- Liderazgo: Ícono de usuarios/comunidad
+- Elite: Ícono de corona o trofeo
 
 ---
 
-## Cambios en el Archivo
+## Flujo de Usuario Optimizado
 
-### ChallengeRegistrationModal.tsx
+```text
+┌────────────────────────┐
+│        HERO            │
+│ "Planes desde $500"    │ ◄── Ancla corregida
+│ CTA → Reto             │
+└──────────┬─────────────┘
+           │
+           ▼
+┌────────────────────────┐
+│   RETO WHITE LIONS     │
+│      $1,100 MXN        │ ◄── Venta de Entrada
+│   (Sin tabla confusa)  │
+└──────────┬─────────────┘
+           │
+           ▼
+┌────────────────────────┐
+│  PLANES MENSUALES      │
+│  (Nueva Sección)       │
+│                        │
+│ $500 ── $675 ── $700   │ ◄── Efecto Señuelo
+│ [     ] [    ] [ELITE] │
+│                        │
+│ Salto $175   Salto $25 │
+│ (grande)     (pequeño) │
+└────────────────────────┘
+```
 
-| Sección | Cambio |
+---
+
+## Archivos a Modificar/Crear
+
+| Archivo | Acción |
 |---------|--------|
-| Estado | Agregar `step` y funciones de navegación |
-| Render | Dividir campos en 4 bloques condicionales |
-| UI | Agregar ProgressIndicator |
-| Botones | Cambiar submit por navegación multi-step |
-| Animaciones | Agregar transiciones fade/slide |
-| Reset | Resetear `step` a 1 al cerrar |
+| `src/components/HeroNew.tsx` | **MODIFICAR** — "Planes desde $500" |
+| `src/components/ChallengeOffer.tsx` | **MODIFICAR** — Eliminar tabla comparativa |
+| `src/components/MonthlyPlansSection.tsx` | **CREAR** — Nueva sección de planes |
+| `src/pages/Index.tsx` | **MODIFICAR** — Agregar MonthlyPlansSection después de ChallengeOffer |
 
 ---
 
-## Mobile-First Considerations
+## Lenguaje Prohibido vs Permitido
 
-1. **Un solo scroll por paso** (máximo)
-2. **Botones sticky en bottom** para fácil acceso
-3. **Inputs grandes** (h-12 en lugar de h-10)
-4. **Espaciado amplio** entre elementos
-5. **Progress bar visible siempre** (sticky top)
-
----
-
-## Diagrama de Flujo del Usuario
-
-```text
-┌──────────────────┐
-│   Usuario abre   │
-│      modal       │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│   PASO 1         │
-│   Datos Jugador  │───► Valida → ✗ Muestra error
-│   (10 segundos)  │
-└────────┬─────────┘
-         │ ✓
-         ▼
-┌──────────────────┐
-│   PASO 2         │
-│   Experiencia    │───► Ve valor ANTES del precio
-│   + Fecha inicio │
-└────────┬─────────┘
-         │ ✓
-         ▼
-┌──────────────────┐
-│   PASO 3         │
-│   Datos Tutor    │───► Compromiso emocional
-│                  │
-└────────┬─────────┘
-         │ ✓
-         ▼
-┌──────────────────┐
-│   PASO 4         │
-│   Precio final   │───► Decisión informada
-│   + Garantía     │
-└────────┬─────────┘
-         │ Submit
-         ▼
-┌──────────────────┐
-│   Confirmación   │
-│   + Email sent   │
-└──────────────────┘
-```
+| Prohibido | Usar en su lugar |
+|-----------|------------------|
+| Algoritmos | Sistema de puntos |
+| Base de datos | Tu perfil en la app |
+| Sincronización | Actualización automática |
+| Métricas | Progreso visible |
+| Analytics | Reporte de comportamiento |
 
 ---
 
 ## Criterios de Éxito
 
-| Métrica | Objetivo |
-|---------|----------|
-| Tiempo Step 1 | < 10 segundos |
-| Drop-off rate | Menor que formulario actual |
-| Mobile completion | Fluido sin scroll excesivo |
-| Percepción de valor | Usuario ve experiencia antes del precio |
-| Fricción cognitiva | Mínima (1 decisión por pantalla) |
+1. **Visual:** La tarjeta Elite es claramente la más prominente
+2. **Psicológico:** El salto de $675 a $700 se siente insignificante
+3. **Claridad:** No hay confusión entre oferta de entrada y retención
+4. **Mobile-first:** Las 3 tarjetas se apilan bien en móvil
+5. **Preparado para Supabase:** Botones con `onClick` listo para guardar selección
 
 ---
 
-## Archivos a Modificar
+## Detalles de Implementación Técnica
 
-| Archivo | Acción |
-|---------|--------|
-| `src/components/ChallengeRegistrationModal.tsx` | **REFACTORIZAR** — Agregar lógica multi-step |
+### Estructura de Datos para Planes
+```typescript
+const monthlyPlans = [
+  {
+    id: "entrenamiento",
+    name: "Entrenamiento",
+    price: 500,
+    tagline: "Fútbol + App para ganar puntos por esfuerzo",
+    features: [
+      "Clases de fútbol con metodología White Lions",
+      "Acceso a la app para ver puntos de disciplina",
+      "Entrenamientos divertidos y estructurados"
+    ],
+    icon: "⚽",
+    highlighted: false
+  },
+  {
+    id: "liderazgo",
+    name: "Liderazgo",
+    price: 675,
+    tagline: "Fútbol + App + Escuela para Padres Líderes",
+    features: [
+      "Todo lo de Entrenamiento",
+      "Clase mensual en vivo para papás",
+      "Cómo formar el carácter de tus hijos"
+    ],
+    icon: "👥",
+    highlighted: false
+  },
+  {
+    id: "elite",
+    name: "Elite White Lions",
+    price: 700,
+    tagline: "La experiencia completa para familias comprometidas",
+    features: [
+      "Todo lo de Liderazgo",
+      "Reporte Especial de comportamiento mensual",
+      "Medalla Digital de Honor para papás",
+      "Acceso prioritario a eventos especiales"
+    ],
+    icon: "👑",
+    highlighted: true,
+    badge: "EL MÁS ELEGIDO"
+  }
+];
+```
+
+### Botones Preparados para Supabase
+```typescript
+<Button
+  onClick={() => handlePlanSelection(plan.id)}
+  variant={plan.highlighted ? "hero" : "outline"}
+>
+  Elegir {plan.name}
+</Button>
+
+// Función placeholder
+const handlePlanSelection = async (planId: string) => {
+  // TODO: Guardar en Supabase
+  console.log("Plan seleccionado:", planId);
+  toast.success(`Has elegido el plan ${planId}`);
+};
+```
 
 ---
 
-## Lo que NO Cambia
+## Notas de Psicología de Ventas
 
-- ✅ Schema de validación Zod (mismo)
-- ✅ Lógica de submit a Supabase (mismo)
-- ✅ Envío de email de confirmación (mismo)
-- ✅ Pantalla de éxito post-submit (mismo)
-- ✅ Branding, colores, tipografía (mismo)
-- ✅ Estructura del Dialog (mismo)
+1. **Efecto Señuelo (Decoy):** El plan Liderazgo a $675 existe para hacer que Elite a $700 parezca una ganga
+2. **Anclaje:** El usuario ya vio $1,100 en el Reto, así que $700/mes se siente razonable
+3. **Pérdida percibida:** "Solo $25 más y obtengo TODO esto" activa el miedo a perderse algo
+4. **Social proof:** "EL MÁS ELEGIDO" implica que otros padres lo prefieren
 
----
-
-## Notas de Implementación
-
-1. **Form.trigger()** permite validar campos específicos sin hacer submit
-2. **Mantener un solo `<form>`** — no múltiples submits
-3. **El submit real solo ocurre en Step 4**
-4. **Agregar botón "Atrás"** en steps 2, 3, 4
-5. **Resetear step a 1** cuando se cierra el modal
