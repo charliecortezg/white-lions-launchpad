@@ -1,108 +1,149 @@
 
 
-# Plan: Optimización Mobile-First del Modal de Registro
+# Plan: Agregar Campos "Escuela" y "Notas" al Formulario de Registro
 
-## Problema Identificado
+## Resumen
 
-Las imágenes muestran scroll horizontal en el modal en móvil, causado por:
-
-1. El contenedor del diálogo no está restringido al 100% del viewport en móvil
-2. Los botones de navegación (Atrás + CTA) están usando flexbox pero los textos largos causan overflow
-3. Algunos textos del encabezado son muy largos y no tienen text wrapping apropiado
+Agregar dos nuevos campos al formulario de registro:
+1. **Escuela** - En el Step 1 (Datos del Jugador) para saber dónde estudia el niño
+2. **Notas** - Información adicional que ayude a trabajar mejor con el jugador
 
 ---
 
-## Cambios a Implementar
+## Cambios a la Base de Datos
 
-### 1. DialogContent - Restringir ancho en móvil
+La tabla `trial_class_registrations` ya tiene un campo `comments` que actualmente se guarda como `null`. Lo reutilizaremos para las notas.
 
-**Archivo:** `src/components/ChallengeRegistrationModal.tsx` (línea 330)
+Para el campo "escuela" necesitamos agregarlo a la tabla:
 
-```typescript
-// Antes
-className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-background/95"
-
-// Después  
-className="w-[calc(100vw-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto overflow-x-hidden backdrop-blur-xl bg-background/95"
+```sql
+ALTER TABLE trial_class_registrations 
+ADD COLUMN school TEXT;
 ```
 
-### 2. Título del Modal - Hacer responsive
+---
 
-**Línea 340-342:** Reducir tamaño de fuente en móvil y permitir wrap
+## Cambios al Formulario
+
+### 1. Actualizar Schema de Validación (línea 20-33)
+
+Agregar los nuevos campos al schema de Zod:
 
 ```typescript
-// Antes
-className="text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase"
-
-// Después
-className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase leading-tight"
+const formSchema = z.object({
+  player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  school: z.string().optional(), // NUEVO - opcional
+  tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres"),
+  tutor_email: z.string().email("Ingresa un correo electrónico válido"),
+  contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
+  birth_year: z.string().min(4, "Selecciona el año de nacimiento"),
+  sport: z.enum(["Fútbol"], {
+    required_error: "Selecciona un deporte",
+  }).default("Fútbol"),
+  category: z.string().min(1, "Selecciona una categoría"),
+  start_date: z.date({
+    required_error: "Selecciona una fecha de inicio",
+  }),
+  notes: z.string().optional(), // NUEVO - opcional
+});
 ```
 
-### 3. Subtítulos del Step - Responsive text
+### 2. Agregar Campo "Escuela" en Step 1 (después de player_name)
 
-**Líneas 365-370:** Ajustar tamaños de texto para mejor legibilidad en móvil
+Ubicación: Después del campo "Nombre del Jugador" (línea ~408)
 
 ```typescript
-// Título del step
-className="text-base sm:text-lg font-semibold text-foreground"
-
-// Subtítulo
-className="text-xs sm:text-sm text-muted-foreground"
+<FormField
+  control={form.control}
+  name="school"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Escuela <span className="text-muted-foreground font-normal">(opcional)</span></FormLabel>
+      <FormControl>
+        <Input 
+          placeholder="¿En qué escuela estudia?" 
+          className="h-12"
+          {...field} 
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 ```
 
-### 4. Botones de Navegación - Evitar overflow
+### 3. Agregar Campo "Notas" en Step 3 (después de los datos de contacto)
 
-**Múltiples ubicaciones (líneas 572-593, 663-684, 745-765):**
-
-Los botones deben usar flex-wrap y textos más cortos en móvil:
+Ubicación: Al final del Step 3, antes del botón "Confirmar clase muestra"
 
 ```typescript
-// Container de botones
-className="flex flex-col sm:flex-row gap-3 pt-2"
-
-// Botón Atrás
-className="w-full sm:flex-1 order-2 sm:order-1"
-
-// Botón CTA
-className="w-full sm:flex-[2] order-1 sm:order-2"
+<FormField
+  control={form.control}
+  name="notes"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>
+        ¿Algo que debamos saber? 
+        <span className="text-muted-foreground font-normal ml-1">(opcional)</span>
+      </FormLabel>
+      <FormControl>
+        <Textarea 
+          placeholder="Ej: Experiencia previa, lesiones, necesidades especiales, objetivos del jugador..."
+          className="min-h-[80px] resize-none"
+          {...field} 
+        />
+      </FormControl>
+      <FormDescription className="text-xs">
+        Esta información nos ayuda a personalizar la experiencia de tu hijo.
+      </FormDescription>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 ```
 
-Textos del CTA más cortos en móvil usando clases responsive:
+### 4. Actualizar Submit del Formulario
 
+Modificar tanto el INSERT como el UPDATE para incluir los nuevos campos:
+
+**INSERT (línea ~256):**
 ```typescript
-// Ejemplo para Step 4:
-<span className="hidden sm:inline">📅 Agendar clase muestra</span>
-<span className="sm:hidden">📅 Agendar clase</span>
+.insert([{
+  player_name: data.player_name,
+  age_or_birth_year: data.birth_year,
+  tutor_name: data.tutor_name,
+  contact_phone: data.contact_phone,
+  parent_email: data.tutor_email,
+  category: data.category,
+  preferred_location: location,
+  preferred_schedule: `${formattedDate} - ${schedule}`,
+  school: data.school || null,         // NUEVO
+  comments: data.notes || null,        // ACTUALIZADO (antes era null)
+}])
 ```
 
-### 5. Grid del Kit de Inicio - Cambiar a 1 columna en móvil muy pequeño
-
-**Línea 507:**
-
+**UPDATE (línea ~229):**
 ```typescript
-// Antes
-className="grid grid-cols-2 gap-2 text-sm text-muted-foreground"
-
-// Después  
-className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-sm text-muted-foreground"
+.update({
+  player_name: data.player_name,
+  age_or_birth_year: data.birth_year,
+  tutor_name: data.tutor_name,
+  contact_phone: data.contact_phone,
+  parent_email: data.tutor_email,
+  category: data.category,
+  preferred_location: location,
+  preferred_schedule: `${formattedDate} - ${schedule}`,
+  school: data.school || null,         // NUEVO
+  comments: data.notes || null,        // ACTUALIZADO
+  status: newStatus,
+  // ... resto de campos
+})
 ```
 
-### 6. Nota de Confianza - Texto responsive
-
-**Línea 739-741:** El texto largo puede causar problemas
+### 5. Agregar Import de Textarea
 
 ```typescript
-// Agregar break-words para evitar overflow
-className="text-xs text-muted-foreground break-words"
-```
-
-### 7. Pantalla de Éxito - Responsive
-
-**Línea 806-808:** Fecha puede ser larga
-
-```typescript
-// Agregar text wrap
-className="font-medium capitalize text-right max-w-[50%] break-words"
+import { Textarea } from "@/components/ui/textarea";
 ```
 
 ---
@@ -111,14 +152,69 @@ className="font-medium capitalize text-right max-w-[50%] break-words"
 
 | Archivo | Cambios |
 |---------|---------|
-| `src/components/ChallengeRegistrationModal.tsx` | Múltiples ajustes de clases CSS para mobile-first |
+| `src/components/ChallengeRegistrationModal.tsx` | Schema, campos de formulario, submit |
+
+## Migración SQL
+
+```sql
+ALTER TABLE trial_class_registrations ADD COLUMN school TEXT;
+```
 
 ---
 
-## Resultado Esperado
+## UX del Formulario Actualizado
 
-1. Sin scroll horizontal en ningún dispositivo
-2. Botones apilados verticalmente en móvil, horizontalmente en desktop
-3. Textos legibles y con wrap apropiado
-4. Experiencia fluida en pantallas desde 320px de ancho
+**Step 1 - Datos del Jugador:**
+```
+┌────────────────────────────────────────┐
+│  ⚽ Fútbol                              │
+├────────────────────────────────────────┤
+│  Nombre del Jugador*                   │
+│  [___________________________]         │
+│                                        │
+│  Escuela (opcional)                    │
+│  [___________________________]         │
+│                                        │
+│  Año de Nacimiento*                    │
+│  [Selecciona el año ▼]                 │
+│                                        │
+│  Categoría*                            │
+│  [Selecciona categoría ▼]              │
+│                                        │
+│  [Continuar →]                         │
+└────────────────────────────────────────┘
+```
+
+**Step 3 - Datos de Contacto:**
+```
+┌────────────────────────────────────────┐
+│  Nombre del Padre/Tutor*               │
+│  [___________________________]         │
+│                                        │
+│  Correo Electrónico*                   │
+│  [___________________________]         │
+│                                        │
+│  Teléfono WhatsApp*                    │
+│  [___________________________]         │
+│                                        │
+│  ¿Algo que debamos saber? (opcional)   │
+│  ┌──────────────────────────────────┐  │
+│  │ Ej: Experiencia previa, lesiones,│  │
+│  │ necesidades especiales...        │  │
+│  └──────────────────────────────────┘  │
+│  Esta info nos ayuda a personalizar    │
+│  la experiencia de tu hijo.            │
+│                                        │
+│  [← Atrás]  [Confirmar clase muestra]  │
+└────────────────────────────────────────┘
+```
+
+---
+
+## Notas Técnicas
+
+- Ambos campos son **opcionales** para no aumentar fricción
+- El campo `comments` ya existe en la tabla, solo lo estamos utilizando
+- El campo `school` requiere una migración SQL
+- Los datos de escuela y notas serán visibles en el panel admin para ayudar al equipo
 
