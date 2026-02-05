@@ -61,8 +61,8 @@ const getStepTitles = (isJuvenil: boolean) => [
       : "Usaremos estos datos para coordinar el inicio del Reto" 
   },
   { 
-    title: "Estás a un paso de comenzar", 
-    subtitle: "Revisa el total y confirma tu inscripción" 
+    title: "Estás a un paso de vivir la experiencia White Lions", 
+    subtitle: "Agenda la clase muestra de tu hijo. El pago se realiza en campo solo si decides continuar." 
   },
 ];
 
@@ -634,7 +634,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                         </div>
                       </FormControl>
                       <FormDescription className="text-xs">
-                        Te enviaremos la confirmación y los pasos para el pago.
+                        Te enviaremos la confirmación con los detalles de la clase muestra.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -678,88 +678,66 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     variant="hero" 
                     size="lg"
                   >
-                    Ver total y garantía
+                    Confirmar clase muestra
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </div>
 
-              {/* STEP 4: Precio y Cierre */}
+              {/* STEP 4: Agendar Clase Muestra */}
               <div className={cn(
                 "space-y-5 transition-all duration-300 ease-out",
                 step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
               )}>
-                {/* Juvenil A Notice */}
-                {isJuvenil && (
-                  <div className="bg-muted border border-border rounded-xl p-4">
-                    <p className="text-sm text-muted-foreground font-medium">
-                      ⚠️ Nota: El Reto de 30 días no está disponible para la categoría Juvenil A (12-13 años).
-                    </p>
-                  </div>
-                )}
-
-                {/* Price Summary */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-5">
-                  {isJuvenil ? (
-                    <>
-                      <p className="font-semibold text-lg text-foreground mb-3">Total a pagar:</p>
-                      <div className="space-y-2 text-sm border-b border-border/50 pb-3 mb-3">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Inscripción</span>
-                          <span className="text-xl font-bold text-primary font-display">$500 MXN</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Mensualidad</span>
-                          <span className="text-xl font-bold text-primary font-display">desde $500 MXN</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground italic">(Explicadas en campo)</p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-semibold text-lg text-foreground">Total a pagar:</span>
-                      <span className="text-3xl font-bold text-primary font-display">$1,100 MXN</span>
-                    </div>
-                  )}
-                  <div className="space-y-2 text-sm text-muted-foreground border-t border-border/50 pt-3">
+                {/* Sección Informativa: ¿Qué sigue después de la clase? */}
+                <div className="bg-muted/30 border border-border/50 rounded-xl p-5">
+                  <p className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    📋 ¿Qué sigue después de la clase?
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isJuvenil 
+                      ? "Después de la clase muestra, puedes inscribir a tu hijo directamente en White Lions."
+                      : "Después de la clase muestra, puedes iniciar el Reto White Lions – 30 días, que incluye entrenamientos, kit de inicio y garantía de satisfacción."}
+                  </p>
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     {!isJuvenil && (
                       <>
-                        <div className="flex justify-between">
-                          <span>Kit de Inicio White Lions</span>
-                          <span className="text-foreground">Incluido</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary">✓</span>
+                          <span>Kit de inicio White Lions</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary">✓</span>
                           <span>30 días de entrenamiento</span>
-                          <span className="text-foreground">Incluido</span>
                         </div>
                       </>
                     )}
-                    <div className="flex justify-between">
-                      <span>Garantía de satisfacción</span>
+                    <div className="flex items-center gap-2">
                       <span className="text-primary">✓</span>
-                    </div>
-                    <div className="flex justify-between">
                       <span>Evaluaciones mensuales</span>
-                      <span className="text-primary">✓</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-primary">✓</span>
                       <span>Acceso a app de rendimiento</span>
-                      <span className="text-primary">✓</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Planes de crecimiento personalizado</span>
+                    <div className="flex items-center gap-2">
                       <span className="text-primary">✓</span>
+                      <span>Plan de crecimiento personalizado</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-primary">✓</span>
+                      <span>Garantía de satisfacción</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Guarantee */}
-                <div className="flex items-start gap-3 p-4 bg-card/50 border border-border/50 rounded-xl">
-                  <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                {/* Nota de Confianza */}
+                <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                  <span className="text-xl">💡</span>
                   <div>
-                    <p className="font-semibold text-foreground text-sm mb-1">Garantía de Satisfacción</p>
+                    <p className="font-semibold text-foreground text-sm mb-1">Importante</p>
                     <p className="text-xs text-muted-foreground">
-                      Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el kit).
+                      La clase muestra es gratuita y sin compromiso. El pago {isJuvenil ? "de la inscripción" : "del Reto White Lions"} se realiza en campo únicamente si decides continuar después de la experiencia.
                     </p>
                   </div>
                 </div>
@@ -778,13 +756,16 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   <Button 
                     type="submit" 
                     className="flex-[2]" 
-                    variant="hero" 
+                    variant="gold" 
                     size="lg" 
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Procesando..." : isJuvenil ? "🦁 Inscribir a mi hijo" : "🦁 Iniciar Reto White Lions"}
+                    {isSubmitting ? "Procesando..." : "📅 Agendar clase muestra"}
                   </Button>
                 </div>
+                <p className="text-center text-xs text-muted-foreground">
+                  Clase gratuita · Sin compromiso · Cupos limitados por grupo
+                </p>
               </div>
             </form>
           </Form>
@@ -796,17 +777,17 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-foreground mb-1 font-display uppercase">
-                  ¡Bienvenido a White Lions!
+                  ¡Tu clase muestra está agendada!
                 </h3>
                 <p className="text-muted-foreground font-body">
-                  Tomaste una gran decisión. Tu hijo ya es parte de la familia.
+                  {submittedData?.player_name} ya tiene su lugar reservado. Te esperamos en campo.
                 </p>
               </div>
             </div>
 
             {submittedData && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
-                <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu inscripción</p>
+                <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu clase muestra</p>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Jugador</span>
@@ -821,7 +802,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     <span className="font-medium">{submittedData.category}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fecha de inicio</span>
+                    <span className="text-muted-foreground">Fecha</span>
                     <span className="font-medium capitalize">
                       {format(submittedData.start_date, "EEEE d 'de' MMMM", { locale: es })}
                     </span>
@@ -831,10 +812,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     <span className="font-medium">{getLocation(submittedData.sport)}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-border/50">
-                    <span className="text-muted-foreground font-semibold">Total</span>
-                    <span className="font-bold text-primary">
-                      {submittedData.category === "Juvenil A" ? "Inscripción + Mensualidad" : "$1,100 MXN"}
-                    </span>
+                    <span className="text-muted-foreground font-semibold">Clase muestra</span>
+                    <span className="font-bold text-primary">Gratuita</span>
                   </div>
                 </div>
               </div>
@@ -845,9 +824,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                 📧 Revisa tu correo electrónico
               </p>
               <p className="text-xs text-muted-foreground">
-                {submittedData?.category === "Juvenil A" 
-                  ? "Te enviamos las instrucciones para completar tu inscripción."
-                  : "Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio."}
+                Te enviamos la confirmación con los detalles de la clase muestra.
+                <br />
+                Recuerda llegar 10 minutos antes.
               </p>
             </div>
 
