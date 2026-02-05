@@ -1,217 +1,108 @@
 
-# Plan: Eliminar Checkout y Enfocar en Agendar Clase Muestra
 
-## Objetivo
-Transformar el Step 4 de un "checkout de pago" a una "invitación a vivir la experiencia", eliminando toda percepción de pago obligatorio online y enfocando el CTA en agendar la clase muestra gratuita.
+# Plan: Optimización Mobile-First del Modal de Registro
+
+## Problema Identificado
+
+Las imágenes muestran scroll horizontal en el modal en móvil, causado por:
+
+1. El contenedor del diálogo no está restringido al 100% del viewport en móvil
+2. Los botones de navegación (Atrás + CTA) están usando flexbox pero los textos largos causan overflow
+3. Algunos textos del encabezado son muy largos y no tienen text wrapping apropiado
 
 ---
 
-## Cambios al Step 4 (Líneas 687-788)
+## Cambios a Implementar
 
-### 1. Nuevo Título y Subtítulo del Step 4
+### 1. DialogContent - Restringir ancho en móvil
 
-**Antes (línea 64-66):**
+**Archivo:** `src/components/ChallengeRegistrationModal.tsx` (línea 330)
+
 ```typescript
-{ 
-  title: "Estás a un paso de comenzar", 
-  subtitle: "Revisa el total y confirma tu inscripción" 
-}
+// Antes
+className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-background/95"
+
+// Después  
+className="w-[calc(100vw-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto overflow-x-hidden backdrop-blur-xl bg-background/95"
 ```
 
-**Después:**
+### 2. Título del Modal - Hacer responsive
+
+**Línea 340-342:** Reducir tamaño de fuente en móvil y permitir wrap
+
 ```typescript
-{ 
-  title: "Estás a un paso de vivir la experiencia White Lions", 
-  subtitle: "Agenda la clase muestra de tu hijo. El pago se realiza en campo solo si decides continuar." 
-}
+// Antes
+className="text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase"
+
+// Después
+className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase leading-tight"
 ```
 
----
+### 3. Subtítulos del Step - Responsive text
 
-### 2. Eliminar Bloque de Precio/Checkout
+**Líneas 365-370:** Ajustar tamaños de texto para mejor legibilidad en móvil
 
-**Eliminar completamente (líneas 701-754):**
-- El bloque que muestra "Total a pagar: $1,100 MXN"
-- Los desglose de precios para Juvenil A
-- La tabla con Kit incluido, etc.
-
----
-
-### 3. Nueva Sección Informativa: "¿Qué sigue después de la clase?"
-
-Reemplazar el checkout por una sección explicativa del Reto (solo informativa, sin precio como acción):
-
-```
-┌────────────────────────────────────────────────────────────┐
-│  📋 ¿Qué sigue después de la clase?                        │
-├────────────────────────────────────────────────────────────┤
-│  Después de la clase muestra, puedes iniciar el            │
-│  Reto White Lions – 30 días, que incluye entrenamientos,   │
-│  kit de inicio y garantía de satisfacción.                 │
-│                                                            │
-│  ✓ Kit de inicio White Lions                               │
-│  ✓ 30 días de entrenamiento                                │
-│  ✓ Evaluaciones mensuales                                  │
-│  ✓ Acceso a app de rendimiento                             │
-│  ✓ Plan de crecimiento personalizado                       │
-│  ✓ Garantía de satisfacción                                │
-└────────────────────────────────────────────────────────────┘
-```
-
-Para Juvenil A, ajustar el texto mencionando "inscripción directa" en lugar de "Reto".
-
----
-
-### 4. Nueva Nota de Confianza (Bloque "Shield/Info")
-
-Agregar un bloque visual tipo "info importante":
-
-```
-┌────────────────────────────────────────────────────────────┐
-│  💡 Importante                                              │
-│                                                            │
-│  La clase muestra es gratuita y sin compromiso.            │
-│  El pago del Reto White Lions se realiza en campo          │
-│  únicamente si decides continuar después de la experiencia.│
-└────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 5. Nuevo CTA Principal
-
-**Antes (línea 778-786):**
 ```typescript
-<Button>
-  {isSubmitting ? "Procesando..." : isJuvenil ? "🦁 Inscribir a mi hijo" : "🦁 Iniciar Reto White Lions"}
-</Button>
+// Título del step
+className="text-base sm:text-lg font-semibold text-foreground"
+
+// Subtítulo
+className="text-xs sm:text-sm text-muted-foreground"
 ```
 
-**Después:**
+### 4. Botones de Navegación - Evitar overflow
+
+**Múltiples ubicaciones (líneas 572-593, 663-684, 745-765):**
+
+Los botones deben usar flex-wrap y textos más cortos en móvil:
+
 ```typescript
-<Button variant="gold" size="lg" className="w-full animate-pulse-subtle">
-  {isSubmitting ? "Procesando..." : "📅 Agendar clase muestra"}
-</Button>
+// Container de botones
+className="flex flex-col sm:flex-row gap-3 pt-2"
 
-{/* Micro-copy debajo del botón */}
-<p className="text-center text-xs text-muted-foreground mt-2">
-  Clase gratuita · Sin compromiso · Cupos limitados por grupo
-</p>
+// Botón Atrás
+className="w-full sm:flex-1 order-2 sm:order-1"
+
+// Botón CTA
+className="w-full sm:flex-[2] order-1 sm:order-2"
 ```
 
----
+Textos del CTA más cortos en móvil usando clases responsive:
 
-### 6. Eliminar Bloque de Garantía como "venta"
-
-El bloque actual de "Garantía de Satisfacción" (líneas 756-765) se elimina como elemento separado, ya que ahora está incluido en la lista informativa del Reto.
-
----
-
-## Cambios a la Pantalla de Éxito (Líneas 791-857)
-
-### 7. Actualizar Mensajes de Confirmación
-
-**Nuevo título:**
-```
-¡Tu clase muestra está agendada!
-```
-
-**Nuevo subtítulo:**
-```
-{playerName} ya tiene su lugar reservado. Te esperamos en campo.
-```
-
-### 8. Eliminar Referencia a "Total" en el Resumen
-
-**Antes (línea 833-838):**
 ```typescript
-<div className="flex justify-between">
-  <span>Total</span>
-  <span>{isJuvenilA ? "Inscripción + Mensualidad" : "$1,100 MXN"}</span>
-</div>
+// Ejemplo para Step 4:
+<span className="hidden sm:inline">📅 Agendar clase muestra</span>
+<span className="sm:hidden">📅 Agendar clase</span>
 ```
 
-**Después:**
+### 5. Grid del Kit de Inicio - Cambiar a 1 columna en móvil muy pequeño
+
+**Línea 507:**
+
 ```typescript
-<div className="flex justify-between">
-  <span>Clase muestra</span>
-  <span className="font-bold text-green-500">Gratuita</span>
-</div>
+// Antes
+className="grid grid-cols-2 gap-2 text-sm text-muted-foreground"
+
+// Después  
+className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-sm text-muted-foreground"
 ```
 
-### 9. Actualizar Mensaje de Email
+### 6. Nota de Confianza - Texto responsive
 
-**Antes:**
-```
-Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio.
-```
+**Línea 739-741:** El texto largo puede causar problemas
 
-**Después:**
-```
-Te enviamos la confirmación con los detalles de la clase muestra.
-Recuerda llegar 10 minutos antes.
-```
-
----
-
-## Cambios en Step 3 (Opcional pero Recomendado)
-
-### 10. Actualizar Texto del Botón "Ver total y garantía"
-
-**Antes (línea 681):**
 ```typescript
-Ver total y garantía
+// Agregar break-words para evitar overflow
+className="text-xs text-muted-foreground break-words"
 ```
 
-**Después:**
+### 7. Pantalla de Éxito - Responsive
+
+**Línea 806-808:** Fecha puede ser larga
+
 ```typescript
-Confirmar clase muestra
-```
-
----
-
-## Estructura Final del Step 4
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│  [Título] Estás a un paso de vivir la experiencia           │
-│           White Lions                                       │
-│                                                             │
-│  [Subtítulo] Agenda la clase muestra de tu hijo.            │
-│              El pago se realiza en campo solo si decides    │
-│              continuar.                                     │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  📋 ¿Qué sigue después de la clase?                         │
-│                                                             │
-│  Después de la clase muestra, puedes iniciar el             │
-│  Reto White Lions – 30 días, que incluye entrenamientos,    │
-│  kit de inicio y garantía de satisfacción.                  │
-│                                                             │
-│  ✓ Kit de inicio White Lions                                │
-│  ✓ 30 días de entrenamiento                                 │
-│  ✓ Evaluaciones mensuales                                   │
-│  ✓ Acceso a app de rendimiento                              │
-│  ✓ Plan de crecimiento personalizado                        │
-│  ✓ Garantía de satisfacción                                 │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  💡 Importante                                               │
-│                                                             │
-│  La clase muestra es gratuita y sin compromiso.             │
-│  El pago del Reto White Lions se realiza en campo           │
-│  únicamente si decides continuar después de la experiencia. │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  [Atrás]        [═══ 📅 Agendar clase muestra ═══]          │
-│                                                             │
-│          Clase gratuita · Sin compromiso · Cupos limitados  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+// Agregar text wrap
+className="font-medium capitalize text-right max-w-[50%] break-words"
 ```
 
 ---
@@ -220,38 +111,14 @@ Confirmar clase muestra
 
 | Archivo | Cambios |
 |---------|---------|
-| `src/components/ChallengeRegistrationModal.tsx` | Líneas 64-66 (título step 4), 681 (botón step 3), 687-788 (todo el step 4), 791-857 (pantalla de éxito) |
+| `src/components/ChallengeRegistrationModal.tsx` | Múltiples ajustes de clases CSS para mobile-first |
 
 ---
 
-## Resumen de Eliminaciones
+## Resultado Esperado
 
-| Elemento | Acción |
-|----------|--------|
-| "Total a pagar: $1,100 MXN" | Eliminar |
-| Precio como CTA final | Eliminar |
-| Desglose de precios Juvenil A | Eliminar |
-| Tabla de "Kit incluido" como checkout | Mover a sección informativa |
-| Bloque de garantía separado | Integrar en lista de beneficios |
-| Botón "Iniciar Reto" | Cambiar a "Agendar clase muestra" |
+1. Sin scroll horizontal en ningún dispositivo
+2. Botones apilados verticalmente en móvil, horizontalmente en desktop
+3. Textos legibles y con wrap apropiado
+4. Experiencia fluida en pantallas desde 320px de ancho
 
----
-
-## Resumen de Adiciones
-
-| Elemento | Descripción |
-|----------|-------------|
-| Sección "¿Qué sigue después?" | Información del Reto (sin precio) |
-| Nota de Confianza | Bloque con icono 💡 explicando que es gratuito |
-| Micro-copy bajo CTA | "Clase gratuita · Sin compromiso · Cupos limitados" |
-| Mensaje de éxito actualizado | Enfocado en clase agendada, no pago |
-
----
-
-## Criterios de Éxito
-
-1. El usuario NO ve ningún precio como acción final
-2. El CTA claramente dice "Agendar clase muestra"
-3. El Reto se explica como beneficio futuro, no como compra obligatoria
-4. El mensaje de confirmación celebra la clase agendada, no una compra
-5. Lenguaje cercano y confiable para padres de familia
