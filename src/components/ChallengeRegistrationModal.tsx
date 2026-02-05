@@ -41,11 +41,29 @@ interface ChallengeRegistrationModalProps {
 
 const TOTAL_STEPS = 4;
 
-const stepTitles = [
-  { title: "Cuéntanos sobre el jugador", subtitle: "El Reto está diseñado para niños de 6 a 11 años" },
-  { title: "Tu experiencia White Lions", subtitle: "Esto es lo que vivirá tu hijo durante 30 días" },
-  { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio del Reto" },
-  { title: "Estás a un paso de comenzar", subtitle: "Revisa el total y confirma tu inscripción" },
+const getStepTitles = (isJuvenil: boolean) => [
+  { 
+    title: "Cuéntanos sobre el jugador", 
+    subtitle: isJuvenil 
+      ? "Para jugadores de 12-13 años ofrecemos inscripción directa" 
+      : "El Reto está diseñado para niños de 6 a 11 años" 
+  },
+  { 
+    title: "Tu experiencia White Lions", 
+    subtitle: isJuvenil 
+      ? "Esto es lo que vivirá tu hijo en White Lions"
+      : "Esto es lo que vivirá tu hijo durante 30 días" 
+  },
+  { 
+    title: "¿Cómo te contactamos?", 
+    subtitle: isJuvenil 
+      ? "Usaremos estos datos para coordinar el inicio"
+      : "Usaremos estos datos para coordinar el inicio del Reto" 
+  },
+  { 
+    title: "Estás a un paso de comenzar", 
+    subtitle: "Revisa el total y confirma tu inscripción" 
+  },
 ];
 
 const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistrationModalProps) => {
@@ -73,7 +91,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   const selectedBirthYear = form.watch("birth_year");
 
   const getValidYears = () => {
-    return Array.from({ length: 6 }, (_, i) => (2019 - i).toString());
+    return Array.from({ length: 8 }, (_, i) => (2019 - i).toString());
   };
 
   const getCategories = (birthYear: string | undefined) => {
@@ -82,7 +100,14 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
     if (year >= 2018) return ["Escuelita"];
     if (year >= 2016 && year <= 2017) return ["Estrellita"];
     if (year >= 2014 && year <= 2015) return ["Infantil"];
+    if (year >= 2012 && year <= 2013) return ["Juvenil A"];
     return [];
+  };
+
+  const isJuvenilA = (birthYear: string | undefined): boolean => {
+    if (!birthYear) return false;
+    const year = parseInt(birthYear);
+    return year >= 2012 && year <= 2013;
   };
 
   const getMinStartDate = () => {
@@ -297,6 +322,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   const categories = getCategories(selectedBirthYear);
   const nextAvailableDate = getNextAvailableDate(selectedSport);
   const progressValue = (step / TOTAL_STEPS) * 100;
+  const isJuvenil = isJuvenilA(selectedBirthYear);
+  const stepTitles = getStepTitles(isJuvenil);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -311,7 +338,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase">
-            🦁 Reto White Lions – 30 Días
+            {isJuvenil ? "🦁 Inscripción White Lions" : "🦁 Reto White Lions – 30 Días"}
           </DialogTitle>
           
           {!isSubmitted && (
@@ -404,7 +431,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                         </SelectContent>
                       </Select>
                       <FormDescription className="text-xs">
-                        El Reto está disponible para niños de 6 a 11 años.
+                        {isJuvenil 
+                          ? "Para jugadores de 12-13 años ofrecemos inscripción directa (sin Reto)."
+                          : "El Reto está disponible para niños de 6 a 11 años."}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -469,18 +498,20 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     <p className="text-sm text-muted-foreground">{getSchedule(selectedSport)}</p>
                   </div>
                   
-                  <div className="pt-3 border-t border-border/50">
-                    <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                      <Gift className="w-4 h-4 text-primary" />
-                      Tu Kit de Inicio incluye:
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <span>👕 Camiseta oficial</span>
-                      <span>🧦 Calcetas deportivas</span>
-                      <span>🛡️ Espinilleras</span>
-                      <span>🥤 Termo White Lions</span>
+                  {!isJuvenil && (
+                    <div className="pt-3 border-t border-border/50">
+                      <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <Gift className="w-4 h-4 text-primary" />
+                        Tu Kit de Inicio incluye:
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <span>👕 Camiseta oficial</span>
+                        <span>🧦 Calcetas deportivas</span>
+                        <span>🛡️ Espinilleras</span>
+                        <span>🥤 Termo White Lions</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <FormField
@@ -488,7 +519,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   name="start_date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Fecha de Inicio del Reto</FormLabel>
+                      <FormLabel>{isJuvenil ? "Fecha de Inicio" : "Fecha de Inicio del Reto"}</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -658,24 +689,66 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                 "space-y-5 transition-all duration-300 ease-out",
                 step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
               )}>
+                {/* Juvenil A Notice */}
+                {isJuvenil && (
+                  <div className="bg-muted border border-border rounded-xl p-4">
+                    <p className="text-sm text-muted-foreground font-medium">
+                      ⚠️ Nota: El Reto de 30 días no está disponible para la categoría Juvenil A (12-13 años).
+                    </p>
+                  </div>
+                )}
+
                 {/* Price Summary */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-lg text-foreground">Total a pagar:</span>
-                    <span className="text-3xl font-bold text-primary font-display">$1,100 MXN</span>
-                  </div>
+                  {isJuvenil ? (
+                    <>
+                      <p className="font-semibold text-lg text-foreground mb-3">Total a pagar:</p>
+                      <div className="space-y-2 text-sm border-b border-border/50 pb-3 mb-3">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Inscripción</span>
+                          <span className="text-xl font-bold text-primary font-display">$500 MXN</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Mensualidad</span>
+                          <span className="text-xl font-bold text-primary font-display">desde $500 MXN</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground italic">(Explicadas en campo)</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-lg text-foreground">Total a pagar:</span>
+                      <span className="text-3xl font-bold text-primary font-display">$1,100 MXN</span>
+                    </div>
+                  )}
                   <div className="space-y-2 text-sm text-muted-foreground border-t border-border/50 pt-3">
-                    <div className="flex justify-between">
-                      <span>Kit de Inicio White Lions</span>
-                      <span className="text-foreground">Incluido</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>30 días de entrenamiento</span>
-                      <span className="text-foreground">Incluido</span>
-                    </div>
+                    {!isJuvenil && (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Kit de Inicio White Lions</span>
+                          <span className="text-foreground">Incluido</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>30 días de entrenamiento</span>
+                          <span className="text-foreground">Incluido</span>
+                        </div>
+                      </>
+                    )}
                     <div className="flex justify-between">
                       <span>Garantía de satisfacción</span>
-                      <span className="text-foreground">Incluida</span>
+                      <span className="text-primary">✓</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Evaluaciones mensuales</span>
+                      <span className="text-primary">✓</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Acceso a app de rendimiento</span>
+                      <span className="text-primary">✓</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Planes de crecimiento personalizado</span>
+                      <span className="text-primary">✓</span>
                     </div>
                   </div>
                 </div>
@@ -709,7 +782,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     size="lg" 
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Procesando..." : "🦁 Iniciar Reto White Lions"}
+                    {isSubmitting ? "Procesando..." : isJuvenil ? "🦁 Inscribir a mi hijo" : "🦁 Iniciar Reto White Lions"}
                   </Button>
                 </div>
               </div>
@@ -759,7 +832,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   </div>
                   <div className="flex justify-between pt-2 border-t border-border/50">
                     <span className="text-muted-foreground font-semibold">Total</span>
-                    <span className="font-bold text-primary">$1,100 MXN</span>
+                    <span className="font-bold text-primary">
+                      {submittedData.category === "Juvenil A" ? "Inscripción + Mensualidad" : "$1,100 MXN"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -770,7 +845,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                 📧 Revisa tu correo electrónico
               </p>
               <p className="text-xs text-muted-foreground">
-                Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio.
+                {submittedData?.category === "Juvenil A" 
+                  ? "Te enviamos las instrucciones para completar tu inscripción."
+                  : "Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio."}
               </p>
             </div>
 
