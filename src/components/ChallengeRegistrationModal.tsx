@@ -327,7 +327,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-background/95">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto overflow-x-hidden backdrop-blur-xl bg-background/95">
         <button
           onClick={handleClose}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
@@ -337,7 +337,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
         </button>
 
         <DialogHeader className="space-y-4">
-          <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase">
+          <DialogTitle className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground text-center font-display uppercase leading-tight">
             {isJuvenil ? "🦁 Inscripción White Lions" : "🦁 Reto White Lions – 30 Días"}
           </DialogTitle>
           
@@ -362,10 +362,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
               
               {/* Step Title */}
               <div className="text-center pt-2">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight">
                   {stepTitles[step - 1].title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {stepTitles[step - 1].subtitle}
                 </p>
               </div>
@@ -504,7 +504,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                         <Gift className="w-4 h-4 text-primary" />
                         Tu Kit de Inicio incluye:
                       </p>
-                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
                         <span>👕 Camiseta oficial</span>
                         <span>🧦 Calcetas deportivas</span>
                         <span>🛡️ Espinilleras</span>
@@ -569,13 +569,13 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   )}
                 />
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button 
                     type="button" 
                     onClick={prevStep} 
                     variant="outline" 
                     size="lg"
-                    className="flex-1"
+                    className="w-full sm:flex-1 order-2 sm:order-1"
                   >
                     <ChevronLeft className="mr-2 h-5 w-5" />
                     Atrás
@@ -583,11 +583,12 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   <Button 
                     type="button" 
                     onClick={nextStep} 
-                    className="flex-[2]" 
+                    className="w-full sm:flex-[2] order-1 sm:order-2" 
                     variant="hero" 
                     size="lg"
                   >
-                    Quiero apartar mi lugar
+                    <span className="hidden sm:inline">Quiero apartar mi lugar</span>
+                    <span className="sm:hidden">Apartar lugar</span>
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
@@ -660,13 +661,13 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   )}
                 />
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button 
                     type="button" 
                     onClick={prevStep} 
                     variant="outline" 
                     size="lg"
-                    className="flex-1"
+                    className="w-full sm:flex-1 order-2 sm:order-1"
                   >
                     <ChevronLeft className="mr-2 h-5 w-5" />
                     Atrás
@@ -674,11 +675,12 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   <Button 
                     type="button" 
                     onClick={nextStep} 
-                    className="flex-[2]" 
+                    className="w-full sm:flex-[2] order-1 sm:order-2" 
                     variant="hero" 
                     size="lg"
                   >
-                    Confirmar clase muestra
+                    <span className="hidden sm:inline">Confirmar clase muestra</span>
+                    <span className="sm:hidden">Confirmar clase</span>
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
@@ -736,35 +738,40 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   <span className="text-xl">💡</span>
                   <div>
                     <p className="font-semibold text-foreground text-sm mb-1">Importante</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground break-words">
                       La clase muestra es gratuita y sin compromiso. El pago {isJuvenil ? "de la inscripción" : "del Reto White Lions"} se realiza en campo únicamente si decides continuar después de la experiencia.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Button 
                     type="button" 
                     onClick={prevStep} 
                     variant="outline" 
                     size="lg"
-                    className="flex-1"
+                    className="w-full sm:flex-1 order-2 sm:order-1"
                   >
                     <ChevronLeft className="mr-2 h-5 w-5" />
                     Atrás
                   </Button>
                   <Button 
                     type="submit" 
-                    className="flex-[2]" 
+                    className="w-full sm:flex-[2] order-1 sm:order-2" 
                     variant="gold" 
                     size="lg" 
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Procesando..." : "📅 Agendar clase muestra"}
+                    {isSubmitting ? "Procesando..." : (
+                      <>
+                        <span className="hidden sm:inline">📅 Agendar clase muestra</span>
+                        <span className="sm:hidden">📅 Agendar clase</span>
+                      </>
+                    )}
                   </Button>
                 </div>
-                <p className="text-center text-xs text-muted-foreground">
-                  Clase gratuita · Sin compromiso · Cupos limitados por grupo
+                <p className="text-center text-xs text-muted-foreground break-words">
+                  Clase gratuita · Sin compromiso · Cupos limitados
                 </p>
               </div>
             </form>
@@ -801,9 +808,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     <span className="text-muted-foreground">Categoría</span>
                     <span className="font-medium">{submittedData.category}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-start">
                     <span className="text-muted-foreground">Fecha</span>
-                    <span className="font-medium capitalize">
+                    <span className="font-medium capitalize text-right max-w-[55%] break-words">
                       {format(submittedData.start_date, "EEEE d 'de' MMMM", { locale: es })}
                     </span>
                   </div>
