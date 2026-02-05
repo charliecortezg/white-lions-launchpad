@@ -1,0 +1,1 @@
+ALTER TABLE trial_class_registrations ADD COLUMN school TEXT;

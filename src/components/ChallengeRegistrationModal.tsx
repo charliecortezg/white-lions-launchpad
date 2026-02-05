@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  school: z.string().optional(),
   tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres"),
   tutor_email: z.string().email("Ingresa un correo electrónico válido"),
   contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
@@ -30,6 +32,7 @@ const formSchema = z.object({
   start_date: z.date({
     required_error: "Selecciona una fecha de inicio",
   }),
+  notes: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -235,6 +238,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
             category: data.category,
             preferred_location: location,
             preferred_schedule: `${formattedDate} - ${schedule}`,
+            school: data.school || null,
+            comments: data.notes || null,
             status: newStatus,
             attendance_marked_at: null,
             no_show_processed_at: null,
@@ -262,7 +267,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
             category: data.category,
             preferred_location: location,
             preferred_schedule: `${formattedDate} - ${schedule}`,
-            comments: null,
+            school: data.school || null,
+            comments: data.notes || null,
           }]);
 
         if (insertError) throw insertError;
@@ -398,6 +404,24 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                       <FormControl>
                         <Input 
                           placeholder="Nombre completo del jugador" 
+                          className="h-12"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="school"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Escuela <span className="text-muted-foreground font-normal">(opcional)</span></FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="¿En qué escuela estudia?" 
                           className="h-12"
                           {...field} 
                         />
@@ -656,6 +680,30 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                           {...field} 
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        ¿Algo que debamos saber? 
+                        <span className="text-muted-foreground font-normal ml-1">(opcional)</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Ej: Experiencia previa, lesiones, necesidades especiales, objetivos del jugador..."
+                          className="min-h-[80px] resize-none"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Esta información nos ayuda a personalizar la experiencia de tu hijo.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

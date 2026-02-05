@@ -372,6 +372,7 @@ export type Database = {
           preferred_schedule: string
           reactivation_paused_until: string | null
           reactivation_status: string
+          school: string | null
           status: string
           status_updated_at: string
           trial_duration_min: number
@@ -400,6 +401,7 @@ export type Database = {
           preferred_schedule: string
           reactivation_paused_until?: string | null
           reactivation_status?: string
+          school?: string | null
           status?: string
           status_updated_at?: string
           trial_duration_min?: number
@@ -428,6 +430,7 @@ export type Database = {
           preferred_schedule?: string
           reactivation_paused_until?: string | null
           reactivation_status?: string
+          school?: string | null
           status?: string
           status_updated_at?: string
           trial_duration_min?: number

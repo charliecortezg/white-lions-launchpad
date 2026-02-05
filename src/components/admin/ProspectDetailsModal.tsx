@@ -124,6 +124,12 @@ export const ProspectDetailsModal = ({
                 <span className="text-muted-foreground">Categoría:</span>
                 <span className="text-foreground font-medium">{prospect.category}</span>
               </div>
+              {(prospect as any).school && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Escuela:</span>
+                  <span className="text-foreground font-medium">{(prospect as any).school}</span>
+                </div>
+              )}
             </div>
           </div>
 
