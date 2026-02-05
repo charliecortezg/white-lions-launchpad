@@ -1,103 +1,218 @@
 
-# Plan: Soporte para Juvenil A (2012-2013) + Beneficios Adicionales para Todas las Categorías
+# Plan: Eliminar Checkout y Enfocar en Agendar Clase Muestra
 
-## Resumen
-
-1. **Agregar años 2012-2013** al selector de año de nacimiento para la categoría **Juvenil A** (12-13 años)
-2. **Flujo diferenciado para Juvenil A**: Sin Reto, solo inscripción directa con pricing diferente
-3. **Agregar beneficios adicionales** a TODAS las categorías (incluidas 6-11 años) en el Step 4
+## Objetivo
+Transformar el Step 4 de un "checkout de pago" a una "invitación a vivir la experiencia", eliminando toda percepción de pago obligatorio online y enfocando el CTA en agendar la clase muestra gratuita.
 
 ---
 
-## Cambios a Implementar
+## Cambios al Step 4 (Líneas 687-788)
 
-### 1. ChallengeRegistrationModal.tsx
+### 1. Nuevo Título y Subtítulo del Step 4
 
-#### A) Expandir años válidos (línea 75-77)
+**Antes (línea 64-66):**
 ```typescript
-// Antes: 6 años (2019-2014)
-return Array.from({ length: 6 }, (_, i) => (2019 - i).toString());
-
-// Después: 8 años (2019-2012)
-return Array.from({ length: 8 }, (_, i) => (2019 - i).toString());
+{ 
+  title: "Estás a un paso de comenzar", 
+  subtitle: "Revisa el total y confirma tu inscripción" 
+}
 ```
 
-#### B) Agregar categoría Juvenil A (línea 79-86)
+**Después:**
 ```typescript
-const getCategories = (birthYear: string | undefined) => {
-  if (!birthYear) return [];
-  const year = parseInt(birthYear);
-  if (year >= 2018) return ["Escuelita"];
-  if (year >= 2016 && year <= 2017) return ["Estrellita"];
-  if (year >= 2014 && year <= 2015) return ["Infantil"];
-  if (year >= 2012 && year <= 2013) return ["Juvenil A"]; // NUEVO
-  return [];
-};
+{ 
+  title: "Estás a un paso de vivir la experiencia White Lions", 
+  subtitle: "Agenda la clase muestra de tu hijo. El pago se realiza en campo solo si decides continuar." 
+}
 ```
 
-#### C) Función helper para detectar Juvenil A
+---
+
+### 2. Eliminar Bloque de Precio/Checkout
+
+**Eliminar completamente (líneas 701-754):**
+- El bloque que muestra "Total a pagar: $1,100 MXN"
+- Los desglose de precios para Juvenil A
+- La tabla con Kit incluido, etc.
+
+---
+
+### 3. Nueva Sección Informativa: "¿Qué sigue después de la clase?"
+
+Reemplazar el checkout por una sección explicativa del Reto (solo informativa, sin precio como acción):
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  📋 ¿Qué sigue después de la clase?                        │
+├────────────────────────────────────────────────────────────┤
+│  Después de la clase muestra, puedes iniciar el            │
+│  Reto White Lions – 30 días, que incluye entrenamientos,   │
+│  kit de inicio y garantía de satisfacción.                 │
+│                                                            │
+│  ✓ Kit de inicio White Lions                               │
+│  ✓ 30 días de entrenamiento                                │
+│  ✓ Evaluaciones mensuales                                  │
+│  ✓ Acceso a app de rendimiento                             │
+│  ✓ Plan de crecimiento personalizado                       │
+│  ✓ Garantía de satisfacción                                │
+└────────────────────────────────────────────────────────────┘
+```
+
+Para Juvenil A, ajustar el texto mencionando "inscripción directa" en lugar de "Reto".
+
+---
+
+### 4. Nueva Nota de Confianza (Bloque "Shield/Info")
+
+Agregar un bloque visual tipo "info importante":
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  💡 Importante                                              │
+│                                                            │
+│  La clase muestra es gratuita y sin compromiso.            │
+│  El pago del Reto White Lions se realiza en campo          │
+│  únicamente si decides continuar después de la experiencia.│
+└────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 5. Nuevo CTA Principal
+
+**Antes (línea 778-786):**
 ```typescript
-const isJuvenilA = (birthYear: string | undefined): boolean => {
-  if (!birthYear) return false;
-  const year = parseInt(birthYear);
-  return year >= 2012 && year <= 2013;
-};
+<Button>
+  {isSubmitting ? "Procesando..." : isJuvenil ? "🦁 Inscribir a mi hijo" : "🦁 Iniciar Reto White Lions"}
+</Button>
 ```
 
-#### D) Actualizar subtítulos dinámicos según categoría
+**Después:**
 ```typescript
-const getStepTitles = (isJuvenil: boolean) => [
-  { 
-    title: "Cuéntanos sobre el jugador", 
-    subtitle: isJuvenil 
-      ? "Para jugadores de 12-13 años ofrecemos inscripción directa" 
-      : "El Reto está diseñado para niños de 6 a 11 años" 
-  },
-  // ...resto de títulos
-];
+<Button variant="gold" size="lg" className="w-full animate-pulse-subtle">
+  {isSubmitting ? "Procesando..." : "📅 Agendar clase muestra"}
+</Button>
+
+{/* Micro-copy debajo del botón */}
+<p className="text-center text-xs text-muted-foreground mt-2">
+  Clase gratuita · Sin compromiso · Cupos limitados por grupo
+</p>
 ```
 
-#### E) Step 2 - Ocultar Kit para Juvenil A
-Para Juvenil A, no mostrar la sección del Kit de Inicio ya que no aplica.
+---
 
-#### F) Step 4 - Pricing diferenciado
+### 6. Eliminar Bloque de Garantía como "venta"
 
-**Para categorías 6-11 años (Escuelita, Estrellita, Infantil):**
+El bloque actual de "Garantía de Satisfacción" (líneas 756-765) se elimina como elemento separado, ya que ahora está incluido en la lista informativa del Reto.
+
+---
+
+## Cambios a la Pantalla de Éxito (Líneas 791-857)
+
+### 7. Actualizar Mensajes de Confirmación
+
+**Nuevo título:**
 ```
-Total a pagar: $1,100 MXN
-├─ Kit de Inicio White Lions ............. Incluido
-├─ 30 días de entrenamiento .............. Incluido
-├─ Garantía de satisfacción .............. Incluida
-├─ Evaluaciones mensuales ................ ✓   ← NUEVO
-├─ Acceso a app de rendimiento ........... ✓   ← NUEVO
-└─ Planes de crecimiento personalizado ... ✓   ← NUEVO
-```
-
-**Para Juvenil A (2012-2013):**
-```
-⚠️ Nota: El Reto de 30 días no está disponible 
-   para la categoría Juvenil A (12-13 años).
-
-Total a pagar:
-├─ Inscripción ........................... $500 MXN
-├─ Mensualidad .................... desde $500 MXN
-│   (Explicadas en campo)
-├─ Garantía de satisfacción .............. ✓
-├─ Evaluaciones mensuales ................ ✓
-├─ Acceso a app de rendimiento ........... ✓
-└─ Planes de crecimiento personalizado ... ✓
+¡Tu clase muestra está agendada!
 ```
 
-#### G) Título del modal dinámico
-- Reto (6-11): "🦁 Reto White Lions – 30 Días"
-- Inscripción (Juvenil A): "🦁 Inscripción White Lions"
+**Nuevo subtítulo:**
+```
+{playerName} ya tiene su lugar reservado. Te esperamos en campo.
+```
 
-#### H) Botón final diferenciado
-- Reto (6-11): "🦁 Iniciar Reto White Lions"
-- Juvenil A: "🦁 Inscribir a mi hijo"
+### 8. Eliminar Referencia a "Total" en el Resumen
 
-#### I) Pantalla de éxito diferenciada
-Para Juvenil A, mostrar el precio como "Inscripción + Mensualidad" en lugar de "$1,100 MXN".
+**Antes (línea 833-838):**
+```typescript
+<div className="flex justify-between">
+  <span>Total</span>
+  <span>{isJuvenilA ? "Inscripción + Mensualidad" : "$1,100 MXN"}</span>
+</div>
+```
+
+**Después:**
+```typescript
+<div className="flex justify-between">
+  <span>Clase muestra</span>
+  <span className="font-bold text-green-500">Gratuita</span>
+</div>
+```
+
+### 9. Actualizar Mensaje de Email
+
+**Antes:**
+```
+Te enviamos las instrucciones para completar el pago y recibir tu Kit de Inicio.
+```
+
+**Después:**
+```
+Te enviamos la confirmación con los detalles de la clase muestra.
+Recuerda llegar 10 minutos antes.
+```
+
+---
+
+## Cambios en Step 3 (Opcional pero Recomendado)
+
+### 10. Actualizar Texto del Botón "Ver total y garantía"
+
+**Antes (línea 681):**
+```typescript
+Ver total y garantía
+```
+
+**Después:**
+```typescript
+Confirmar clase muestra
+```
+
+---
+
+## Estructura Final del Step 4
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  [Título] Estás a un paso de vivir la experiencia           │
+│           White Lions                                       │
+│                                                             │
+│  [Subtítulo] Agenda la clase muestra de tu hijo.            │
+│              El pago se realiza en campo solo si decides    │
+│              continuar.                                     │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  📋 ¿Qué sigue después de la clase?                         │
+│                                                             │
+│  Después de la clase muestra, puedes iniciar el             │
+│  Reto White Lions – 30 días, que incluye entrenamientos,    │
+│  kit de inicio y garantía de satisfacción.                  │
+│                                                             │
+│  ✓ Kit de inicio White Lions                                │
+│  ✓ 30 días de entrenamiento                                 │
+│  ✓ Evaluaciones mensuales                                   │
+│  ✓ Acceso a app de rendimiento                              │
+│  ✓ Plan de crecimiento personalizado                        │
+│  ✓ Garantía de satisfacción                                 │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  💡 Importante                                               │
+│                                                             │
+│  La clase muestra es gratuita y sin compromiso.             │
+│  El pago del Reto White Lions se realiza en campo           │
+│  únicamente si decides continuar después de la experiencia. │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  [Atrás]        [═══ 📅 Agendar clase muestra ═══]          │
+│                                                             │
+│          Clase gratuita · Sin compromiso · Cupos limitados  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -105,26 +220,38 @@ Para Juvenil A, mostrar el precio como "Inscripción + Mensualidad" en lugar de 
 
 | Archivo | Cambios |
 |---------|---------|
-| `src/components/ChallengeRegistrationModal.tsx` | Años 2012-2013, categoría Juvenil A, pricing diferenciado, beneficios adicionales para todas las categorías |
+| `src/components/ChallengeRegistrationModal.tsx` | Líneas 64-66 (título step 4), 681 (botón step 3), 687-788 (todo el step 4), 791-857 (pantalla de éxito) |
 
 ---
 
-## Flujo de Usuario para Juvenil A
+## Resumen de Eliminaciones
 
-```
-PASO 1 → Año 2012/2013 → Categoría "Juvenil A"
-PASO 2 → Sin Kit (ocultado), solo ubicación y horario
-PASO 3 → Datos del tutor (sin cambios)
-PASO 4 → Nota de "Sin Reto" + Inscripción $500 + Mensualidad desde $500
-        + Beneficios: Garantía, Evaluaciones, App, Planes personalizados
-```
+| Elemento | Acción |
+|----------|--------|
+| "Total a pagar: $1,100 MXN" | Eliminar |
+| Precio como CTA final | Eliminar |
+| Desglose de precios Juvenil A | Eliminar |
+| Tabla de "Kit incluido" como checkout | Mover a sección informativa |
+| Bloque de garantía separado | Integrar en lista de beneficios |
+| Botón "Iniciar Reto" | Cambiar a "Agendar clase muestra" |
 
 ---
 
-## Beneficios Adicionales para TODAS las Categorías
+## Resumen de Adiciones
 
-En el Step 4, agregar a la lista de beneficios (tanto para Reto como para Inscripción directa):
-- ✓ Garantía de satisfacción
-- ✓ Evaluaciones mensuales
-- ✓ Acceso a app de rendimiento  
-- ✓ Planes de crecimiento personalizado
+| Elemento | Descripción |
+|----------|-------------|
+| Sección "¿Qué sigue después?" | Información del Reto (sin precio) |
+| Nota de Confianza | Bloque con icono 💡 explicando que es gratuito |
+| Micro-copy bajo CTA | "Clase gratuita · Sin compromiso · Cupos limitados" |
+| Mensaje de éxito actualizado | Enfocado en clase agendada, no pago |
+
+---
+
+## Criterios de Éxito
+
+1. El usuario NO ve ningún precio como acción final
+2. El CTA claramente dice "Agendar clase muestra"
+3. El Reto se explica como beneficio futuro, no como compra obligatoria
+4. El mensaje de confirmación celebra la clase agendada, no una compra
+5. Lenguaje cercano y confiable para padres de familia
