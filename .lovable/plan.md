@@ -1,220 +1,136 @@
 
 
-# Plan: Agregar Campos "Escuela" y "Notas" al Formulario de Registro
+# Plan: Actualizar Email de Confirmación para Clase Muestra Gratuita
 
-## Resumen
+## Problema Actual
 
-Agregar dos nuevos campos al formulario de registro:
-1. **Escuela** - En el Step 1 (Datos del Jugador) para saber dónde estudia el niño
-2. **Notas** - Información adicional que ayude a trabajar mejor con el jugador
+El email `send-confirmation` tiene contenido de la versión anterior donde el flujo era "pago del Reto online". Con los cambios de hoy, el flujo es:
 
----
+1. El padre agenda una **clase muestra gratuita**
+2. La clase es **sin compromiso**
+3. El pago del Reto solo ocurre **en campo** si decide continuar
 
-## Cambios a la Base de Datos
-
-La tabla `trial_class_registrations` ya tiene un campo `comments` que actualmente se guarda como `null`. Lo reutilizaremos para las notas.
-
-Para el campo "escuela" necesitamos agregarlo a la tabla:
-
-```sql
-ALTER TABLE trial_class_registrations 
-ADD COLUMN school TEXT;
-```
+El email actual menciona kit, pagos y garantías, lo cual genera confusión.
 
 ---
 
-## Cambios al Formulario
+## Nuevo Contenido del Email
 
-### 1. Actualizar Schema de Validación (línea 20-33)
+### Header
+- **Título:** "🦁 White Lions Academy"
+- **Subtítulo:** "¡Tu clase muestra está confirmada!"
 
-Agregar los nuevos campos al schema de Zod:
+### Saludo
+```
+¡Hola {tutor_name}! 👋
 
-```typescript
-const formSchema = z.object({
-  player_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  school: z.string().optional(), // NUEVO - opcional
-  tutor_name: z.string().min(2, "El nombre del tutor debe tener al menos 2 caracteres"),
-  tutor_email: z.string().email("Ingresa un correo electrónico válido"),
-  contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
-  birth_year: z.string().min(4, "Selecciona el año de nacimiento"),
-  sport: z.enum(["Fútbol"], {
-    required_error: "Selecciona un deporte",
-  }).default("Fútbol"),
-  category: z.string().min(1, "Selecciona una categoría"),
-  start_date: z.date({
-    required_error: "Selecciona una fecha de inicio",
-  }),
-  notes: z.string().optional(), // NUEVO - opcional
-});
+¡Excelente! {player_name} tiene reservado su lugar 
+para vivir la experiencia White Lions.
+
+Esta clase es gratuita y sin compromiso. 
+Queremos que vivan la metodología antes de tomar cualquier decisión.
 ```
 
-### 2. Agregar Campo "Escuela" en Step 1 (después de player_name)
+### Detalles de la Clase Muestra
+```
+📋 Detalles de tu Clase Muestra
 
-Ubicación: Después del campo "Nombre del Jugador" (línea ~408)
-
-```typescript
-<FormField
-  control={form.control}
-  name="school"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Escuela <span className="text-muted-foreground font-normal">(opcional)</span></FormLabel>
-      <FormControl>
-        <Input 
-          placeholder="¿En qué escuela estudia?" 
-          className="h-12"
-          {...field} 
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+🏅 Deporte: {sport}
+👤 Jugador: {player_name}
+👥 Categoría: {category}
+📅 Fecha: {trial_date}
+📍 Sede: {location}
+🕐 Horario: {schedule}
 ```
 
-### 3. Agregar Campo "Notas" en Step 3 (después de los datos de contacto)
+### Qué Traer
+```
+📌 Para la clase muestra:
 
-Ubicación: Al final del Step 3, antes del botón "Confirmar clase muestra"
+• Ropa deportiva cómoda
+• Tenis adecuados (de preferencia para pasto)
+• Agua o bebida hidratante
+• ¡Muchas ganas de aprender!
 
-```typescript
-<FormField
-  control={form.control}
-  name="notes"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>
-        ¿Algo que debamos saber? 
-        <span className="text-muted-foreground font-normal ml-1">(opcional)</span>
-      </FormLabel>
-      <FormControl>
-        <Textarea 
-          placeholder="Ej: Experiencia previa, lesiones, necesidades especiales, objetivos del jugador..."
-          className="min-h-[80px] resize-none"
-          {...field} 
-        />
-      </FormControl>
-      <FormDescription className="text-xs">
-        Esta información nos ayuda a personalizar la experiencia de tu hijo.
-      </FormDescription>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+Nosotros proporcionamos los balones y el espacio de entrenamiento.
 ```
 
-### 4. Actualizar Submit del Formulario
+### Sección "¿Qué sigue después?"
+```
+🤔 ¿Qué sigue después de la clase?
 
-Modificar tanto el INSERT como el UPDATE para incluir los nuevos campos:
+Si después de vivir la experiencia decides continuar, 
+podrás inscribir a {player_name} en el Reto White Lions – 30 días, 
+que incluye:
 
-**INSERT (línea ~256):**
-```typescript
-.insert([{
-  player_name: data.player_name,
-  age_or_birth_year: data.birth_year,
-  tutor_name: data.tutor_name,
-  contact_phone: data.contact_phone,
-  parent_email: data.tutor_email,
-  category: data.category,
-  preferred_location: location,
-  preferred_schedule: `${formattedDate} - ${schedule}`,
-  school: data.school || null,         // NUEVO
-  comments: data.notes || null,        // ACTUALIZADO (antes era null)
-}])
+✓ Kit de inicio White Lions
+✓ 30 días de entrenamiento estructurado
+✓ Evaluaciones mensuales
+✓ Acceso a la app de rendimiento
+✓ Garantía de satisfacción
+
+El pago se realiza únicamente en campo. 
+Sin presiones, la decisión final es tuya.
 ```
 
-**UPDATE (línea ~229):**
-```typescript
-.update({
-  player_name: data.player_name,
-  age_or_birth_year: data.birth_year,
-  tutor_name: data.tutor_name,
-  contact_phone: data.contact_phone,
-  parent_email: data.tutor_email,
-  category: data.category,
-  preferred_location: location,
-  preferred_schedule: `${formattedDate} - ${schedule}`,
-  school: data.school || null,         // NUEVO
-  comments: data.notes || null,        // ACTUALIZADO
-  status: newStatus,
-  // ... resto de campos
-})
+### Nota de Tranquilidad
+```
+💡 Recuerda
+
+La clase muestra es gratuita y sin compromiso.
+Solo queremos que tu hijo viva la experiencia White Lions 
+antes de tomar cualquier decisión.
 ```
 
-### 5. Agregar Import de Textarea
+### Cierre
+```
+¿Tienes preguntas? Responde a este correo 
+o escríbenos por WhatsApp.
 
-```typescript
-import { Textarea } from "@/components/ui/textarea";
+¡Nos vemos en la cancha! 🦁
+El equipo de White Lions Academy
 ```
 
 ---
 
-## Archivos a Modificar
+## Cambios al Subject del Email
+
+**Antes:**
+```
+🦁 ¡Bienvenido al Reto White Lions! - {player_name}
+```
+
+**Después:**
+```
+🦁 ¡Tu clase muestra está confirmada! - {player_name}
+```
+
+---
+
+## Secciones a ELIMINAR
+
+| Sección | Razón |
+|---------|-------|
+| "🎁 Tu Kit de Inicio White Lions" | El kit solo se entrega si continúan con el Reto |
+| "💳 Siguiente paso: Completar el pago" | No hay pago online |
+| "Total: $700 MXN" | El pago es en campo |
+| "🛡️ Nuestra garantía: te devolvemos $400 MXN" | Solo aplica si compran el Reto |
+
+---
+
+## Archivo a Modificar
 
 | Archivo | Cambios |
 |---------|---------|
-| `src/components/ChallengeRegistrationModal.tsx` | Schema, campos de formulario, submit |
-
-## Migración SQL
-
-```sql
-ALTER TABLE trial_class_registrations ADD COLUMN school TEXT;
-```
+| `supabase/functions/send-confirmation/index.ts` | Reescribir el contenido HTML del email |
 
 ---
 
-## UX del Formulario Actualizado
+## Resultado Esperado
 
-**Step 1 - Datos del Jugador:**
-```
-┌────────────────────────────────────────┐
-│  ⚽ Fútbol                              │
-├────────────────────────────────────────┤
-│  Nombre del Jugador*                   │
-│  [___________________________]         │
-│                                        │
-│  Escuela (opcional)                    │
-│  [___________________________]         │
-│                                        │
-│  Año de Nacimiento*                    │
-│  [Selecciona el año ▼]                 │
-│                                        │
-│  Categoría*                            │
-│  [Selecciona categoría ▼]              │
-│                                        │
-│  [Continuar →]                         │
-└────────────────────────────────────────┘
-```
-
-**Step 3 - Datos de Contacto:**
-```
-┌────────────────────────────────────────┐
-│  Nombre del Padre/Tutor*               │
-│  [___________________________]         │
-│                                        │
-│  Correo Electrónico*                   │
-│  [___________________________]         │
-│                                        │
-│  Teléfono WhatsApp*                    │
-│  [___________________________]         │
-│                                        │
-│  ¿Algo que debamos saber? (opcional)   │
-│  ┌──────────────────────────────────┐  │
-│  │ Ej: Experiencia previa, lesiones,│  │
-│  │ necesidades especiales...        │  │
-│  └──────────────────────────────────┘  │
-│  Esta info nos ayuda a personalizar    │
-│  la experiencia de tu hijo.            │
-│                                        │
-│  [← Atrás]  [Confirmar clase muestra]  │
-└────────────────────────────────────────┘
-```
-
----
-
-## Notas Técnicas
-
-- Ambos campos son **opcionales** para no aumentar fricción
-- El campo `comments` ya existe en la tabla, solo lo estamos utilizando
-- El campo `school` requiere una migración SQL
-- Los datos de escuela y notas serán visibles en el panel admin para ayudar al equipo
+1. El padre recibe un email que confirma la **clase muestra gratuita**
+2. **Sin mencionar precios** ni pagos obligatorios
+3. Explica claramente que **el Reto es el siguiente paso opcional**
+4. Transmite tranquilidad y profesionalismo
+5. Alineado con el nuevo flujo de conversión
 
