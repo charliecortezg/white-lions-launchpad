@@ -56,6 +56,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Email del padre/tutor es requerido y debe ser válido");
     }
 
+    const mapLink = getLocationMapLink(data.location, data.sport);
+
     const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -69,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); padding: 40px 30px; text-align: center;">
       <h1 style="color: #f59e0b; margin: 0; font-size: 28px; font-weight: bold;">🦁 White Lions Academy</h1>
-      <p style="color: #94a3b8; margin: 12px 0 0; font-size: 16px;">¡Bienvenido al Reto White Lions!</p>
+      <p style="color: #94a3b8; margin: 12px 0 0; font-size: 16px;">¡Tu clase muestra está confirmada!</p>
     </div>
     
     <!-- Main Content -->
@@ -79,18 +81,17 @@ const handler = async (req: Request): Promise<Response> => {
         ¡Hola ${data.tutor_name}! 👋
       </h2>
       
-      <p style="color: #334155; line-height: 1.7; font-size: 16px; margin-bottom: 25px;">
-        <strong>Tomaste una gran decisión.</strong> ${data.player_name} ya es parte de la familia White Lions.
+      <p style="color: #334155; line-height: 1.7; font-size: 16px; margin-bottom: 15px;">
+        <strong>¡Excelente!</strong> ${data.player_name} tiene reservado su lugar para vivir la experiencia White Lions.
       </p>
       
       <p style="color: #334155; line-height: 1.7; font-size: 16px; margin-bottom: 30px;">
-        No es solo una inscripción. Es el inicio de 30 días de entrenamiento estructurado, 
-        disciplina y una experiencia deportiva que va a transformar a tu hijo.
+        Esta clase es <strong>gratuita y sin compromiso</strong>. Queremos que vivan la metodología antes de tomar cualquier decisión.
       </p>
 
       <!-- Registration Details Card -->
       <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); border-radius: 12px; padding: 25px; margin-bottom: 30px; border-left: 4px solid #f59e0b;">
-        <h3 style="color: #0F172A; margin: 0 0 20px; font-size: 18px;">📋 Detalles del Reto</h3>
+        <h3 style="color: #0F172A; margin: 0 0 20px; font-size: 18px;">📋 Detalles de tu Clase Muestra</h3>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 10px 0; color: #64748b; font-size: 14px;">🏅 Deporte:</td>
@@ -105,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
             <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.category}</td>
           </tr>
           <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📅 Fecha de inicio:</td>
+            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📅 Fecha:</td>
             <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.trial_date}</td>
           </tr>
           <tr>
@@ -119,34 +120,23 @@ const handler = async (req: Request): Promise<Response> => {
         </table>
       </div>
 
-      <!-- Kit Section -->
-      <div style="background: #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 18px;">🎁 Tu Kit de Inicio White Lions</h3>
-        <p style="color: #64748b; margin: 0 0 15px; font-size: 14px;">
-          Recibirás tu kit el primer día de entrenamiento:
-        </p>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-          <span style="background: white; padding: 8px 12px; border-radius: 8px; font-size: 13px;">👕 Camiseta oficial</span>
-          <span style="background: white; padding: 8px 12px; border-radius: 8px; font-size: 13px;">🧦 Calcetas</span>
-          <span style="background: white; padding: 8px 12px; border-radius: 8px; font-size: 13px;">🛡️ Espinilleras</span>
-          <span style="background: white; padding: 8px 12px; border-radius: 8px; font-size: 13px;">🥤 Termo</span>
-        </div>
-      </div>
-
-      <!-- Payment Section -->
-      <div style="background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); border-radius: 12px; padding: 25px; margin-bottom: 30px; text-align: center;">
-        <h3 style="color: #f59e0b; margin: 0 0 10px; font-size: 20px;">💳 Siguiente paso: Completar el pago</h3>
-        <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">
-          Total: <strong style="color: #f59e0b; font-size: 24px;">$700 MXN</strong>
-        </p>
-        <p style="color: #94a3b8; margin: 0; font-size: 14px;">
-          Te contactaremos por WhatsApp para coordinar el pago y la entrega de tu kit.
+      <!-- What to Bring Section -->
+      <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
+        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 16px;">📌 Para la clase muestra:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+          <li>Ropa deportiva cómoda</li>
+          <li>Tenis adecuados (de preferencia para pasto)</li>
+          <li>Agua o bebida hidratante</li>
+          <li>¡Muchas ganas de aprender!</li>
+        </ul>
+        <p style="margin: 15px 0 0; color: #64748b; font-size: 13px;">
+          Nosotros proporcionamos los balones y el espacio de entrenamiento.
         </p>
       </div>
 
-      ${getLocationMapLink(data.location, data.sport) ? `
+      ${mapLink ? `
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${getLocationMapLink(data.location, data.sport)}" 
+        <a href="${mapLink}" 
            target="_blank"
            style="display: inline-block; 
                   background-color: #f59e0b; 
@@ -161,21 +151,28 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
       ` : ''}
 
-      <!-- Reminder Box -->
-      <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
-        <p style="margin: 0; color: #0F172A; font-size: 14px; line-height: 1.6;">
-          <strong>📌 Para el primer día:</strong><br>
-          Trae ropa deportiva cómoda, tenis adecuados y agua. 
-          Nosotros te entregamos el kit y proporcionamos los balones.
+      <!-- What's Next Section -->
+      <div style="background: #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 18px;">🤔 ¿Qué sigue después de la clase?</h3>
+        <p style="color: #334155; margin: 0 0 15px; font-size: 14px; line-height: 1.6;">
+          Si después de vivir la experiencia decides continuar, podrás inscribir a ${data.player_name} en el <strong>Reto White Lions – 30 días</strong>, que incluye:
+        </p>
+        <ul style="margin: 0 0 15px; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
+          <li>✓ Kit de inicio White Lions</li>
+          <li>✓ 30 días de entrenamiento estructurado</li>
+          <li>✓ Evaluaciones mensuales</li>
+          <li>✓ Acceso a la app de rendimiento</li>
+          <li>✓ Garantía de satisfacción</li>
+        </ul>
+        <p style="color: #64748b; margin: 0; font-size: 13px; font-style: italic;">
+          El pago se realiza únicamente en campo. Sin presiones, la decisión final es tuya.
         </p>
       </div>
 
-      <!-- Guarantee -->
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-        <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.6;">
-          <strong style="color: #0F172A;">🛡️ Nuestra garantía:</strong> 
-          Si al finalizar los 30 días no ves la organización que prometemos, 
-          te devolvemos $400 MXN (tu inversión menos el kit).
+      <!-- Reminder Box -->
+      <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+        <p style="margin: 0; color: #0F172A; font-size: 14px; line-height: 1.6;">
+          <strong>💡 Recuerda:</strong> La clase muestra es gratuita y sin compromiso. Solo queremos que tu hijo viva la experiencia White Lions antes de tomar cualquier decisión.
         </p>
       </div>
 
@@ -212,7 +209,7 @@ const handler = async (req: Request): Promise<Response> => {
         to: [data.parent_email],
         bcc: ["whitelions.admn@gmail.com"],
         reply_to: "whitelions.admn@gmail.com",
-        subject: `🦁 ¡Bienvenido al Reto White Lions! - ${data.player_name}`,
+        subject: `🦁 ¡Tu clase muestra está confirmada! - ${data.player_name}`,
         html: htmlContent,
       }),
     });
