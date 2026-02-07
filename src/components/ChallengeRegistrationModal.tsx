@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -74,7 +74,15 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedData, setSubmittedData] = useState<FormData | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Scroll to top on step change
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -333,7 +341,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-[calc(100vw-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto overflow-x-hidden backdrop-blur-xl bg-background/95">
+      <DialogContent ref={contentRef} className="w-[calc(100vw-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto overflow-x-hidden backdrop-blur-xl bg-background/95">
         <button
           onClick={handleClose}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
@@ -736,63 +744,63 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
 
               {/* STEP 4: Agendar Clase Muestra */}
               <div className={cn(
-                "space-y-5 transition-all duration-300 ease-out",
+                "space-y-3 sm:space-y-5 transition-all duration-300 ease-out",
                 step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
               )}>
                 {/* Sección Informativa: ¿Qué sigue después de la clase? */}
-                <div className="bg-muted/30 border border-border/50 rounded-xl p-5">
-                  <p className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <div className="bg-muted/30 border border-border/50 rounded-xl p-3 sm:p-5">
+                  <p className="font-semibold text-foreground mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
                     📋 ¿Qué sigue después de la clase?
                   </p>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                     {isJuvenil 
                       ? "Después de la clase muestra, puedes inscribir a tu hijo directamente en White Lions."
                       : "Después de la clase muestra, puedes iniciar el Reto White Lions – 30 días, que incluye entrenamientos, kit de inicio y garantía de satisfacción."}
                   </p>
-                  <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
                     {!isJuvenil && (
                       <>
-                        <div className="flex items-center gap-2">
-                          <span className="text-primary">✓</span>
-                          <span>Kit de inicio White Lions</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-primary text-xs">✓</span>
+                          <span className="text-xs">Kit de inicio</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-primary">✓</span>
-                          <span>30 días de entrenamiento</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-primary text-xs">✓</span>
+                          <span className="text-xs">30 días de entrenamiento</span>
                         </div>
                       </>
                     )}
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary">✓</span>
-                      <span>Evaluaciones mensuales</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-primary text-xs">✓</span>
+                      <span className="text-xs">Evaluaciones mensuales</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary">✓</span>
-                      <span>Acceso a app de rendimiento</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-primary text-xs">✓</span>
+                      <span className="text-xs">App de rendimiento</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary">✓</span>
-                      <span>Plan de crecimiento personalizado</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-primary text-xs">✓</span>
+                      <span className="text-xs">Plan personalizado</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary">✓</span>
-                      <span>Garantía de satisfacción</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-primary text-xs">✓</span>
+                      <span className="text-xs">Garantía de satisfacción</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Nota de Confianza */}
-                <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                  <span className="text-xl">💡</span>
+                <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                  <span className="text-lg sm:text-xl">💡</span>
                   <div>
-                    <p className="font-semibold text-foreground text-sm mb-1">Importante</p>
-                    <p className="text-xs text-muted-foreground break-words">
+                    <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
                       La clase muestra es gratuita y sin compromiso. El pago {isJuvenil ? "de la inscripción" : "del Reto White Lions"} se realiza en campo únicamente si decides continuar después de la experiencia.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-1 sm:pt-2">
                   <Button 
                     type="button" 
                     onClick={prevStep} 
@@ -818,7 +826,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     )}
                   </Button>
                 </div>
-                <p className="text-center text-xs text-muted-foreground break-words">
+                <p className="text-center text-[11px] sm:text-xs text-muted-foreground break-words">
                   Clase gratuita · Sin compromiso · Cupos limitados
                 </p>
               </div>
