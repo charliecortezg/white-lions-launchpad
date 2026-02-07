@@ -1,120 +1,57 @@
 
 
-# Plan: Actualizar Email de Confirmación para Clase Muestra Gratuita
+# Plan: Scroll al Top y Optimización del Step 4 en Móvil
 
-## Problema Actual
+## Problema
 
-El email `send-confirmation` tiene contenido de la versión anterior donde el flujo era "pago del Reto online". Con los cambios de hoy, el flujo es:
-
-1. El padre agenda una **clase muestra gratuita**
-2. La clase es **sin compromiso**
-3. El pago del Reto solo ocurre **en campo** si decide continuar
-
-El email actual menciona kit, pagos y garantías, lo cual genera confusión.
+Cuando el usuario avanza al Step 4 (último paso), el modal queda scrolleado hasta abajo, mostrando los botones y la nota de confianza pero ocultando el título del paso. Esto pasa porque el contenido del step anterior era largo y el scroll position se mantiene.
 
 ---
 
-## Nuevo Contenido del Email
+## Solución en 2 Partes
 
-### Header
-- **Título:** "🦁 White Lions Academy"
-- **Subtítulo:** "¡Tu clase muestra está confirmada!"
+### Parte 1: Scroll automático al top en cada cambio de paso
 
-### Saludo
-```
-¡Hola {tutor_name}! 👋
+Agregar un `useEffect` que detecte cambios en `step` y haga scroll al inicio del contenido del modal. Se usará un `ref` en el `DialogContent` para llamar `scrollTo(0, 0)` cada vez que cambie el paso.
 
-¡Excelente! {player_name} tiene reservado su lugar 
-para vivir la experiencia White Lions.
+**Archivo:** `src/components/ChallengeRegistrationModal.tsx`
 
-Esta clase es gratuita y sin compromiso. 
-Queremos que vivan la metodología antes de tomar cualquier decisión.
-```
+```typescript
+// Agregar ref
+const contentRef = useRef<HTMLDivElement>(null);
 
-### Detalles de la Clase Muestra
-```
-📋 Detalles de tu Clase Muestra
-
-🏅 Deporte: {sport}
-👤 Jugador: {player_name}
-👥 Categoría: {category}
-📅 Fecha: {trial_date}
-📍 Sede: {location}
-🕐 Horario: {schedule}
+// useEffect para scroll al top
+useEffect(() => {
+  if (contentRef.current) {
+    contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}, [step]);
 ```
 
-### Qué Traer
-```
-📌 Para la clase muestra:
-
-• Ropa deportiva cómoda
-• Tenis adecuados (de preferencia para pasto)
-• Agua o bebida hidratante
-• ¡Muchas ganas de aprender!
-
-Nosotros proporcionamos los balones y el espacio de entrenamiento.
+Y aplicar el ref al `DialogContent`:
+```typescript
+<DialogContent ref={contentRef} className="...">
 ```
 
-### Sección "¿Qué sigue después?"
+### Parte 2: Hacer Step 4 más compacto en móvil
+
+Reducir el padding y espaciado del Step 4 para que quepa mejor en pantallas pequeñas:
+
+1. **Lista de beneficios:** Reducir a un grid de 2 columnas en móvil para ocupar menos espacio vertical
+2. **Padding interno:** Reducir `p-5` a `p-3 sm:p-5` en las secciones
+3. **Espaciado vertical:** Cambiar `space-y-5` a `space-y-3 sm:space-y-5` en el contenedor del step
+4. **Nota "Importante":** Hacer más compacta en móvil con padding reducido
+
+Ejemplo de la lista de beneficios en grid:
+```typescript
+<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
+  <div className="flex items-center gap-1.5">
+    <span className="text-primary text-xs">✓</span>
+    <span className="text-xs">Kit de inicio</span>
+  </div>
+  // ... más items
+</div>
 ```
-🤔 ¿Qué sigue después de la clase?
-
-Si después de vivir la experiencia decides continuar, 
-podrás inscribir a {player_name} en el Reto White Lions – 30 días, 
-que incluye:
-
-✓ Kit de inicio White Lions
-✓ 30 días de entrenamiento estructurado
-✓ Evaluaciones mensuales
-✓ Acceso a la app de rendimiento
-✓ Garantía de satisfacción
-
-El pago se realiza únicamente en campo. 
-Sin presiones, la decisión final es tuya.
-```
-
-### Nota de Tranquilidad
-```
-💡 Recuerda
-
-La clase muestra es gratuita y sin compromiso.
-Solo queremos que tu hijo viva la experiencia White Lions 
-antes de tomar cualquier decisión.
-```
-
-### Cierre
-```
-¿Tienes preguntas? Responde a este correo 
-o escríbenos por WhatsApp.
-
-¡Nos vemos en la cancha! 🦁
-El equipo de White Lions Academy
-```
-
----
-
-## Cambios al Subject del Email
-
-**Antes:**
-```
-🦁 ¡Bienvenido al Reto White Lions! - {player_name}
-```
-
-**Después:**
-```
-🦁 ¡Tu clase muestra está confirmada! - {player_name}
-```
-
----
-
-## Secciones a ELIMINAR
-
-| Sección | Razón |
-|---------|-------|
-| "🎁 Tu Kit de Inicio White Lions" | El kit solo se entrega si continúan con el Reto |
-| "💳 Siguiente paso: Completar el pago" | No hay pago online |
-| "Total: $700 MXN" | El pago es en campo |
-| "🛡️ Nuestra garantía: te devolvemos $400 MXN" | Solo aplica si compran el Reto |
 
 ---
 
@@ -122,15 +59,13 @@ El equipo de White Lions Academy
 
 | Archivo | Cambios |
 |---------|---------|
-| `supabase/functions/send-confirmation/index.ts` | Reescribir el contenido HTML del email |
+| `src/components/ChallengeRegistrationModal.tsx` | Agregar ref + useEffect para scroll-to-top, compactar layout del Step 4 |
 
 ---
 
 ## Resultado Esperado
 
-1. El padre recibe un email que confirma la **clase muestra gratuita**
-2. **Sin mencionar precios** ni pagos obligatorios
-3. Explica claramente que **el Reto es el siguiente paso opcional**
-4. Transmite tranquilidad y profesionalismo
-5. Alineado con el nuevo flujo de conversión
+1. Al avanzar a cualquier paso, el modal se scrollea automáticamente al inicio
+2. El Step 4 cabe completo (o casi) en pantallas de 360-414px sin necesidad de scroll
+3. La experiencia de llenado es fluida y el usuario siempre ve el título del paso actual
 
