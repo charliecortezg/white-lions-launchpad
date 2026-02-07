@@ -57,7 +57,7 @@ const FooterNew = () => {
             <h4 className="font-bold mb-4 font-display uppercase text-lg">Síguenos</h4>
             <div className="flex gap-4">
               <a 
-                href="https://facebook.com/whitelionsacademy" 
+                href="https://www.facebook.com/share/1RfV3uK5BU/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
@@ -68,7 +68,7 @@ const FooterNew = () => {
                 </svg>
               </a>
               <a 
-                href="https://instagram.com/whitelionsacademy" 
+                href="https://www.instagram.com/whitelions.fc" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
