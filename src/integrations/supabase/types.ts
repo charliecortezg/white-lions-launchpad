@@ -460,6 +460,57 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_registrations: {
+        Row: {
+          batch: string
+          category: string
+          child_age: number | null
+          child_birth_year: number | null
+          child_name: string
+          created_at: string
+          id: string
+          notes: string | null
+          parent_email: string | null
+          parent_name: string
+          parent_whatsapp: string
+          school: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          batch?: string
+          category?: string
+          child_age?: number | null
+          child_birth_year?: number | null
+          child_name: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_email?: string | null
+          parent_name: string
+          parent_whatsapp: string
+          school?: string | null
+          source?: string
+          status?: string
+        }
+        Update: {
+          batch?: string
+          category?: string
+          child_age?: number | null
+          child_birth_year?: number | null
+          child_name?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_email?: string | null
+          parent_name?: string
+          parent_whatsapp?: string
+          school?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -471,6 +522,22 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      insert_waitlist_registration: {
+        Args: {
+          p_batch?: string
+          p_category?: string
+          p_child_age?: number
+          p_child_birth_year?: number
+          p_child_name: string
+          p_notes?: string
+          p_parent_email?: string
+          p_parent_name?: string
+          p_parent_whatsapp?: string
+          p_school?: string
+          p_source?: string
+        }
+        Returns: Json
       }
     }
     Enums: {
