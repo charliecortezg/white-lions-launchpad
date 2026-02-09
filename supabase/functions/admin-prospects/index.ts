@@ -36,8 +36,23 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const now = new Date();
 
-    // GET - Fetch all prospects
+    // GET - Fetch all prospects (or waitlist)
     if (req.method === "GET") {
+      const type = req.headers.get("x-type");
+
+      if (type === "waitlist") {
+        const { data, error } = await supabase
+          .from("waitlist_registrations")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        return new Response(JSON.stringify({ data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { data, error } = await supabase
         .from("trial_class_registrations")
         .select("*")

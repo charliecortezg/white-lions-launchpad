@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Prospect = Tables<"trial_class_registrations">;
+type WaitlistRegistration = Tables<"waitlist_registrations">;
 
 const AdminPanel = () => {
   const { toast } = useToast();
@@ -56,6 +57,19 @@ const AdminPanel = () => {
       });
       if (error) throw error;
       return data.data as Prospect[];
+    },
+  });
+
+  // Fetch waitlist registrations
+  const { data: waitlistRegistrations = [] } = useQuery({
+    queryKey: ["admin-waitlist"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("admin-prospects", {
+        method: "GET",
+        headers: { "x-type": "waitlist" },
+      });
+      if (error) throw error;
+      return data.data as WaitlistRegistration[];
     },
   });
 
@@ -455,6 +469,7 @@ const AdminPanel = () => {
           isOpen={calendarModalOpen}
           onClose={() => setCalendarModalOpen(false)}
           prospects={filteredProspects}
+          waitlistRegistrations={waitlistRegistrations}
           onStatusChange={handleStatusChange}
           onViewDetails={handleViewDetails}
         />

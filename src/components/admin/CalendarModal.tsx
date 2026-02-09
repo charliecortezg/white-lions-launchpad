@@ -15,11 +15,13 @@ import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Prospect = Tables<"trial_class_registrations">;
+type WaitlistRegistration = Tables<"waitlist_registrations">;
 
 interface CalendarModalProps {
   isOpen: boolean;
   onClose: () => void;
   prospects: Prospect[];
+  waitlistRegistrations?: WaitlistRegistration[];
   onStatusChange: (id: string, status: string) => void;
   onViewDetails: (prospect: Prospect) => void;
 }
@@ -60,17 +62,22 @@ const statusConfig: Record<string, { color: string; bgColor: string; label: stri
   "No Asistió": { color: "bg-red-500", bgColor: "bg-red-500/10 text-red-400 border-red-500/30", label: "No Asistió" },
   Reprogramado: { color: "bg-yellow-500", bgColor: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30", label: "Reprogramado" },
   Inscrito: { color: "bg-primary", bgColor: "bg-primary/10 text-primary border-primary/30", label: "Inscrito" },
+  Waitlist: { color: "bg-purple-500", bgColor: "bg-purple-500/10 text-purple-400 border-purple-500/30", label: "Lista de espera" },
 };
 
 export const CalendarModal = ({
   isOpen,
   onClose,
   prospects,
+  waitlistRegistrations = [],
   onStatusChange,
   onViewDetails,
 }: CalendarModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+
+  // Biberon date: March 2, 2026
+  const BIBERON_DATE_KEY = "2026-03-02";
 
   // Group prospects by date
   const prospectsByDate = useMemo(() => {
@@ -88,12 +95,28 @@ export const CalendarModal = ({
     return map;
   }, [prospects]);
 
+  // Group waitlist by date (all go to March 2)
+  const waitlistByDate = useMemo(() => {
+    const map = new Map<string, WaitlistRegistration[]>();
+    if (waitlistRegistrations.length > 0) {
+      map.set(BIBERON_DATE_KEY, waitlistRegistrations);
+    }
+    return map;
+  }, [waitlistRegistrations]);
+
   // Get prospects for selected date
   const selectedDateProspects = useMemo(() => {
     if (!selectedDate) return [];
     const key = format(selectedDate, "yyyy-MM-dd");
     return prospectsByDate.get(key) || [];
   }, [selectedDate, prospectsByDate]);
+
+  // Get waitlist for selected date
+  const selectedDateWaitlist = useMemo(() => {
+    if (!selectedDate) return [];
+    const key = format(selectedDate, "yyyy-MM-dd");
+    return waitlistByDate.get(key) || [];
+  }, [selectedDate, waitlistByDate]);
 
   // Calculate monthly stats
   const monthlyStats = useMemo(() => {
@@ -142,13 +165,18 @@ export const CalendarModal = ({
   const getStatusesForDate = (date: Date): string[] => {
     const key = format(date, "yyyy-MM-dd");
     const dayProspects = prospectsByDate.get(key) || [];
-    return [...new Set(dayProspects.map((p) => p.status))];
+    const statuses = [...new Set(dayProspects.map((p) => p.status))];
+    // Add waitlist indicator
+    if (waitlistByDate.has(key)) {
+      statuses.push("Waitlist");
+    }
+    return statuses;
   };
 
   // Check if date has events
   const hasEvents = (date: Date): boolean => {
     const key = format(date, "yyyy-MM-dd");
-    return prospectsByDate.has(key);
+    return prospectsByDate.has(key) || waitlistByDate.has(key);
   };
 
   const handleWhatsApp = (phone: string) => {
@@ -262,6 +290,10 @@ export const CalendarModal = ({
             <div className="w-2 h-2 rounded-full bg-primary" />
             <span>Inscrito</span>
           </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <span>Biberón (Lista espera)</span>
+          </div>
         </div>
 
         {/* Selected Date Prospects */}
@@ -269,19 +301,20 @@ export const CalendarModal = ({
           <div className="mt-4 space-y-3">
             <h3 className="font-semibold text-foreground flex items-center gap-2">
               📅 {format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
-              {selectedDateProspects.length > 0 && (
+              {(selectedDateProspects.length > 0 || selectedDateWaitlist.length > 0) && (
                 <Badge variant="secondary" className="text-xs">
-                  {selectedDateProspects.length} clase{selectedDateProspects.length !== 1 ? "s" : ""}
+                  {selectedDateProspects.length + selectedDateWaitlist.length} registro{(selectedDateProspects.length + selectedDateWaitlist.length) !== 1 ? "s" : ""}
                 </Badge>
               )}
             </h3>
 
-            {selectedDateProspects.length === 0 ? (
+            {selectedDateProspects.length === 0 && selectedDateWaitlist.length === 0 ? (
               <p className="text-muted-foreground text-sm py-4 text-center">
                 No hay clases muestra programadas para este día.
               </p>
             ) : (
               <div className="space-y-2">
+                {/* Regular prospects */}
                 {selectedDateProspects.map((prospect) => (
                   <div
                     key={prospect.id}
@@ -348,6 +381,51 @@ export const CalendarModal = ({
                           <User className="h-4 w-4" />
                         </Button>
                       </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Waitlist (Biberón) entries */}
+                {selectedDateWaitlist.map((entry) => (
+                  <div
+                    key={`waitlist-${entry.id}`}
+                    className="flex items-center justify-between bg-card border border-purple-500/30 rounded-lg p-3 hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="text-lg">🍼</span>
+                      <div className="min-w-0">
+                        <span className="font-medium text-foreground truncate block text-left">
+                          {entry.child_name}
+                        </span>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Biberón • Tutor: {entry.parent_name}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={cn("text-xs", entry.status === "accepted"
+                          ? "bg-green-500/10 text-green-400 border-green-500/30"
+                          : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30"
+                        )}
+                      >
+                        {entry.status === "accepted" ? "Aceptado" : "En espera"}
+                      </Badge>
+
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10"
+                        onClick={() => {
+                          const cleanPhone = entry.parent_whatsapp.replace(/\D/g, "");
+                          window.open(`https://wa.me/${cleanPhone}`, "_blank");
+                        }}
+                        title="Contactar por WhatsApp"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
