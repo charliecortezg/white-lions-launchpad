@@ -670,14 +670,18 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                       <div className="pt-3 border-t border-border/50">
                         <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                           <Gift className="w-4 h-4 text-primary" />
-                          Tu Kit de Inicio incluye:
+                          Durante el Reto White Lions tu hijo vivirá:
                         </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                          <span>👕 Camiseta oficial</span>
-                          <span>🧦 Calcetas deportivas</span>
-                          <span>🛡️ Espinilleras</span>
-                          <span>🥤 Termo White Lions</span>
-                        </div>
+                        <ul className="space-y-1.5 text-sm text-muted-foreground">
+                          <li className="flex items-start gap-1.5"><span className="text-primary text-xs mt-0.5">✓</span> Entrenamientos dos veces por semana</li>
+                          <li className="flex items-start gap-1.5"><span className="text-primary text-xs mt-0.5">✓</span> Adaptación progresiva al sistema White Lions</li>
+                          <li className="flex items-start gap-1.5"><span className="text-primary text-xs mt-0.5">✓</span> Desarrollo de hábitos deportivos</li>
+                          <li className="flex items-start gap-1.5"><span className="text-primary text-xs mt-0.5">✓</span> Integración al grupo y entrenadores</li>
+                          <li className="flex items-start gap-1.5"><span className="text-primary text-xs mt-0.5">✓</span> Evaluación real de si este sistema es para tu familia</li>
+                        </ul>
+                        <p className="text-[11px] text-muted-foreground/70 mt-2 italic">
+                          Los partidos oficiales y el kit White Lions se habilitan únicamente al finalizar el Reto y completar la inscripción.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -984,37 +988,33 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                   {/* Sección Informativa */}
                   <div className="bg-muted/30 border border-border/50 rounded-xl p-3 sm:p-5">
                     <p className="font-semibold text-foreground mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
-                      📋 ¿Qué sigue después de la clase?
+                      📋 ¿Qué sigue después de la clase muestra?
                     </p>
                     <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                       {isJuvenil
                         ? "Después de la clase muestra, puedes inscribir a tu hijo directamente en White Lions."
-                        : "Después de la clase muestra, puedes iniciar el Reto White Lions – 30 días, que incluye entrenamientos, kit de inicio y garantía de satisfacción."}
+                        : "Después de la clase muestra, puedes iniciar el Reto White Lions – 30 días, una experiencia de integración diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro."}
                     </p>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       {!isJuvenil && (
                         <>
                           <div className="flex items-center gap-1.5">
                             <span className="text-primary text-xs">✓</span>
-                            <span className="text-xs">Kit de inicio</span>
+                            <span className="text-xs">30 días de entrenamiento</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="text-primary text-xs">✓</span>
-                            <span className="text-xs">30 días de entrenamiento</span>
+                            <span className="text-xs">Metodología europea</span>
                           </div>
                         </>
                       )}
                       <div className="flex items-center gap-1.5">
                         <span className="text-primary text-xs">✓</span>
-                        <span className="text-xs">Evaluaciones mensuales</span>
+                        <span className="text-xs">Seguimiento formativo</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-primary text-xs">✓</span>
-                        <span className="text-xs">App de rendimiento</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-primary text-xs">✓</span>
-                        <span className="text-xs">Plan personalizado</span>
+                        <span className="text-xs">Ambiente sano y comunidad real</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-primary text-xs">✓</span>
@@ -1029,7 +1029,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        La clase muestra es gratuita y sin compromiso. El pago {isJuvenil ? "de la inscripción" : "del Reto White Lions"} se realiza en campo únicamente si decides continuar después de la experiencia.
+                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo accesible de $500 MXN y se paga en campo únicamente si decides continuar después de la experiencia inicial.
                       </p>
                     </div>
                   </div>

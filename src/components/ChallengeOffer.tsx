@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Gift, Shield, Star } from "lucide-react";
+import { Check, Shield, Star } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import ChallengeRegistrationModal from "./ChallengeRegistrationModal";
 
@@ -14,11 +14,12 @@ const ChallengeOffer = () => {
     "Comienza un proceso de seguimiento deportivo",
   ];
 
-  const challengeIncludes = [
-    { icon: "⚽", name: "Entrenamientos" },
-    { icon: "👕", name: "Kit de inicio White Lions" },
-    { icon: "🤝", name: "Acompañamiento inicial" },
-    { icon: "✓", name: "Garantía de satisfacción" },
+  const challengeExperience = [
+    "Entrenamientos dos veces por semana",
+    "Adaptación progresiva al sistema White Lions",
+    "Desarrollo de hábitos deportivos",
+    "Integración al grupo y entrenadores",
+    "Evaluación real de si este sistema es para tu familia",
   ];
 
   return (
@@ -51,7 +52,7 @@ const ChallengeOffer = () => {
               {/* Price Header */}
               <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6 md:p-8 text-center border-b border-border">
                 <div className="flex items-center justify-center gap-4 flex-wrap">
-                  <span className="text-5xl md:text-6xl font-bold text-primary font-display">$1,100</span>
+                  <span className="text-5xl md:text-6xl font-bold text-primary font-display">$500</span>
                   <div className="text-left">
                     <span className="text-lg text-muted-foreground font-body">MXN</span>
                     <p className="text-sm text-muted-foreground font-body">Pago único</p>
@@ -61,9 +62,8 @@ const ChallengeOffer = () => {
 
               <div className="p-6 md:p-8">
                 <p className="text-center text-muted-foreground font-body mb-8 max-w-2xl mx-auto">
-                  El Reto White Lions es la forma más segura y recomendada de iniciar.
-                  <br className="hidden md:block" />
-                  Durante 30 días tu hijo:
+                  El Reto White Lions es una experiencia de integración de 30 días. Tu hijo conocerá nuestra metodología, 
+                  se adaptará al grupo y vivirá el sistema White Lions desde dentro.
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-8">
@@ -83,23 +83,23 @@ const ChallengeOffer = () => {
                     </ul>
                   </div>
 
-                  {/* What's Included */}
+                  {/* Experience */}
                   <div>
                     <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2 font-display uppercase">
-                      <Gift className="w-5 h-5 text-primary" />
-                      Incluye
+                      <Star className="w-5 h-5 text-primary" />
+                      Durante el Reto tu hijo vivirá
                     </h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      {challengeIncludes.map((item, index) => (
-                        <div 
-                          key={index} 
-                          className="bg-card/50 border border-border/50 rounded-lg p-3 text-center"
-                        >
-                          <span className="text-2xl block mb-1">{item.icon}</span>
-                          <span className="text-xs text-muted-foreground font-body">{item.name}</span>
-                        </div>
+                    <ul className="space-y-3">
+                      {challengeExperience.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <Check className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                          <span className="text-muted-foreground font-body text-sm">{item}</span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
+                    <p className="text-xs text-muted-foreground/70 mt-4 font-body italic">
+                      Los partidos oficiales y el kit White Lions se habilitan al finalizar el Reto y completar la inscripción.
+                    </p>
                   </div>
                 </div>
 
@@ -113,7 +113,7 @@ const ChallengeOffer = () => {
                       </h4>
                       <p className="text-sm text-muted-foreground font-body">
                         Si después de 30 días tu hijo no se divierte más, no se mueve más 
-                        y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el kit).
+                        y no se adapta al entorno White Lions, te devolvemos tu dinero. Sin preguntas.
                       </p>
                     </div>
                   </div>
@@ -127,7 +127,7 @@ const ChallengeOffer = () => {
                     className="w-full md:w-auto px-12"
                     onClick={() => setIsModalOpen(true)}
                   >
-                    🦁 Iniciar el Reto White Lions
+                    👉 Agendar clase muestra gratuita
                   </Button>
                 </div>
               </div>
