@@ -372,6 +372,8 @@ export type Database = {
           preferred_schedule: string
           reactivation_paused_until: string | null
           reactivation_status: string
+          referral_name: string | null
+          referral_source: string | null
           school: string | null
           status: string
           status_updated_at: string
@@ -401,6 +403,8 @@ export type Database = {
           preferred_schedule: string
           reactivation_paused_until?: string | null
           reactivation_status?: string
+          referral_name?: string | null
+          referral_source?: string | null
           school?: string | null
           status?: string
           status_updated_at?: string
@@ -430,6 +434,8 @@ export type Database = {
           preferred_schedule?: string
           reactivation_paused_until?: string | null
           reactivation_status?: string
+          referral_name?: string | null
+          referral_source?: string | null
           school?: string | null
           status?: string
           status_updated_at?: string

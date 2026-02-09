@@ -31,6 +31,7 @@ const formSchema = z.object({
   category: z.string().min(1, "Selecciona una categoría"),
   start_date: z.date().optional(),
   notes: z.string().optional(),
+  referral_name: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -38,6 +39,7 @@ type FormData = z.infer<typeof formSchema>;
 interface ChallengeRegistrationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  referralSource?: string;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -106,7 +108,7 @@ const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
 
 // ─── Component ──────────────────────────────────────────────────────
 
-const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistrationModalProps) => {
+const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: ChallengeRegistrationModalProps) => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -234,6 +236,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
     try {
       const birthYear = parseInt(data.birth_year);
 
+      const notesWithReferral = referralSource && data.referral_name
+        ? `[Referido por: ${data.referral_name}] ${data.notes || ''}`
+        : data.notes || null;
+
       const { data: result, error } = await supabase.rpc('insert_waitlist_registration', {
         p_child_name: data.player_name,
         p_child_birth_year: birthYear,
@@ -242,10 +248,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
         p_parent_whatsapp: data.contact_phone,
         p_parent_email: data.tutor_email,
         p_school: data.school || null,
-        p_notes: data.notes || null,
+        p_notes: notesWithReferral,
         p_category: 'biberon',
         p_batch: 'Biberon_Mar_2026_Batch1',
-        p_source: 'web_form',
+        p_source: referralSource || 'web_form',
       });
 
       if (error) throw error;
@@ -357,6 +363,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
             attendance_marked_at: null,
             no_show_processed_at: null,
             status_updated_at: new Date().toISOString(),
+            ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
           })
           .eq("id", existingProspect.id);
 
@@ -381,6 +388,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
             preferred_schedule: `${formattedDate} - ${schedule}`,
             school: data.school || null,
             comments: data.notes || null,
+            ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
           }]);
 
         if (insertError) throw insertError;
@@ -835,6 +843,29 @@ const ChallengeRegistrationModal = ({ open, onOpenChange }: ChallengeRegistratio
                     </FormItem>
                   )}
                 />
+
+                {referralSource && (
+                  <FormField
+                    control={form.control}
+                    name="referral_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          ¿Quién te invitó a White Lions?
+                          <span className="text-muted-foreground font-normal ml-1">(opcional)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Nombre del jugador o padre de familia"
+                            className="h-12"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
