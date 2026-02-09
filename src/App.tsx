@@ -9,6 +9,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Reprogramar from "./pages/Reprogramar";
 import ReprogramarConfirm from "./pages/ReprogramarConfirm";
 import PausarReactivacion from "./pages/PausarReactivacion";
+import WLFriend from "./pages/WLFriend";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/wl-friend" element={<WLFriend />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
           <Route path="/reprogramar" element={<Reprogramar />} />
           <Route path="/reprogramar/confirm" element={<ReprogramarConfirm />} />
