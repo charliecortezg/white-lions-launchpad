@@ -47,18 +47,26 @@ const JoinFamilyModal = ({ open, onOpenChange }: JoinFamilyModalProps) => {
             
             <div className="space-y-3 bg-muted/30 rounded-2xl p-6">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Inscripción</span>
-                <span className="font-bold text-navy">$300 MXN</span>
+                <span className="text-muted-foreground">Reto White Lions (30 días)</span>
+                <span className="font-bold text-navy">$500 MXN</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Incluye inscripción a torneos del curso actual + derecho a entrenamientos + derecho a certificaciones internas White Lions
+                Experiencia de integración de 30 días. Se paga en campo al iniciar el Reto.
               </p>
+              <div className="border-t border-border pt-3 mt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Inscripción formal (post-Reto)</span>
+                  <span className="font-bold text-navy">$300 MXN</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Incluye kit White Lions, acceso a partidos oficiales y certificaciones internas.
+                </p>
+              </div>
               <div className="border-t border-border pt-3 mt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Mensualidad Fútbol</span>
                   <span className="font-bold text-navy">$500 MXN</span>
                 </div>
-                {/* Basketball pausado temporalmente */}
               </div>
             </div>
           </div>

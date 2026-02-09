@@ -9,24 +9,24 @@ import AnimatedSection from "./AnimatedSection";
 const FAQNew = () => {
   const faqs = [
     {
-      question: "¿Qué es el Reto White Lions de 30 Días?",
-      answer: "Es tu primer mes completo como parte de la familia White Lions. No es una prueba ni una clase muestra. Son 30 días de entrenamiento estructurado con todas las herramientas que necesitas: kit de inicio incluido, integración completa al grupo y seguimiento desde el día 1. El costo es de $1,100 MXN (pago único).",
+      question: "¿Cómo funciona la clase muestra?",
+      answer: "La clase muestra es gratuita y sin compromiso. Tu hijo participa en una sesión real con el grupo, conoce a los entrenadores y vive la metodología White Lions. Tú puedes observar desde la cancha. No necesitas pagar nada ni comprometerte a continuar.",
     },
     {
-      question: "¿Qué incluye el Kit de Inicio?",
-      answer: "El kit incluye: Camiseta oficial White Lions, calcetas deportivas, espinilleras de entrenamiento y un termo White Lions. Es tuyo desde el momento en que te inscribes al Reto.",
+      question: "¿Qué es el Reto White Lions de 30 Días?",
+      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. El costo es de $500 MXN (pago único en campo). Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
+    },
+    {
+      question: "¿Qué incluye el Reto?",
+      answer: "El Reto incluye: entrenamientos dos veces por semana, adaptación progresiva al sistema White Lions, desarrollo de hábitos deportivos, integración al grupo y entrenadores, y una evaluación real de si este sistema es para tu familia. Los partidos oficiales y el kit White Lions se habilitan al finalizar el Reto y completar la inscripción.",
     },
     {
       question: "¿Cómo funciona la garantía?",
-      answer: "Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero (menos el valor del kit que ya te entregamos). Sin preguntas, sin complicaciones. Así de seguros estamos de lo que ofrecemos.",
+      answer: "Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero. Sin preguntas, sin complicaciones. Así de seguros estamos de lo que ofrecemos.",
     },
     {
       question: "¿Cuánto cuesta continuar después del Reto?",
-      answer: "La mensualidad regular después del Reto es de $500 MXN. No hay reinscripción anual ni costos ocultos. Si decides continuar, simplemente pagas la mensualidad y sigues entrenando. También ofrecemos evaluaciones mensuales y acceso a la plataforma STRYK para seguimiento del progreso.",
-    },
-    {
-      question: "¿Hay otra forma de inscribirse sin el Reto?",
-      answer: "Sí, ofrecemos la Inscripción Estándar por $950 MXN que incluye registro + primer mes. Sin embargo, esta opción no incluye kit ni garantía, y está pensada solo para familias que ya conocen el sistema White Lions. Para la mayoría, el Reto es la mejor manera de empezar.",
+      answer: "La mensualidad regular después del Reto es de $500 MXN. Al inscribirte formalmente obtienes acceso a partidos oficiales, el kit White Lions, evaluaciones mensuales y acceso a la plataforma STRYK para seguimiento del progreso. No hay costos ocultos.",
     },
     {
       question: "¿Mi hijo puede entrar sin experiencia?",
@@ -34,15 +34,11 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué debe llevar mi hijo al primer día?",
-      answer: "Ropa deportiva cómoda, tacos de fútbol, agua y muchas ganas. Nosotros te entregaremos el kit de inicio y proporcionamos los balones de entrenamiento.",
+      answer: "Ropa deportiva cómoda, tacos de fútbol, agua y muchas ganas. Nosotros proporcionamos los balones de entrenamiento.",
     },
     {
       question: "¿Las academias son mixtas?",
       answer: "Sí, nuestras categorías son mixtas. Creemos en la inclusión y en que niños y niñas pueden desarrollarse juntos en un ambiente de respeto y sana competencia.",
-    },
-    {
-      question: "¿Por qué no ofrecen una clase muestra gratis?",
-      answer: "Porque creemos que el deporte no se prueba, se vive. Una sola sesión no te permite ver el verdadero impacto de nuestro sistema. Con el Reto de 30 días, tu hijo experimenta la metodología completa, crea hábitos reales y tú puedes evaluar con certeza si White Lions es lo que buscas. Y si no, tienes nuestra garantía.",
     },
   ];
 

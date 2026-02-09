@@ -65,8 +65,8 @@ const CTASection = () => {
 
                   <AnimatedSection animation="blur" delay={300}>
                     <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-                      Inscríbete al Reto White Lions de 30 días y descubre por qué somos la academia deportiva 
-                      preferida de Mexicali. Kit de inicio incluido + garantía de satisfacción.
+                      Agenda tu clase muestra gratuita y descubre por qué somos la academia deportiva 
+                      preferida de Mexicali. Reto de 30 días con garantía de satisfacción.
                     </p>
                   </AnimatedSection>
 
@@ -79,7 +79,7 @@ const CTASection = () => {
                         onClick={() => setIsTrialModalOpen(true)}
                       >
                         <CalendarCheck className="w-5 h-5" />
-                        🦁 Inscribirme al Reto
+                        👉 Agendar clase muestra gratuita
                         <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                       </Button>
                       
@@ -88,7 +88,7 @@ const CTASection = () => {
                         size="xl"
                         onClick={() => setIsJoinModalOpen(true)}
                       >
-                        Unirme a la Familia White Lions
+                        Conocer el Reto White Lions
                       </Button>
                     </div>
                   </AnimatedSection>
@@ -96,7 +96,7 @@ const CTASection = () => {
                   {/* Benefits */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
                     {[
-                      { icon: '🎁', title: 'Kit Incluido', desc: 'Camiseta, calcetas, espinilleras y termo' },
+                      { icon: '📅', title: 'Clase Gratuita', desc: 'Primer contacto sin compromiso' },
                       { icon: '🛡️', title: 'Garantía Real', desc: 'Devolución si no ves resultados' },
                       { icon: '📈', title: '30 Días Completos', desc: 'Experiencia deportiva real' }
                     ].map((benefit, index) => (

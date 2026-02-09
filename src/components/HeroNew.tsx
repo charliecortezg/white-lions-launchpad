@@ -71,11 +71,13 @@ const HeroNew = () => {
             style={{ animationDelay: '0.3s' }}
           >
             <div className="flex items-baseline gap-2">
-              <span className="text-sm text-muted-foreground font-body">Planes desde</span>
+              <span className="text-sm text-muted-foreground font-body">Reto White Lions desde</span>
               <span className="text-2xl md:text-3xl font-bold text-primary font-display">$500 MXN</span>
-              <span className="text-sm text-muted-foreground font-body">al mes</span>
             </div>
-            <span className="text-sm text-muted-foreground font-body">
+            <span className="text-xs text-muted-foreground/80 font-body">
+              Sin inscripción · Sin riesgo
+            </span>
+            <span className="text-sm text-muted-foreground font-body block mt-1">
               👉 La mayoría de las familias inicia con el Reto White Lions
             </span>
           </div>
@@ -91,7 +93,7 @@ const HeroNew = () => {
               className="text-base md:text-lg px-8 md:px-10 py-6 md:py-7 w-full sm:w-auto shadow-gold"
               onClick={() => setIsModalOpen(true)}
             >
-              🦁 Iniciar con el Reto White Lions
+              👉 Agendar clase muestra gratuita
             </Button>
           </div>
 
@@ -100,7 +102,7 @@ const HeroNew = () => {
             className="text-xs text-muted-foreground/70 font-body animate-fade-in-up"
             style={{ animationDelay: '0.4s' }}
           >
-            Empieza con 30 días. La decisión final es tuya.
+            Clase gratuita y sin compromiso. La decisión final es tuya.
           </p>
 
         </div>
