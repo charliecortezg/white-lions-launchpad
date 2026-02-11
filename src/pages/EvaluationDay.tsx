@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   MapPin, Clock, Users, CalendarCheck, ClipboardCheck, FileText,
-  ChevronRight, CheckCircle2, Star, Trophy, Shield, UserCheck
+  ChevronRight, CheckCircle2, Star, Trophy, Shield, UserCheck, ArrowLeft, ArrowRight
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,33 @@ interface PartnerSchool {
   school_name: string;
 }
 
+// ─── Cronograma ─────────────────────────────────────────────────────
+
+const CRONOGRAMA = [
+  { horario: "9:00 – 9:40", categoria: "Escuelita", nacimiento: "2018–2019" },
+  { horario: "9:40 – 10:00", categoria: "Estrellita", nacimiento: "2016–2017" },
+  { horario: "10:00 – 11:00", categoria: "Infantil", nacimiento: "2014–2015" },
+];
+
+const CronogramaTable = ({ className = "" }: { className?: string }) => (
+  <div className={`bg-card border border-border/50 rounded-xl overflow-hidden ${className}`}>
+    <div className="px-4 py-3 bg-primary/10 border-b border-border/50">
+      <h4 className="text-xs font-display font-bold text-primary uppercase tracking-wider">
+        📋 Cronograma por categoría
+      </h4>
+    </div>
+    <div className="divide-y divide-border/30">
+      {CRONOGRAMA.map((row, i) => (
+        <div key={i} className="grid grid-cols-3 gap-2 px-4 py-3 text-sm font-body">
+          <span className="text-primary font-semibold">{row.horario}</span>
+          <span className="text-foreground font-medium">{row.categoria}</span>
+          <span className="text-muted-foreground text-right">{row.nacimiento}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 // ─── Schema ─────────────────────────────────────────────────────────
 
 const registrationSchema = z.object({
@@ -47,6 +74,43 @@ const registrationSchema = z.object({
 });
 
 type RegistrationForm = z.infer<typeof registrationSchema>;
+
+// ─── Step indicator ─────────────────────────────────────────────────
+
+const STEP_LABELS = ["Jugador", "Tutor", "Confirmar"];
+
+const StepIndicator = ({ current }: { current: number }) => (
+  <div className="flex items-center justify-center gap-0 mb-6">
+    {STEP_LABELS.map((label, i) => {
+      const step = i + 1;
+      const isActive = step === current;
+      const isDone = step < current;
+      return (
+        <div key={i} className="flex items-center">
+          <div className="flex flex-col items-center gap-1">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                isDone
+                  ? "bg-green-500 text-white"
+                  : isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border/50 text-muted-foreground"
+              }`}
+            >
+              {isDone ? <CheckCircle2 className="w-4 h-4" /> : step}
+            </div>
+            <span className={`text-[10px] font-body ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+              {label}
+            </span>
+          </div>
+          {i < STEP_LABELS.length - 1 && (
+            <div className={`w-8 sm:w-12 h-0.5 mx-1 mb-4 transition-all ${isDone ? "bg-green-500" : "bg-border/50"}`} />
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -67,6 +131,7 @@ const EvaluationDay = () => {
   const [calculatedFee, setCalculatedFee] = useState(300);
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [formStep, setFormStep] = useState(1);
   const formRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -124,10 +189,28 @@ const EvaluationDay = () => {
 
   const handlePathSelect = (path: "active" | "external") => {
     setSelectedPath(path);
+    setFormStep(1);
     setTimeout(() => {
       const ref = path === "external" ? formRef : activeRef;
       ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
+  };
+
+  const handleNextStep = async () => {
+    if (formStep === 1) {
+      const valid = await form.trigger(["player_name", "player_dob", "school_name"]);
+      if (!valid) return;
+    } else if (formStep === 2) {
+      const valid = await form.trigger(["guardian_full_name", "guardian_phone", "guardian_email"]);
+      if (!valid) return;
+    }
+    setFormStep(prev => Math.min(prev + 1, 3));
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handlePrevStep = () => {
+    setFormStep(prev => Math.max(prev - 1, 1));
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const onSubmit = async (data: RegistrationForm) => {
@@ -252,6 +335,7 @@ const EvaluationDay = () => {
                   </div>
                 )}
               </div>
+              <CronogramaTable />
               <div className="bg-primary/10 rounded-xl p-4">
                 <p className="text-sm text-muted-foreground font-body">
                   📌 Recuerda llegar <strong className="text-foreground">10–15 minutos antes</strong>, con ropa deportiva, tenis y agua.
@@ -310,6 +394,9 @@ const EvaluationDay = () => {
                 <span>{event.location_name}</span>
               </div>
             </div>
+
+            {/* Cronograma in Hero */}
+            <CronogramaTable className="mt-6 max-w-md mx-auto" />
           </AnimatedSection>
         </div>
       </section>
@@ -388,6 +475,10 @@ const EvaluationDay = () => {
                   Como jugador activo de White Lions Academies, no necesitas registrarte.
                 </p>
               </div>
+
+              {/* Cronograma for active players */}
+              <CronogramaTable />
+
               <div className="bg-card border border-border/50 rounded-xl p-6 space-y-4">
                 <h4 className="font-display font-bold text-foreground text-sm uppercase">
                   📌 Instrucciones para el día del evento
@@ -442,7 +533,7 @@ const EvaluationDay = () => {
         </section>
       )}
 
-      {/* External Registration Form */}
+      {/* External Registration Form — 3 Steps */}
       {selectedPath === "external" && (
         <section ref={formRef} className="py-12 sm:py-16">
           <div className="container mx-auto px-4">
@@ -456,234 +547,317 @@ const EvaluationDay = () => {
                 </p>
               </div>
 
-              {/* Fee Banner */}
-              <div className={`rounded-xl p-4 text-center text-sm font-body ${
-                isPartner
-                  ? "bg-green-500/10 border border-green-500/30 text-green-400"
-                  : "bg-primary/10 border border-primary/20 text-primary"
-              }`}>
-                {isPartner ? (
-                  <span>✅ <strong>Escuela aliada</strong> — Participación sin costo</span>
-                ) : (
-                  <span>💳 <strong>$300 MXN</strong> — Se paga en campo (tarjeta/transferencia/efectivo)</span>
-                )}
-              </div>
-
-              {/* Event Details (read-only) */}
-              <div className="bg-card border border-border/50 rounded-xl p-4 space-y-2">
-                <p className="text-xs text-muted-foreground font-body">
-                  <strong className="text-foreground">📅 Fecha:</strong>{" "}
-                  <span className="capitalize">{eventDateFormatted}</span>
-                </p>
-                <p className="text-xs text-muted-foreground font-body">
-                  <strong className="text-foreground">📍 Sede:</strong> {event.location_name}
-                </p>
-                <p className="text-xs text-muted-foreground font-body">
-                  <strong className="text-foreground">🕐 Horario:</strong> {event.start_time} – {event.end_time} (Check-in: {event.check_in_time})
-                </p>
-              </div>
+              <StepIndicator current={formStep} />
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Player Name */}
-                  <FormField
-                    control={form.control}
-                    name="player_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">Nombre del jugador *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nombre completo del jugador"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
-                  {/* Player DOB */}
-                  <FormField
-                    control={form.control}
-                    name="player_dob"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">Fecha de nacimiento *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            max={new Date().toISOString().split("T")[0]}
-                            min="2010-01-01"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* ─── Step 1: Datos del Jugador ─── */}
+                  {formStep === 1 && (
+                    <div className="space-y-4">
+                      <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-medium">
+                        Paso 1 de 3 — Datos del jugador
+                      </p>
 
-                  {/* School with Autosuggest */}
-                  <FormField
-                    control={form.control}
-                    name="school_name"
-                    render={({ field }) => (
-                      <FormItem className="relative">
-                        <FormLabel className="text-foreground font-body text-sm">Escuela *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nombre de la escuela"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            autoComplete="off"
-                            {...field}
-                            onFocus={() => schoolSuggestions.length > 0 && setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                          />
-                        </FormControl>
-                        {showSuggestions && (
-                          <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
-                            {schoolSuggestions.map(s => (
-                              <button
-                                key={s}
-                                type="button"
-                                onMouseDown={() => selectSchool(s)}
-                                className="w-full px-4 py-2.5 text-left text-sm font-body text-foreground hover:bg-primary/10 flex items-center gap-2"
-                              >
-                                <span className="text-green-400 text-xs">★ Aliada</span>
-                                {s}
-                              </button>
-                            ))}
-                          </div>
+                      <FormField
+                        control={form.control}
+                        name="player_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">Nombre del jugador *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nombre completo del jugador"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      />
 
-                  {/* Current Club (optional) */}
-                  <FormField
-                    control={form.control}
-                    name="current_club"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">
-                          Club actual <span className="text-muted-foreground">(opcional)</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Si entrena en otro club"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="player_dob"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">Fecha de nacimiento *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="date"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                max={new Date().toISOString().split("T")[0]}
+                                min="2010-01-01"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className="border-t border-border/30 pt-4">
-                    <p className="text-xs text-muted-foreground font-body mb-3 uppercase tracking-wide font-medium">
-                      Datos del padre / tutor
-                    </p>
-                  </div>
+                      <FormField
+                        control={form.control}
+                        name="school_name"
+                        render={({ field }) => (
+                          <FormItem className="relative">
+                            <FormLabel className="text-foreground font-body text-sm">Escuela *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nombre de la escuela"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                autoComplete="off"
+                                {...field}
+                                onFocus={() => schoolSuggestions.length > 0 && setShowSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                              />
+                            </FormControl>
+                            {showSuggestions && (
+                              <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+                                {schoolSuggestions.map(s => (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onMouseDown={() => selectSchool(s)}
+                                    className="w-full px-4 py-2.5 text-left text-sm font-body text-foreground hover:bg-primary/10 flex items-center gap-2"
+                                  >
+                                    <span className="text-green-400 text-xs">★ Aliada</span>
+                                    {s}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            {isPartner && (
+                              <p className="text-xs text-green-400 font-body mt-1">
+                                ✅ Escuela aliada — Participación sin costo
+                              </p>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  {/* Guardian Name */}
-                  <FormField
-                    control={form.control}
-                    name="guardian_full_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">Nombre completo del padre/madre/tutor *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nombre completo"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="current_club"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">
+                              Club actual <span className="text-muted-foreground">(opcional)</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Si entrena en otro club"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  {/* Phone */}
-                  <FormField
-                    control={form.control}
-                    name="guardian_phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">Teléfono *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            placeholder="10 dígitos"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <Button
+                        type="button"
+                        variant="gold"
+                        size="lg"
+                        className="w-full text-base py-6"
+                        onClick={handleNextStep}
+                      >
+                        Siguiente <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                  )}
 
-                  {/* Email */}
-                  <FormField
-                    control={form.control}
-                    name="guardian_email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-foreground font-body text-sm">Correo electrónico *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="correo@ejemplo.com"
-                            className="bg-card border-border/50 text-foreground font-body"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* ─── Step 2: Datos del Tutor ─── */}
+                  {formStep === 2 && (
+                    <div className="space-y-4">
+                      <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-medium">
+                        Paso 2 de 3 — Datos del tutor
+                      </p>
 
-                  {/* Privacy */}
-                  <FormField
-                    control={form.control}
-                    name="privacy_accepted"
-                    render={({ field }) => (
-                      <FormItem className="flex items-start gap-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-xs text-muted-foreground font-body leading-relaxed cursor-pointer">
-                          Acepto el aviso de privacidad y autorizo el uso de estos datos para la gestión del evento y comunicaciones relacionadas.
-                        </FormLabel>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="guardian_full_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">Nombre completo del padre/madre/tutor *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nombre completo"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <Button
-                    type="submit"
-                    variant="gold"
-                    size="lg"
-                    className="w-full glow-gold text-base py-6"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent" />
-                        Registrando...
-                      </span>
-                    ) : (
-                      "📋 Registrar jugador"
-                    )}
-                  </Button>
+                      <FormField
+                        control={form.control}
+                        name="guardian_phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">Teléfono *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="tel"
+                                placeholder="10 dígitos"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="guardian_email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-foreground font-body text-sm">Correo electrónico *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="correo@ejemplo.com"
+                                className="bg-card border-border/50 text-foreground font-body"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="lg"
+                          className="flex-1 text-base py-6"
+                          onClick={handlePrevStep}
+                        >
+                          <ArrowLeft className="w-4 h-4 mr-1" /> Atrás
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="gold"
+                          size="lg"
+                          className="flex-1 text-base py-6"
+                          onClick={handleNextStep}
+                        >
+                          Siguiente <ArrowRight className="w-4 h-4 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ─── Step 3: Confirmación ─── */}
+                  {formStep === 3 && (
+                    <div className="space-y-4">
+                      <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-medium">
+                        Paso 3 de 3 — Confirmar registro
+                      </p>
+
+                      {/* Event summary read-only */}
+                      <div className="bg-card border border-border/50 rounded-xl p-4 space-y-2">
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">📅 Fecha:</strong>{" "}
+                          <span className="capitalize">{eventDateFormatted}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">📍 Sede:</strong> {event.location_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">🕐 Horario:</strong> {event.start_time} – {event.end_time} (Check-in: {event.check_in_time})
+                        </p>
+                      </div>
+
+                      {/* Cronograma */}
+                      <CronogramaTable />
+
+                      {/* Registration summary */}
+                      <div className="bg-card border border-border/50 rounded-xl p-4 space-y-2">
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">👤 Jugador:</strong> {form.getValues("player_name")}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">🏫 Escuela:</strong> {form.getValues("school_name")}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">👨‍👩‍👦 Tutor:</strong> {form.getValues("guardian_full_name")}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-body">
+                          <strong className="text-foreground">📧</strong> {form.getValues("guardian_email")}
+                        </p>
+                      </div>
+
+                      {/* Fee Banner */}
+                      <div className={`rounded-xl p-4 text-center text-sm font-body ${
+                        isPartner
+                          ? "bg-green-500/10 border border-green-500/30 text-green-400"
+                          : "bg-primary/10 border border-primary/20 text-primary"
+                      }`}>
+                        {isPartner ? (
+                          <span>✅ <strong>Escuela aliada</strong> — Participación sin costo</span>
+                        ) : (
+                          <span>💳 <strong>$300 MXN</strong> — Se paga en campo (tarjeta/transferencia/efectivo)</span>
+                        )}
+                      </div>
+
+                      {/* Privacy */}
+                      <FormField
+                        control={form.control}
+                        name="privacy_accepted"
+                        render={({ field }) => (
+                          <FormItem className="flex items-start gap-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-xs text-muted-foreground font-body leading-relaxed cursor-pointer">
+                              Acepto el aviso de privacidad y autorizo el uso de estos datos para la gestión del evento y comunicaciones relacionadas.
+                            </FormLabel>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="lg"
+                          className="flex-1 text-base py-6"
+                          onClick={handlePrevStep}
+                        >
+                          <ArrowLeft className="w-4 h-4 mr-1" /> Atrás
+                        </Button>
+                        <Button
+                          type="submit"
+                          variant="gold"
+                          size="lg"
+                          className="flex-1 glow-gold text-base py-6"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <span className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent" />
+                              Registrando...
+                            </span>
+                          ) : (
+                            "📋 Registrar jugador"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </form>
               </Form>
             </AnimatedSection>
