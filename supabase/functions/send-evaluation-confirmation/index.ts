@@ -85,6 +85,27 @@ const buildConfirmationEmail = (data: EvalEmailRequest): string => {
         </table>
       </div>
 
+      <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">
+        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 16px;">📋 Cronograma por categoría</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 8px 0; color: #f59e0b; font-weight: 600; font-size: 14px;">9:00 – 9:40</td>
+            <td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">Escuelita</td>
+            <td style="padding: 8px 0; color: #64748b; font-size: 14px; text-align: right;">2018–2019</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 8px 0; color: #f59e0b; font-weight: 600; font-size: 14px;">9:40 – 10:00</td>
+            <td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">Estrellita</td>
+            <td style="padding: 8px 0; color: #64748b; font-size: 14px; text-align: right;">2016–2017</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #f59e0b; font-weight: 600; font-size: 14px;">10:00 – 11:00</td>
+            <td style="padding: 8px 0; color: #0F172A; font-weight: 600; font-size: 14px;">Infantil</td>
+            <td style="padding: 8px 0; color: #64748b; font-size: 14px; text-align: right;">2014–2015</td>
+          </tr>
+        </table>
+      </div>
+
       ${feeSection}
 
       <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
