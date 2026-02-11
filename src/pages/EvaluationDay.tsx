@@ -8,8 +8,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   MapPin, Clock, Users, CalendarCheck, ClipboardCheck, FileText,
-  ChevronRight, CheckCircle2, Star, Trophy, Shield, UserCheck, ArrowLeft, ArrowRight
+  ChevronRight, CheckCircle2, Star, Trophy, Shield, UserCheck, ArrowLeft, ArrowRight,
+  Target, Brain, Eye, Zap, Heart, X, Check
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import logoWhiteLions from "@/assets/logo-white-lions.png";
@@ -380,9 +382,15 @@ const EvaluationDay = () => {
             <p className="text-base sm:text-lg text-muted-foreground font-body max-w-lg mx-auto">
               Un evento institucional para medir progreso y entregar un reporte personalizado.
             </p>
+            <p className="text-xs sm:text-sm text-primary font-body font-medium">
+              Evaluación estructurada bajo metodologías europeas certificadas.
+            </p>
             <p className="text-sm text-primary/80 font-body italic">
               "Aquí no competimos contra otros: competimos contra nuestra versión anterior."
             </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs font-body font-semibold">
+              🔴 Cupos limitados por categoría · Registro previo obligatorio
+            </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-muted-foreground font-body">
               <div className="flex items-center gap-2">
                 <CalendarCheck className="w-4 h-4 text-primary" />
@@ -900,8 +908,176 @@ const EvaluationDay = () => {
         </div>
       </section>
 
-      {/* How it Works */}
+      {/* ── NEW: ¿Qué mide realmente esta evaluación? ── */}
       <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <AnimatedSection animation="fade-up" className="max-w-3xl mx-auto text-center space-y-8">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+              ¿Qué mide realmente esta evaluación?
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { icon: Target, title: "Técnica individual", desc: "Control, pase, conducción y perfil corporal" },
+                { icon: Brain, title: "Toma de decisión", desc: "Lectura de juego y velocidad de reacción" },
+                { icon: Eye, title: "Comprensión táctica", desc: "Posicionamiento y movimiento según edad" },
+                { icon: Zap, title: "Intensidad y disciplina", desc: "Comportamiento en cancha y actitud competitiva" },
+                { icon: Heart, title: "Mentalidad y autonomía", desc: "Confianza, resiliencia y autodirección" },
+              ].map((item, i) => (
+                <AnimatedSection key={i} animation="scale" delay={i * 100}>
+                  <div className="p-5 rounded-xl bg-card border border-border/50 text-center space-y-3 h-full">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <item.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="font-display font-bold text-foreground text-sm uppercase">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground font-body">{item.desc}</p>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground font-body italic">
+              No es observación general. Es <strong className="text-foreground">medición estructurada con criterios definidos por categoría.</strong>
+            </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ── NEW: Diferenciación comparativa ── */}
+      <section className="py-12 sm:py-16 bg-background-alt">
+        <div className="container mx-auto px-4">
+          <AnimatedSection animation="fade-up" className="max-w-3xl mx-auto text-center space-y-8">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+              ¿Por qué es diferente?
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Academia promedio */}
+              <div className="rounded-xl border border-border/50 bg-card p-6 space-y-4">
+                <h3 className="font-display font-bold text-muted-foreground text-sm uppercase">Academia promedio</h3>
+                <ul className="space-y-3 text-left">
+                  {[
+                    "Observación subjetiva",
+                    "Sin métricas",
+                    "Sin reporte formal",
+                    "Sin seguimiento",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-xs text-muted-foreground font-body">
+                      <X className="w-4 h-4 text-destructive shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* White Lions */}
+              <div className="rounded-xl border-2 border-primary/50 bg-primary/5 p-6 space-y-4">
+                <h3 className="font-display font-bold text-primary text-sm uppercase">White Lions Academies</h3>
+                <ul className="space-y-3 text-left">
+                  {[
+                    "Evaluación estructurada",
+                    "Criterios claros por edad",
+                    "Reporte personalizado digital",
+                    "Recomendaciones de mejora",
+                    "Posibilidad de integración al sistema formativo",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-xs text-foreground font-body">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ── NEW: Mockup del reporte ── */}
+      <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <AnimatedSection animation="fade-up" className="max-w-2xl mx-auto text-center space-y-8">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+              Así luce el reporte que recibirás
+            </h2>
+            <div className="bg-card border border-border/50 rounded-xl p-6 sm:p-8 space-y-6 text-left">
+              {/* Header mock */}
+              <div className="flex items-center gap-3 pb-4 border-b border-border/50">
+                <img src={logoWhiteLions} alt="WLA" className="h-8 w-auto opacity-60" />
+                <div>
+                  <p className="text-xs text-muted-foreground font-body">Reporte de Evaluación Individual</p>
+                  <p className="text-xs text-muted-foreground/60 font-body">Día de Evaluación — Feb 2026</p>
+                </div>
+              </div>
+              {/* Scores */}
+              <div className="space-y-4">
+                <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-semibold">Puntajes por área</p>
+                {[
+                  { area: "Técnica", value: 78 },
+                  { area: "Toma de decisión", value: 65 },
+                  { area: "Comprensión táctica", value: 72 },
+                  { area: "Intensidad", value: 85 },
+                  { area: "Mentalidad", value: 70 },
+                ].map((s, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="flex justify-between text-xs font-body">
+                      <span className="text-foreground">{s.area}</span>
+                      <span className="text-primary font-semibold">{s.value}/100</span>
+                    </div>
+                    <Progress value={s.value} className="h-2" />
+                  </div>
+                ))}
+              </div>
+              {/* Coach comments */}
+              <div className="space-y-2 pt-2 border-t border-border/50">
+                <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-semibold">Comentarios del entrenador</p>
+                <p className="text-xs text-muted-foreground font-body italic leading-relaxed">
+                  "El jugador muestra buena actitud competitiva y lectura de juego para su edad. Se recomienda trabajar conducción con perfil no dominante y comunicación en cancha."
+                </p>
+              </div>
+              {/* Recommendations */}
+              <div className="space-y-2 pt-2 border-t border-border/50">
+                <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-semibold">Recomendaciones</p>
+                <ul className="space-y-1.5">
+                  {[
+                    "Trabajar conducción con perfil no dominante",
+                    "Incrementar intensidad en transiciones defensivas",
+                    "Desarrollar comunicación verbal en cancha",
+                  ].map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground font-body">
+                      <ChevronRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* Level indicator */}
+              <div className="pt-2 border-t border-border/50">
+                <p className="text-xs text-muted-foreground font-body uppercase tracking-wide font-semibold mb-3">Nivel actual vs estándar WLA</p>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex justify-between text-xs font-body">
+                      <span className="text-muted-foreground">Nivel actual</span>
+                      <span className="text-foreground font-semibold">74%</span>
+                    </div>
+                    <Progress value={74} className="h-2.5" />
+                  </div>
+                  <div className="text-xs text-muted-foreground font-body">vs</div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex justify-between text-xs font-body">
+                      <span className="text-muted-foreground">Estándar WLA</span>
+                      <span className="text-primary font-semibold">100%</span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-primary/20 border border-primary/30" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground font-body">
+              En <strong className="text-foreground">24–48 horas</strong> recibirás un diagnóstico claro y accionable.
+            </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* How it Works */}
+      <section className="py-12 sm:py-16 bg-background-alt">
         <div className="container mx-auto px-4">
           <AnimatedSection animation="fade-up" className="max-w-2xl mx-auto text-center space-y-8">
             <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
@@ -927,6 +1103,34 @@ const EvaluationDay = () => {
             <p className="text-sm text-muted-foreground font-body">
               💳 El pago para jugadores nuevos/externos se realiza <strong className="text-foreground">en campo</strong> el día del evento (tarjeta, transferencia o efectivo).
             </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ── NEW: ¿Qué sigue después? ── */}
+      <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <AnimatedSection animation="fade-up" className="max-w-2xl mx-auto text-center space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+              ¿Qué sigue después de la evaluación?
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground font-body max-w-lg mx-auto leading-relaxed">
+              Las familias que deseen continuar pueden iniciar el{" "}
+              <strong className="text-primary">Reto White Lions – 30 días</strong>{" "}
+              e integrarse al sistema formativo completo.
+            </p>
+            <div className="bg-card border border-border/50 rounded-xl p-6 space-y-4 text-left max-w-md mx-auto">
+              {[
+                "Integración gradual a la metodología WLA",
+                "Seguimiento personalizado del progreso",
+                "Acceso al sistema formativo completo",
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 text-xs text-muted-foreground font-body">
+                  <Check className="w-4 h-4 text-primary shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </div>
           </AnimatedSection>
         </div>
       </section>
@@ -983,15 +1187,18 @@ const EvaluationDay = () => {
           <div className="container mx-auto px-4">
             <AnimatedSection animation="fade-up" className="max-w-md mx-auto text-center space-y-6">
               <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
-                ¿Listo para el Día de Evaluación?
+                Reserva el lugar de tu hijo
               </h2>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs font-body font-semibold">
+                🔴 Cupos limitados por categoría · Registro previo obligatorio
+              </div>
               <Button
                 variant="gold"
                 size="lg"
                 onClick={() => handlePathSelect("external")}
                 className="glow-gold text-base px-8 py-6"
               >
-                📋 Registrar jugador externo
+                Reserva el lugar y descubre el verdadero nivel de tu hijo
               </Button>
               <p className="text-xs text-muted-foreground font-body">
                 ¿Eres jugador activo?{" "}
