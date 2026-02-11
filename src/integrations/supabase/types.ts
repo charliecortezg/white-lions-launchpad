@@ -228,6 +228,116 @@ export type Database = {
           },
         ]
       }
+      evaluation_event_registrations: {
+        Row: {
+          calculated_fee_mxn: number
+          created_at: string
+          current_club: string | null
+          event_id: string
+          guardian_email: string
+          guardian_full_name: string
+          guardian_phone: string
+          id: string
+          is_partner_school: boolean
+          notes: string | null
+          payment_status: string
+          player_dob: string
+          player_name: string
+          reminder_12h_sent: boolean
+          reminder_48h_sent: boolean
+          school_name: string
+          source: string
+        }
+        Insert: {
+          calculated_fee_mxn?: number
+          created_at?: string
+          current_club?: string | null
+          event_id: string
+          guardian_email: string
+          guardian_full_name: string
+          guardian_phone: string
+          id?: string
+          is_partner_school?: boolean
+          notes?: string | null
+          payment_status?: string
+          player_dob: string
+          player_name: string
+          reminder_12h_sent?: boolean
+          reminder_48h_sent?: boolean
+          school_name: string
+          source?: string
+        }
+        Update: {
+          calculated_fee_mxn?: number
+          created_at?: string
+          current_club?: string | null
+          event_id?: string
+          guardian_email?: string
+          guardian_full_name?: string
+          guardian_phone?: string
+          id?: string
+          is_partner_school?: boolean
+          notes?: string | null
+          payment_status?: string
+          player_dob?: string
+          player_name?: string
+          reminder_12h_sent?: boolean
+          reminder_48h_sent?: boolean
+          school_name?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluation_event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "evaluation_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evaluation_events: {
+        Row: {
+          address: string
+          check_in_time: string
+          created_at: string
+          end_time: string
+          event_date: string
+          id: string
+          is_active: boolean
+          location_name: string
+          maps_url: string | null
+          start_time: string
+          title: string
+        }
+        Insert: {
+          address?: string
+          check_in_time?: string
+          created_at?: string
+          end_time?: string
+          event_date: string
+          id?: string
+          is_active?: boolean
+          location_name?: string
+          maps_url?: string | null
+          start_time?: string
+          title?: string
+        }
+        Update: {
+          address?: string
+          check_in_time?: string
+          created_at?: string
+          end_time?: string
+          event_date?: string
+          id?: string
+          is_active?: boolean
+          location_name?: string
+          maps_url?: string | null
+          start_time?: string
+          title?: string
+        }
+        Relationships: []
+      }
       follow_up_tasks: {
         Row: {
           assigned_to: string
@@ -308,6 +418,27 @@ export type Database = {
           processed_count?: number | null
           started_at?: string
           status?: string
+        }
+        Relationships: []
+      }
+      partner_schools: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          school_name: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          school_name: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          school_name?: string
         }
         Relationships: []
       }
