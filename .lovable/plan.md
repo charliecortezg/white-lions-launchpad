@@ -1,78 +1,110 @@
 
 
-# Plan: Actualizar evento + formulario en steps
+# Plan: Elevar la pagina de Evaluacion a maquina de autoridad y conversion
 
-## 1. Actualizar datos del evento en BD
+## Resumen
 
-Ejecutar un UPDATE en `evaluation_events` para el evento activo:
+Agregar 4 nuevas secciones de contenido estrategico y modificar el Hero y CTA existentes para aumentar percepcion de valor, autoridad metodologica y tasa de registro. Sin cambios en diseno visual, cronograma ni logica de pago.
 
-- `event_date`: 2026-02-21
-- `location_name`: Juventud 2000 — Cancha Bardeada
-- `address`: Juventud 2000, Mexicali, B.C.
-- `check_in_time`: 8:45 AM
-- `start_time`: 9:00 AM
-- `end_time`: 11:00 AM
-- `maps_url`: null (o conservar si aplica)
+---
 
-## 2. Agregar cronograma visible en la pagina
+## Cambios en el archivo `src/pages/EvaluationDay.tsx`
 
-Agregar una seccion o bloque dentro del Hero/info del evento que muestre:
+### 1. Hero — Mejoras de posicionamiento y urgencia
 
-| Horario | Categoria | Nacimiento |
-|---------|-----------|------------|
-| 9:00 – 9:40 | Escuelita | 2018–2019 |
-| 9:40 – 10:00 | Estrellita | 2016–2017 |
-| 10:00 – 11:00 | Infantil | 2014–2015 |
+**Agregar debajo del subtitulo (linea 381):**
+- Texto metodologico: "Evaluacion estructurada bajo metodologias europeas certificadas."
 
-Este cronograma se mostrara tanto en la seccion hero como en las instrucciones del jugador activo y en el email de confirmacion.
+**Modificar CTA bottom (lineas 985-994):**
+- Nuevo headline: "Reserva el lugar de tu hijo"
+- Nuevo CTA: "Reserva el lugar y descubre el verdadero nivel de tu hijo"
+- Agregar badge de urgencia: "Cupos limitados por categoria - Registro previo obligatorio"
 
-## 3. Formulario en 3 pasos (stepper)
+### 2. Nueva seccion — "Que mide realmente esta evaluacion?" (despues de "Que incluye?")
 
-Convertir el formulario actual (que muestra todo junto) en un flujo de 3 pasos:
+5 bloques visuales con icono + titulo + descripcion:
 
-**Paso 1 — Datos del Jugador**
-- Nombre del jugador
-- Fecha de nacimiento
-- Escuela (con autosuggest de aliadas)
-- Club actual (opcional)
+| Bloque | Contenido |
+|--------|-----------|
+| Tecnica individual | Control, pase, conduccion, perfil corporal |
+| Toma de decision | Lectura de juego y velocidad de reaccion |
+| Comprension tactica | Posicionamiento y movimiento segun edad |
+| Intensidad y disciplina | Comportamiento en cancha y actitud competitiva |
+| Mentalidad y autonomia | Confianza, resiliencia y autodireccion |
 
-**Paso 2 — Datos del Tutor**
-- Nombre completo del padre/tutor
-- Telefono
-- Correo electronico
+Texto de cierre: "No es observacion general. Es medicion estructurada con criterios definidos por categoria."
 
-**Paso 3 — Confirmacion + Registro**
-- Resumen del evento (fecha, sede, horario) — read-only
-- Banner de costo ($0 o $300)
-- Checkbox de privacidad
-- Boton "Registrar jugador"
+### 3. Nueva seccion — Diferenciacion comparativa (despues de "Que mide?")
 
-Se agrega un indicador visual de progreso (Step 1 de 3, Step 2 de 3, Step 3 de 3) con navegacion "Siguiente" / "Atras". Las validaciones se ejecutan por paso (no se puede avanzar sin completar los campos obligatorios del paso actual).
+Tabla visual de 2 columnas:
 
-## Archivos a modificar
+| Academia promedio | White Lions Academies |
+|---|---|
+| Observacion subjetiva | Evaluacion estructurada |
+| Sin metricas | Criterios claros por edad |
+| Sin reporte formal | Reporte personalizado digital |
+| Sin seguimiento | Recomendaciones de mejora |
+| — | Posibilidad de integracion al sistema formativo |
 
-| Archivo | Cambio |
-|---------|--------|
-| `src/pages/EvaluationDay.tsx` | Formulario en steps + cronograma visible |
-| `supabase/functions/send-evaluation-confirmation/index.ts` | Agregar cronograma al email |
+### 4. Nueva seccion — Mockup del reporte (despues de Diferenciacion)
 
-No se necesita migracion de BD — solo un UPDATE de datos al evento existente.
+Titulo: "Asi luce el reporte que recibiras"
+
+Mockup visual (componente React, no imagen) mostrando:
+- Puntajes por area (barras horizontales de progreso)
+- Comentarios del entrenador (texto placeholder)
+- Recomendaciones practicas (lista)
+- Nivel actual vs estandar WLA (indicador visual)
+
+Texto de cierre: "En 24-48 horas recibiras un diagnostico claro y accionable."
+
+### 5. Nueva seccion — "Que sigue despues de la evaluacion?" (antes del CTA final)
+
+Texto: "Las familias que deseen continuar pueden iniciar el Reto White Lions -- 30 dias e integrarse al sistema formativo completo."
+
+Conexion sutil con el funnel principal sin mencionar precios, kits ni inscripcion.
+
+---
+
+## Orden final de secciones
+
+1. Hero (con texto metodologico + badge urgencia)
+2. Selector de ruta (Activo / Externo)
+3. Ruta activa o Formulario externo (condicional)
+4. Que incluye (existente)
+5. **Que mide realmente esta evaluacion? (NUEVA)**
+6. **Diferenciacion comparativa (NUEVA)**
+7. **Mockup del reporte (NUEVA)**
+8. Como funciona (existente)
+9. **Que sigue despues? (NUEVA)**
+10. FAQ (existente, sin cambios)
+11. CTA Bottom (mejorado)
+12. Footer (existente)
+
+---
 
 ## Detalle tecnico
 
-### EvaluationDay.tsx
+Todo se implementa dentro de `src/pages/EvaluationDay.tsx`. No se crean archivos nuevos ni se modifican otros componentes.
 
-- Agregar estado `formStep` (1, 2, 3)
-- Crear 3 bloques condicionales dentro del `<form>` segun `formStep`
-- Validar parcialmente con `form.trigger(["player_name", "player_dob", "school_name"])` antes de avanzar al paso 2
-- Validar `form.trigger(["guardian_full_name", "guardian_phone", "guardian_email"])` antes de avanzar al paso 3
-- En paso 3 solo se muestra resumen + checkbox + boton submit
-- Agregar barra de progreso visual (3 circulos con linea conectora)
-- Agregar array constante `CRONOGRAMA` con los 3 bloques de horario
-- Mostrar cronograma en el hero, instrucciones activas, y en el paso 3 del formulario
+Cada nueva seccion usa el componente `AnimatedSection` existente con animaciones `fade-up` y `scale` para mantener coherencia visual.
 
-### Email de confirmacion
+Los bloques de la seccion de diferenciacion usan el mismo patron de tarjetas `bg-card border border-border/50 rounded-xl` ya presente en la pagina.
 
-- Agregar seccion de cronograma en el HTML del email
-- Actualizar el email para incluir las 3 categorias con sus horarios
+El mockup del reporte se construye con componentes UI existentes (Progress bars de Tailwind, tarjetas) — no requiere imagenes externas.
+
+Los iconos nuevos necesarios (Target, Brain, Eye, Zap, Heart, X, Check) se importan de `lucide-react` que ya esta instalado.
+
+---
+
+## Lo que NO se modifica
+
+- Diseno visual general (colores, tipografia, branding)
+- Cronograma (estructura y datos)
+- Logica de pago en campo
+- Formulario de registro (campos, steps, validacion)
+- Diferenciacion activo vs externo
+- FAQ (contenido existente)
+- Base de datos
+- Edge functions
 
