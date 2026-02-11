@@ -1,123 +1,78 @@
 
 
-# Plan: Pagina de Referidos /wl-friend
+# Plan: Actualizar evento + formulario en steps
 
-## Resumen
+## 1. Actualizar datos del evento en BD
 
-Crear una nueva pagina interna en `/wl-friend` con tono personal y cercano, que reutiliza el formulario de registro existente (`ChallengeRegistrationModal`) con un campo adicional "Quien te invito?". Los datos de referido se guardan en la base de datos para trazabilidad.
+Ejecutar un UPDATE en `evaluation_events` para el evento activo:
 
----
+- `event_date`: 2026-02-21
+- `location_name`: Juventud 2000 — Cancha Bardeada
+- `address`: Juventud 2000, Mexicali, B.C.
+- `check_in_time`: 8:45 AM
+- `start_time`: 9:00 AM
+- `end_time`: 11:00 AM
+- `maps_url`: null (o conservar si aplica)
 
-## Cambios en Base de Datos
+## 2. Agregar cronograma visible en la pagina
 
-Agregar 2 columnas a `trial_class_registrations`:
+Agregar una seccion o bloque dentro del Hero/info del evento que muestre:
 
-| Columna | Tipo | Default | Nota |
-|---------|------|---------|------|
-| referral_name | text | NULL | Nombre de quien refirio |
-| referral_source | text | NULL | Origen (ej: 'WL-FRIEND') |
+| Horario | Categoria | Nacimiento |
+|---------|-----------|------------|
+| 9:00 – 9:40 | Escuelita | 2018–2019 |
+| 9:40 – 10:00 | Estrellita | 2016–2017 |
+| 10:00 – 11:00 | Infantil | 2014–2015 |
 
-Estas columnas son nullable y no afectan registros existentes.
+Este cronograma se mostrara tanto en la seccion hero como en las instrucciones del jugador activo y en el email de confirmacion.
 
----
+## 3. Formulario en 3 pasos (stepper)
 
-## Archivos a Crear
+Convertir el formulario actual (que muestra todo junto) en un flujo de 3 pasos:
 
-### 1. `src/pages/WLFriend.tsx` — Pagina completa de referidos
+**Paso 1 — Datos del Jugador**
+- Nombre del jugador
+- Fecha de nacimiento
+- Escuela (con autosuggest de aliadas)
+- Club actual (opcional)
 
-Estructura de secciones:
+**Paso 2 — Datos del Tutor**
+- Nombre completo del padre/tutor
+- Telefono
+- Correo electronico
 
-**Hero Section**
-- Headline: "Te invitaron a conocer White Lions Academy"
-- Subheadline: "Una experiencia formativa de futbol para ninos de 6 a 13 anos en Mexicali."
-- Microcopy: "Esta invitacion viene de una familia que ya entrena con nosotros."
-- CTA: "Agendar clase muestra gratuita" (abre el modal)
+**Paso 3 — Confirmacion + Registro**
+- Resumen del evento (fecha, sede, horario) — read-only
+- Banner de costo ($0 o $300)
+- Checkbox de privacidad
+- Boton "Registrar jugador"
 
-**Seccion "Por que estas aqui?"**
-- Texto humano explicando que es una invitacion personal, no una promocion
+Se agrega un indicador visual de progreso (Step 1 de 3, Step 2 de 3, Step 3 de 3) con navegacion "Siguiente" / "Atras". Las validaciones se ejecutan por paso (no se puede avanzar sin completar los campos obligatorios del paso actual).
 
-**Seccion "Que vivira tu hijo?"**
-- 4 bullets: metodologia europea, grupos reducidos, disciplina/confianza/diversion, ambiente formativo
-- Frase ancla: "Aqui inicia su mejor version."
+## Archivos a modificar
 
-**Seccion "Como funciona?"**
-- 4 pasos visuales: Agenda -> Vive la experiencia -> Conoce el sistema -> Decide sin presion
-- Mensaje: "Sin compromiso. Sin presion."
+| Archivo | Cambio |
+|---------|--------|
+| `src/pages/EvaluationDay.tsx` | Formulario en steps + cronograma visible |
+| `supabase/functions/send-evaluation-confirmation/index.ts` | Agregar cronograma al email |
 
-**Seccion Formulario**
-- CTA grande que abre el mismo `ChallengeRegistrationModal` pero con props de referido activadas
+No se necesita migracion de BD — solo un UPDATE de datos al evento existente.
 
-**Footer operativo**
-- Ubicacion, horario, edades
-- Sin precios, sin planes, sin kit
+## Detalle tecnico
 
----
+### EvaluationDay.tsx
 
-## Archivos a Modificar
+- Agregar estado `formStep` (1, 2, 3)
+- Crear 3 bloques condicionales dentro del `<form>` segun `formStep`
+- Validar parcialmente con `form.trigger(["player_name", "player_dob", "school_name"])` antes de avanzar al paso 2
+- Validar `form.trigger(["guardian_full_name", "guardian_phone", "guardian_email"])` antes de avanzar al paso 3
+- En paso 3 solo se muestra resumen + checkbox + boton submit
+- Agregar barra de progreso visual (3 circulos con linea conectora)
+- Agregar array constante `CRONOGRAMA` con los 3 bloques de horario
+- Mostrar cronograma en el hero, instrucciones activas, y en el paso 3 del formulario
 
-### 2. `src/components/ChallengeRegistrationModal.tsx`
+### Email de confirmacion
 
-Cambios minimos:
-
-- Agregar props opcionales: `referralSource?: string`
-- Agregar campo opcional en el formulario (Step 3 para flujo regular, Step 2 para Biberon):
-  - Label: "Quien te invito a White Lions?"
-  - Placeholder: "Nombre del jugador o padre de familia"
-  - No obligatorio
-- Agregar `referral_name` al schema de zod como string opcional
-- En el submit regular (`onSubmitRegular`), incluir `referral_name` y `referral_source` en el INSERT/UPDATE a `trial_class_registrations`
-- En el submit waitlist (`onSubmitWaitlist`), guardar en el campo `notes` como prefijo (ej: "[Referido por: Juan] ...notas")
-
-### 3. `src/App.tsx`
-
-- Agregar ruta `/wl-friend` apuntando a `WLFriend`
-
----
-
-## Diseno visual de la pagina
-
-La pagina usa el mismo sistema de diseno (dark theme, colores gold/navy) pero con un tono mas intimo:
-
-- Sin navbar completo (solo logo arriba)
-- Sin seccion de precios
-- Sin FAQ
-- Sin footer completo — solo info operativa
-- Fondo oscuro con gradientes sutiles (similar al Hero principal)
-- Animaciones suaves con el componente `AnimatedSection` existente
-
----
-
-## Flujo del usuario
-
-```text
-Recibe tarjeta fisica
-        |
-        v
-Visita /wl-friend
-        |
-        v
-Lee contenido personal (30 seg)
-        |
-        v
-Click "Agendar clase muestra gratuita"
-        |
-        v
-Modal de registro (mismo flujo 4 pasos)
-  + campo "Quien te invito?" en paso de contacto
-  + referral_source = 'WL-FRIEND' automatico
-        |
-        v
-Registro guardado con trazabilidad
-```
-
----
-
-## Lo que NO se modifica
-
-- Flujo de registro existente (4 pasos)
-- Logica de Biberon / Juvenil A
-- Pagina principal (Index)
-- Admin panel
-- Edge functions de email (el campo referral se guarda en BD, no cambia el email)
-- Precios o menciones de Reto en esta pagina (NO se muestran)
+- Agregar seccion de cronograma en el HTML del email
+- Actualizar el email para incluir las 3 categorias con sus horarios
 
