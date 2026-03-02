@@ -70,6 +70,20 @@ serve(async (req) => {
       const body = await req.json();
       const { id, action, status, notes, newSchedule, trialStartAt } = body;
 
+      // List waitlist registrations (no id required)
+      if (action === "list_waitlist") {
+        const { data, error } = await supabase
+          .from("waitlist_registrations")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        return new Response(JSON.stringify({ data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (!id) {
         return new Response(
           JSON.stringify({ error: "ID is required" }),
