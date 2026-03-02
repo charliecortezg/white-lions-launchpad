@@ -84,6 +84,28 @@ serve(async (req) => {
         });
       }
 
+      // Update waitlist notes
+      if (action === "update_waitlist_notes") {
+        if (!id) {
+          return new Response(
+            JSON.stringify({ error: "ID is required" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const { data, error } = await supabase
+          .from("waitlist_registrations")
+          .update({ notes: notes ?? null })
+          .eq("id", id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return new Response(JSON.stringify({ data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (!id) {
         return new Response(
           JSON.stringify({ error: "ID is required" }),
