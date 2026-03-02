@@ -8,6 +8,8 @@ import { ProspectDetailsModal } from "@/components/admin/ProspectDetailsModal";
 import { CalendarModal } from "@/components/admin/CalendarModal";
 import { RescheduleModal } from "@/components/admin/RescheduleModal";
 import { TasksModal } from "@/components/admin/TasksModal";
+import { WaitlistTable } from "@/components/admin/WaitlistTable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -434,25 +436,45 @@ const AdminPanel = () => {
           taskCount={taskCount}
         />
 
-        {/* Kanban Board */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <KanbanBoard
-            prospects={filteredProspects}
-            onStatusChange={handleStatusChange}
-            onOpenNotes={handleOpenNotes}
-            onDelete={handleDelete}
-            onViewDetails={handleViewDetails}
-            onMarkAttended={handleMarkAttended}
-            onMarkNoShow={handleMarkNoShow}
-            onReschedule={handleOpenReschedule}
-            onMarkEnrolled={handleMarkEnrolled}
-            onMarkLost={handleMarkLost}
-          />
-        )}
+        {/* Tabs: Prospectos / Lista de Espera */}
+        <Tabs defaultValue="prospects" className="mb-6">
+          <TabsList className="mb-4">
+            <TabsTrigger value="prospects">
+              ⚽ Prospectos ({prospects.length})
+            </TabsTrigger>
+            <TabsTrigger value="waitlist">
+              🍼 Lista de Espera ({waitlistRegistrations.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="prospects">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <KanbanBoard
+                prospects={filteredProspects}
+                onStatusChange={handleStatusChange}
+                onOpenNotes={handleOpenNotes}
+                onDelete={handleDelete}
+                onViewDetails={handleViewDetails}
+                onMarkAttended={handleMarkAttended}
+                onMarkNoShow={handleMarkNoShow}
+                onReschedule={handleOpenReschedule}
+                onMarkEnrolled={handleMarkEnrolled}
+                onMarkLost={handleMarkLost}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="waitlist">
+            <WaitlistTable
+              registrations={waitlistRegistrations}
+              searchTerm={searchTerm}
+            />
+          </TabsContent>
+        </Tabs>
 
         {/* Details Modal */}
         <ProspectDetailsModal
