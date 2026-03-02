@@ -468,7 +468,7 @@ const AdminPanel = () => {
         <CalendarModal
           isOpen={calendarModalOpen}
           onClose={() => setCalendarModalOpen(false)}
-          prospects={filteredProspects}
+          prospects={prospects}
           waitlistRegistrations={waitlistRegistrations}
           onStatusChange={handleStatusChange}
           onViewDetails={handleViewDetails}
