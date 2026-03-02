@@ -62,6 +62,7 @@ export const ProspectFilters = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas las categorías</SelectItem>
+          <SelectItem value="biberón">🍼 Biberón</SelectItem>
           <SelectItem value="escuelita">Escuelita</SelectItem>
           <SelectItem value="estrellita">Estrellita</SelectItem>
           <SelectItem value="infantil">Infantil</SelectItem>
