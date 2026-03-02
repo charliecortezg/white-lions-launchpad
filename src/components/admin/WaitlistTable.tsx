@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -33,6 +33,11 @@ export const WaitlistTable = ({ registrations, searchTerm }: WaitlistTableProps)
   const handleWhatsApp = (phone: string) => {
     const cleanPhone = phone.replace(/\D/g, "");
     window.open(`https://wa.me/${cleanPhone}`, "_blank");
+  };
+
+  const handleCall = (phone: string) => {
+    const cleanPhone = phone.replace(/\D/g, "");
+    window.open(`tel:${cleanPhone}`);
   };
 
   return (
@@ -88,15 +93,26 @@ export const WaitlistTable = ({ registrations, searchTerm }: WaitlistTableProps)
                   {format(new Date(entry.created_at), "d MMM yyyy", { locale: es })}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10"
-                    onClick={() => handleWhatsApp(entry.parent_whatsapp)}
-                    title="Contactar por WhatsApp"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-green-500 hover:text-green-400 hover:bg-green-500/10"
+                      onClick={() => handleWhatsApp(entry.parent_whatsapp)}
+                      title="Contactar por WhatsApp"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10"
+                      onClick={() => handleCall(entry.parent_whatsapp)}
+                      title="Llamar"
+                    >
+                      <Phone className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
