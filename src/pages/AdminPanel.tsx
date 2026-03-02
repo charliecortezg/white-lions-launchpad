@@ -67,8 +67,8 @@ const AdminPanel = () => {
     queryKey: ["admin-waitlist"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("admin-prospects", {
-        method: "GET",
-        headers: { "x-type": "waitlist" },
+        method: "POST",
+        body: { action: "list_waitlist" },
       });
       if (error) throw error;
       return data.data as WaitlistRegistration[];
