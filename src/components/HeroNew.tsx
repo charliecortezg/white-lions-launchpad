@@ -31,7 +31,7 @@ const HeroNew = () => {
           >
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             <span className="text-sm text-primary font-medium font-body">
-              Cupos limitados · Niños de 6 a 11 años
+              Cupos limitados · Grupo de 4 a 5 años
             </span>
           </div>
 
@@ -71,11 +71,11 @@ const HeroNew = () => {
             style={{ animationDelay: '0.3s' }}
           >
             <div className="flex items-baseline gap-2">
-              <span className="text-sm text-muted-foreground font-body">Reto White Lions desde</span>
-              <span className="text-2xl md:text-3xl font-bold text-primary font-display">$700 MXN</span>
+              <span className="text-sm text-muted-foreground font-body">Inscripción</span>
+              <span className="text-2xl md:text-3xl font-bold text-primary font-display">$400 MXN</span>
             </div>
             <span className="text-xs text-muted-foreground/80 font-body">
-              Inscripción + 1er mes incluidos · Ciclo Ago–Jun
+              Ciclo Agosto–Junio · Mensualidad $500 MXN
             </span>
             <span className="text-sm text-muted-foreground font-body block mt-1">
               👉 La mayoría de las familias inicia con el Reto White Lions
