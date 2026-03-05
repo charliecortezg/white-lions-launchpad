@@ -22,6 +22,8 @@ const COLUMNS = [
   { status: "No Asistió", title: "No Asistió", colorClass: "text-red-400" },
   { status: "Reprogramado", title: "Reprogramado", colorClass: "text-yellow-400" },
   { status: "Inscrito", title: "Inscrito", colorClass: "text-primary" },
+  { status: "Lista de Espera", title: "Lista de Espera", colorClass: "text-amber-400" },
+  { status: "Refund Requested", title: "Reembolso", colorClass: "text-orange-400" },
   { status: "Perdido", title: "Perdido", colorClass: "text-muted-foreground" },
 ];
 
