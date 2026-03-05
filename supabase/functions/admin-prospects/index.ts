@@ -268,6 +268,25 @@ serve(async (req) => {
         });
       }
 
+      if (action === "mark_refund_requested") {
+        const { data, error } = await supabase
+          .from("trial_class_registrations")
+          .update({
+            status: "Refund Requested",
+            status_updated_at: now.toISOString(),
+            notes: (body.currentNotes ? body.currentNotes + "\n" : "") + `[${now.toISOString()}] Solicitud de reembolso registrada via offboarding form.`,
+          })
+          .eq("id", id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return new Response(JSON.stringify({ data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (action === "reschedule") {
         // Reschedule the trial class
         const { data, error } = await supabase

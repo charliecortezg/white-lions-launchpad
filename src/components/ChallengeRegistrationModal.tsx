@@ -75,9 +75,9 @@ const getCategories = (birthYear: string | undefined) => {
 const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
   if (isBiberon) {
     return [
-      { title: "Cuéntanos sobre el jugador", subtitle: "Para niños de 4-5 años. Lista de espera." },
-      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para avisarte cuando abra la categoría" },
-      { title: "Confirmar registro en lista de espera", subtitle: "Revisa los datos antes de enviar" },
+      { title: "Cuéntanos sobre el jugador", subtitle: "Categoría Biberón (4-5 años). Cupo limitado a 8 jugadores." },
+      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio" },
+      { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
     ];
   }
   return [
