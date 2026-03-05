@@ -14,7 +14,7 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué es el Reto White Lions de 30 Días?",
-      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. El costo es de $500 MXN (pago único en campo). Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
+      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. El costo es de $700 MXN (inscripción $400 + primera mensualidad $500). Este precio aplica como oferta al iniciar después de la clase muestra. Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
     },
     {
       question: "¿Qué incluye el Reto?",
@@ -22,11 +22,15 @@ const FAQNew = () => {
     },
     {
       question: "¿Cómo funciona la garantía?",
-      answer: "Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero. Sin preguntas, sin complicaciones. Así de seguros estamos de lo que ofrecemos.",
+      answer: "Si después de 30 días tu hijo no se divierte más, no se mueve más y no se adapta al entorno White Lions, te devolvemos tu dinero. Para procesar el reembolso, solo necesitas completar un breve formulario de retroalimentación que te proporcionaremos. Sin complicaciones.",
+    },
+    {
+      question: "¿La inscripción es anual?",
+      answer: "La inscripción de $400 MXN corresponde al ciclo escolar actual (Agosto–Junio). Una vez inscrito, solo pagas la mensualidad de $500 MXN cada mes. No hay costos ocultos ni cargos adicionales.",
     },
     {
       question: "¿Cuánto cuesta continuar después del Reto?",
-      answer: "La mensualidad regular después del Reto es de $500 MXN. Al inscribirte formalmente obtienes acceso a partidos oficiales, el kit White Lions, evaluaciones mensuales y acceso a la plataforma STRYK para seguimiento del progreso. No hay costos ocultos.",
+      answer: "La mensualidad regular después del Reto es de $500 MXN. Es un solo plan, sin complicaciones. Al inscribirte formalmente obtienes acceso a partidos oficiales, el kit White Lions, evaluaciones mensuales y acceso a la plataforma STRYK para seguimiento del progreso.",
     },
     {
       question: "¿Mi hijo puede entrar sin experiencia?",
@@ -39,6 +43,10 @@ const FAQNew = () => {
     {
       question: "¿Las academias son mixtas?",
       answer: "Sí, nuestras categorías son mixtas. Creemos en la inclusión y en que niños y niñas pueden desarrollarse juntos en un ambiente de respeto y sana competencia.",
+    },
+    {
+      question: "¿Hay categoría para niños de 4-5 años?",
+      answer: "Sí, la categoría Biberón está activa para niños de 4-5 años (nacidos en 2020-2021). Los entrenamientos son martes y jueves de 6:00 a 7:00 PM en Hacienda del Bosque. El cupo es limitado a 8 jugadores. Si el cupo está lleno, puedes registrarte en la lista de espera.",
     },
   ];
 

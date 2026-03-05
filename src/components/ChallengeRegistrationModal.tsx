@@ -75,9 +75,9 @@ const getCategories = (birthYear: string | undefined) => {
 const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
   if (isBiberon) {
     return [
-      { title: "Cuéntanos sobre el jugador", subtitle: "Para niños de 4-5 años. Lista de espera." },
-      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para avisarte cuando abra la categoría" },
-      { title: "Confirmar registro en lista de espera", subtitle: "Revisa los datos antes de enviar" },
+      { title: "Cuéntanos sobre el jugador", subtitle: "Categoría Biberón (4-5 años). Cupo limitado a 8 jugadores." },
+      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio" },
+      { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
     ];
   }
   return [
@@ -604,12 +604,12 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <div className="flex items-center gap-2">
                       <Baby className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                       <p className="font-semibold text-foreground text-sm">
-                        Biberón (4-5 años) — Lista de espera
+                        🍼 Biberón (4-5 años) — Categoría activa
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Esta categoría está por abrir. Regístrate a la lista de espera.<br />
-                      <strong>Cupo inicial: 8 espacios.</strong> Inicio: Lunes 2 de Marzo de 2026.
+                      Martes y Jueves, 6:00–7:00 PM · Hacienda del Bosque<br />
+                      <strong>Cupo máximo: 8 jugadores.</strong> Si el cupo está lleno, quedarás en lista de espera automáticamente.
                     </p>
                   </div>
                 )}
@@ -1059,7 +1059,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo accesible de $500 MXN y se paga en campo únicamente si decides continuar después de la experiencia inicial.
+                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo de $700 MXN (inscripción $400 + primera mensualidad $500, ciclo Ago–Jun) y se paga en campo únicamente si decides continuar después de la experiencia inicial.
                       </p>
                     </div>
                   </div>

@@ -2,25 +2,23 @@ import { Clock, MapPin } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 const Schedule = () => {
-  // Basketball pausado temporalmente - solo mostramos Fútbol
   const schedules = [
     {
       sport: "Fútbol",
       emoji: "⚽",
       location: "Hacienda del Bosque",
       sessions: [
-        { days: "Lunes y Miércoles", time: "6:00 PM – 8:00 PM", category: "Todas las categorías" },
+        { days: "Lunes y Miércoles", time: "6:00 PM – 8:00 PM", category: "Todas las categorías (6-13 años)" },
       ],
     },
-    // Basketball pausado temporalmente
-    // {
-    //   sport: "Basketball",
-    //   emoji: "🏀",
-    //   location: "Parque Quinta del Rey III",
-    //   sessions: [
-    //     { days: "Martes y Jueves", time: "6:30 PM – 8:00 PM", category: "Todas las categorías" },
-    //   ],
-    // },
+    {
+      sport: "Biberón (4-5 años)",
+      emoji: "🍼",
+      location: "Hacienda del Bosque",
+      sessions: [
+        { days: "Martes y Jueves", time: "6:00 PM – 7:00 PM", category: "Niños de 4-5 años · Cupo máx. 8" },
+      ],
+    },
   ];
 
   return (
@@ -31,13 +29,13 @@ const Schedule = () => {
             Horarios de Entrenamiento
           </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
-            Días y horarios fijos para cada deporte.
+            Días y horarios fijos para cada categoría.
           </p>
         </AnimatedSection>
 
-        <div className="flex justify-center max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {schedules.map((schedule) => (
-            <AnimatedSection key={schedule.sport} animation="fade-up" className="w-full max-w-md">
+            <AnimatedSection key={schedule.sport} animation="fade-up" className="w-full">
               <div className="bento-card overflow-hidden p-0">
                 {/* Header */}
                 <div className="bg-primary/20 p-6 text-center border-b border-border">

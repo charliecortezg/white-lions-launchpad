@@ -11,6 +11,7 @@ import ReprogramarConfirm from "./pages/ReprogramarConfirm";
 import PausarReactivacion from "./pages/PausarReactivacion";
 import WLFriend from "./pages/WLFriend";
 import EvaluationDay from "./pages/EvaluationDay";
+import Offboarding from "./pages/Offboarding";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/reprogramar" element={<Reprogramar />} />
           <Route path="/reprogramar/confirm" element={<ReprogramarConfirm />} />
           <Route path="/reactivacion/pausar" element={<PausarReactivacion />} />
+          <Route path="/offboarding/:prospectId" element={<Offboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

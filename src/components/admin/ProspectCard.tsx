@@ -11,6 +11,11 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { 
   MoreVertical, 
   MessageSquare, 
@@ -49,6 +54,8 @@ const STATUS_OPTIONS = [
   { value: "No Asistió", label: "No Asistió", icon: XCircle, color: "text-red-400" },
   { value: "Reprogramado", label: "Reprogramado", icon: Calendar, color: "text-yellow-400" },
   { value: "Inscrito", label: "Inscrito", icon: Trophy, color: "text-primary" },
+  { value: "Lista de Espera", label: "Lista de Espera", icon: Clock, color: "text-amber-400" },
+  { value: "Refund Requested", label: "Reembolso", icon: XCircle, color: "text-orange-400" },
   { value: "Perdido", label: "Perdido", icon: UserX, color: "text-muted-foreground" },
 ];
 
@@ -56,6 +63,9 @@ const getSportIcon = (category: string) => {
   const lowerCategory = category.toLowerCase();
   if (lowerCategory.includes("basket") || lowerCategory.includes("baloncesto")) {
     return "🏀";
+  }
+  if (lowerCategory.includes("biberón") || lowerCategory.includes("biberon")) {
+    return "🍼";
   }
   return "⚽";
 };
@@ -72,7 +82,13 @@ const formatDate = (dateString: string) => {
 const formatWhatsAppLink = (phone: string) => {
   const cleanPhone = phone.replace(/\D/g, "");
   const phoneWithCode = cleanPhone.startsWith("52") ? cleanPhone : `52${cleanPhone}`;
-  return `https://wa.me/${phoneWithCode}`;
+  const message = encodeURIComponent("Hola, soy Carlos de White Lions Academy 🦁. Te escribo para ayudarte con tu clase muestra gratuita. ¿Qué edad tiene tu hijo/a?");
+  return `https://wa.me/${phoneWithCode}?text=${message}`;
+};
+
+const formatCallLink = (phone: string) => {
+  const cleanPhone = phone.replace(/\D/g, "");
+  return `tel:+52${cleanPhone.startsWith("52") ? cleanPhone.slice(2) : cleanPhone}`;
 };
 
 export const ProspectCard = ({ 
@@ -90,6 +106,7 @@ export const ProspectCard = ({
   const canShowQuickActions = prospect.status === "Pendiente" || prospect.status === "Reprogramado";
   const canEnroll = prospect.status === "Asistió";
   const canMarkLost = prospect.status === "No Asistió";
+  const hasPhone = !!prospect.contact_phone && prospect.contact_phone.trim().length > 0;
 
   return (
     <Card 
@@ -128,149 +145,121 @@ export const ProspectCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              {/* Quick Actions for pending/rescheduled */}
               {canShowQuickActions && (
                 <>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMarkAttended?.(prospect);
-                    }}
-                    className="flex items-center gap-2 text-green-600"
-                  >
-                    <UserCheck className="h-4 w-4" />
-                    ✅ Marcar Asistió
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onMarkAttended?.(prospect); }} className="flex items-center gap-2 text-green-600">
+                    <UserCheck className="h-4 w-4" /> ✅ Marcar Asistió
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMarkNoShow?.(prospect);
-                    }}
-                    className="flex items-center gap-2 text-red-600"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    ❌ Marcar No Asistió
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onMarkNoShow?.(prospect); }} className="flex items-center gap-2 text-red-600">
+                    <XCircle className="h-4 w-4" /> ❌ Marcar No Asistió
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReschedule?.(prospect);
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <CalendarClock className="h-4 w-4" />
-                    📅 Reprogramar
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReschedule?.(prospect); }} className="flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4" /> 📅 Reprogramar
                   </DropdownMenuItem>
-                  
                   <DropdownMenuSeparator />
                 </>
               )}
-
-              {/* Quick action for attended - can enroll */}
               {canEnroll && (
                 <>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMarkEnrolled?.(prospect);
-                    }}
-                    className="flex items-center gap-2 text-primary"
-                  >
-                    <Trophy className="h-4 w-4" />
-                    🏆 Marcar Inscrito
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onMarkEnrolled?.(prospect); }} className="flex items-center gap-2 text-primary">
+                    <Trophy className="h-4 w-4" /> 🏆 Marcar Inscrito
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               )}
-
-              {/* Quick action for no-show - can mark lost */}
               {canMarkLost && (
                 <>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMarkLost?.(prospect);
-                    }}
-                    className="flex items-center gap-2 text-muted-foreground"
-                  >
-                    <UserX className="h-4 w-4" />
-                    💤 Marcar Perdido
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onMarkLost?.(prospect); }} className="flex items-center gap-2 text-muted-foreground">
+                    <UserX className="h-4 w-4" /> 💤 Marcar Perdido
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               )}
-
-              {/* Status submenu */}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Cambiar Estado
+                  <Clock className="h-4 w-4" /> Cambiar Estado
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   {STATUS_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusChange(prospect.id, option.value);
-                      }}
-                      className="flex items-center gap-2"
-                    >
-                      <option.icon className={`h-4 w-4 ${option.color}`} />
-                      {option.label}
+                    <DropdownMenuItem key={option.value} onClick={(e) => { e.stopPropagation(); onStatusChange(prospect.id, option.value); }} className="flex items-center gap-2">
+                      <option.icon className={`h-4 w-4 ${option.color}`} /> {option.label}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
-              
               <DropdownMenuSeparator />
-              
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenNotes(prospect);
-                }}
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                {prospect.notes ? "Ver/Editar Notas" : "Agregar Nota"}
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onOpenNotes(prospect); }} className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" /> {prospect.notes ? "Ver/Editar Notas" : "Agregar Nota"}
               </DropdownMenuItem>
-              
-              <DropdownMenuItem asChild>
-                <a
-                  href={formatWhatsAppLink(prospect.contact_phone)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Phone className="h-4 w-4 text-emerald-500" />
-                  WhatsApp
-                </a>
-              </DropdownMenuItem>
-
               <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(prospect.id);
-                }}
-                className="flex items-center gap-2 text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-                Eliminar
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(prospect.id); }} className="flex items-center gap-2 text-destructive focus:text-destructive">
+                <Trash2 className="h-4 w-4" /> Eliminar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        <div className="mt-3 flex gap-2">
+        {/* Quick action buttons: Call + WhatsApp */}
+        <div className="mt-3 flex items-center gap-2">
           <Badge variant="outline" className="text-xs">
             {prospect.preferred_location}
           </Badge>
+          <div className="flex-1" />
+          {hasPhone ? (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(formatCallLink(prospect.contact_phone), '_self');
+                    }}
+                  >
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Llamar</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
+                    asChild
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <a href={formatWhatsAppLink(prospect.contact_phone)} target="_blank" rel="noopener noreferrer">
+                      <MessageSquare className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>WhatsApp</TooltipContent>
+              </Tooltip>
+            </>
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Falta teléfono</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Falta teléfono</TooltipContent>
+              </Tooltip>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
