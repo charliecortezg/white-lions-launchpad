@@ -51,21 +51,26 @@ const ChallengeOffer = () => {
               
               {/* Price Header */}
               <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6 md:p-8 text-center border-b border-border">
-                <div className="flex items-center justify-center gap-4 flex-wrap">
+                <div className="flex items-center justify-center gap-6 flex-wrap">
                   <div className="text-center">
-                    <span className="text-sm text-muted-foreground line-through font-body">$900 MXN</span>
+                    <span className="text-sm text-muted-foreground font-body">Inscripción</span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl md:text-6xl font-bold text-primary font-display">$700</span>
+                      <span className="text-4xl md:text-5xl font-bold text-primary font-display">$400</span>
+                      <span className="text-lg text-muted-foreground font-body">MXN</span>
+                    </div>
+                  </div>
+                  <span className="text-2xl text-muted-foreground font-light">+</span>
+                  <div className="text-center">
+                    <span className="text-sm text-muted-foreground font-body">Mensualidad</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl md:text-5xl font-bold text-primary font-display">$500</span>
                       <span className="text-lg text-muted-foreground font-body">MXN</span>
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 space-y-1">
-                  <p className="text-sm text-muted-foreground font-body">
-                    Inscripción <span className="font-semibold text-foreground">$400</span> + Primera mensualidad <span className="font-semibold text-foreground">$500</span>
-                  </p>
                   <p className="text-xs text-muted-foreground/80 font-body">
-                    Inscripción válida para el ciclo Agosto–Junio · Pago único en campo
+                    Inscripción válida para el ciclo Agosto–Junio · Pago en campo
                   </p>
                 </div>
               </div>
