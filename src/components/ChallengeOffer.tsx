@@ -52,11 +52,21 @@ const ChallengeOffer = () => {
               {/* Price Header */}
               <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6 md:p-8 text-center border-b border-border">
                 <div className="flex items-center justify-center gap-4 flex-wrap">
-                  <span className="text-5xl md:text-6xl font-bold text-primary font-display">$500</span>
-                  <div className="text-left">
-                    <span className="text-lg text-muted-foreground font-body">MXN</span>
-                    <p className="text-sm text-muted-foreground font-body">Pago único</p>
+                  <div className="text-center">
+                    <span className="text-sm text-muted-foreground line-through font-body">$900 MXN</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl md:text-6xl font-bold text-primary font-display">$700</span>
+                      <span className="text-lg text-muted-foreground font-body">MXN</span>
+                    </div>
                   </div>
+                </div>
+                <div className="mt-3 space-y-1">
+                  <p className="text-sm text-muted-foreground font-body">
+                    Inscripción <span className="font-semibold text-foreground">$400</span> + Primera mensualidad <span className="font-semibold text-foreground">$500</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground/80 font-body">
+                    Inscripción válida para el ciclo Agosto–Junio · Pago único en campo
+                  </p>
                 </div>
               </div>
 
@@ -103,17 +113,25 @@ const ChallengeOffer = () => {
                   </div>
                 </div>
 
+                {/* After Reto pricing */}
+                <div className="mt-8 p-4 bg-muted/30 border border-border/50 rounded-xl text-center">
+                  <p className="text-sm text-muted-foreground font-body">
+                    Después del Reto: <span className="font-semibold text-foreground">Mensualidad $500 MXN</span> · Un solo plan, sin complicaciones.
+                  </p>
+                </div>
+
                 {/* Guarantee */}
-                <div className="mt-8 p-4 bg-card/50 border border-border/50 rounded-xl">
+                <div className="mt-4 p-4 bg-card/50 border border-border/50 rounded-xl">
                   <div className="flex items-start gap-3">
                     <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                     <div>
                       <h4 className="font-bold text-foreground font-display uppercase text-sm mb-1">
-                        Garantía de satisfacción
+                        Garantía de satisfacción – 30 días
                       </h4>
                       <p className="text-sm text-muted-foreground font-body">
                         Si después de 30 días tu hijo no se divierte más, no se mueve más 
-                        y no se adapta al entorno White Lions, te devolvemos tu dinero. Sin preguntas.
+                        y no se adapta al entorno White Lions, te devolvemos tu dinero. 
+                        Solo necesitas completar un breve formulario de retroalimentación para procesar el reembolso.
                       </p>
                     </div>
                   </div>

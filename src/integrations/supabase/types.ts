@@ -421,6 +421,33 @@ export type Database = {
         }
         Relationships: []
       }
+      offboarding_forms: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          prospect_id: string
+          reason: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          prospect_id: string
+          reason: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          prospect_id?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       partner_schools: {
         Row: {
           active: boolean
