@@ -935,7 +935,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     variant="hero"
                     size="lg"
                   >
-                    {isBiberon ? (
+                    {isWaitlist ? (
                       <>
                         <span className="hidden sm:inline">Confirmar registro</span>
                         <span className="sm:hidden">Confirmar</span>
