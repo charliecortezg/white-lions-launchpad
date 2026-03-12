@@ -14,7 +14,7 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué es el Reto White Lions de 30 Días?",
-      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. El costo es de $700 MXN (inscripción $400 + primera mensualidad $500). Este precio aplica como oferta al iniciar después de la clase muestra. Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
+      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. Incluye inscripción de $500 MXN (ciclo Ago–Jun) y primera mensualidad de $500 MXN. Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
     },
     {
       question: "¿Qué incluye el Reto?",
@@ -26,7 +26,7 @@ const FAQNew = () => {
     },
     {
       question: "¿La inscripción es anual?",
-      answer: "La inscripción de $400 MXN corresponde al ciclo escolar actual (Agosto–Junio). Una vez inscrito, solo pagas la mensualidad de $500 MXN cada mes. No hay costos ocultos ni cargos adicionales.",
+      answer: "La inscripción de $500 MXN corresponde al ciclo escolar actual (Agosto–Junio). Una vez inscrito, solo pagas la mensualidad de $500 MXN cada mes. No hay costos ocultos ni cargos adicionales.",
     },
     {
       question: "¿Cuánto cuesta continuar después del Reto?",
@@ -47,6 +47,10 @@ const FAQNew = () => {
     {
       question: "¿Hay categoría para niños de 4-5 años?",
       answer: "Sí, la categoría Biberón está activa para niños de 4-5 años (nacidos en 2020-2021). Los entrenamientos son martes y jueves de 6:00 a 7:00 PM en Hacienda del Bosque. El cupo es limitado a 8 jugadores. Si el cupo está lleno, puedes registrarte en la lista de espera.",
+    },
+    {
+      question: "¿Hay categoría para jóvenes de 12-13 años?",
+      answer: "Sí, estamos abriendo la categoría Juvenil A para jugadores nacidos en 2012-2013. Tenemos 12 espacios disponibles. Los entrenamientos son lunes y miércoles de 6:00 a 8:00 PM en Hacienda del Bosque. Puedes registrarte desde el formulario para apartar tu lugar.",
     },
   ];
 

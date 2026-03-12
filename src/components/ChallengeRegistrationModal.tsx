@@ -72,6 +72,10 @@ const getCategories = (birthYear: string | undefined) => {
   return [];
 };
 
+const isWaitlistCategory = (isBiberon: boolean, isJuvenil: boolean): boolean => {
+  return isBiberon || isJuvenil;
+};
+
 const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
   if (isBiberon) {
     return [
@@ -80,24 +84,25 @@ const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
       { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
     ];
   }
+  if (isJuvenil) {
+    return [
+      { title: "Cuéntanos sobre el jugador", subtitle: "Juvenil A (12-13 años). Estamos abriendo 12 espacios." },
+      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio" },
+      { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
+    ];
+  }
   return [
     {
       title: "Cuéntanos sobre el jugador",
-      subtitle: isJuvenil
-        ? "Para jugadores de 12-13 años ofrecemos inscripción directa"
-        : "El Reto está diseñado para niños de 6 a 11 años",
+      subtitle: "El Reto está diseñado para niños de 6 a 11 años",
     },
     {
       title: "Tu experiencia White Lions",
-      subtitle: isJuvenil
-        ? "Esto es lo que vivirá tu hijo en White Lions"
-        : "Esto es lo que vivirá tu hijo durante 30 días",
+      subtitle: "Esto es lo que vivirá tu hijo durante 30 días",
     },
     {
       title: "¿Cómo te contactamos?",
-      subtitle: isJuvenil
-        ? "Usaremos estos datos para coordinar el inicio"
-        : "Usaremos estos datos para coordinar el inicio del Reto",
+      subtitle: "Usaremos estos datos para coordinar el inicio del Reto",
     },
     {
       title: "Estás a un paso de vivir la experiencia White Lions",
@@ -144,7 +149,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
 
   const isBiberon = isBiberonYear(selectedBirthYear);
   const isJuvenil = isJuvenilAYear(selectedBirthYear);
-  const totalSteps = isBiberon ? 3 : 4;
+  const isWaitlist = isWaitlistCategory(isBiberon, isJuvenil);
+  const totalSteps = isWaitlist ? 3 : 4;
 
   const getMinStartDate = () => {
     const today = new Date();
@@ -201,7 +207,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
 
   // Step validation — Biberón skips step 2 (location/schedule/date)
   const validateStep = async (currentStep: number): Promise<boolean> => {
-    if (isBiberon) {
+    if (isWaitlist) {
       switch (currentStep) {
         case 1: return form.trigger(["player_name", "birth_year", "category"]);
         case 2: return form.trigger(["tutor_name", "tutor_email", "contact_phone"]);
@@ -234,6 +240,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
     setIsSubmitting(true);
     try {
       const birthYear = parseInt(data.birth_year);
+      const waitlistCategory = isBiberon ? 'biberon' : 'juvenil_a';
+      const waitlistBatch = isBiberon ? 'Biberon_Mar_2026_Batch1' : 'JuvenilA_2026_Batch1';
+      const categoryLabel = isBiberon ? 'Biberón (4-5 años)' : 'Juvenil A (12-13 años)';
 
       const notesWithReferral = referralSource && data.referral_name
         ? `[Referido por: ${data.referral_name}] ${data.notes || ''}`
@@ -248,8 +257,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
         p_parent_email: data.tutor_email,
         p_school: data.school || null,
         p_notes: notesWithReferral,
-        p_category: 'biberon',
-        p_batch: 'Biberon_Mar_2026_Batch1',
+        p_category: waitlistCategory,
+        p_batch: waitlistBatch,
         p_source: referralSource || 'web_form',
       });
 
@@ -275,7 +284,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             player_name: data.player_name,
             tutor_name: data.tutor_name,
             parent_email: data.tutor_email,
-            category: 'Biberón (4-5 años)',
+            category: categoryLabel,
             waitlist_status: rpcResult.status,
             spots_taken: rpcResult.spots_taken,
             capacity: rpcResult.capacity,
@@ -437,7 +446,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   };
 
   const onSubmit = async (data: FormData) => {
-    if (isBiberon) {
+    if (isWaitlist) {
       return onSubmitWaitlist(data);
     }
     return onSubmitRegular(data);
@@ -475,7 +484,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             {isBiberon
               ? "🍼 Lista de Espera — Biberón"
               : isJuvenil
-                ? "🦁 Inscripción White Lions"
+                ? "⚽ Lista de Espera — Juvenil A"
                 : "🦁 Reto White Lions – 30 Días"}
           </DialogTitle>
 
@@ -590,7 +599,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         {isBiberon
                           ? "Categoría Biberón: para niños de 4-5 años (nacidos en 2020-2021)."
                           : isJuvenil
-                            ? "Para jugadores de 12-13 años ofrecemos inscripción directa (sin Reto)."
+                            ? "Juvenil A: para jugadores de 12-13 años (nacidos en 2012-2013). Estamos abriendo 12 espacios."
                             : "El Reto está disponible para niños de 6 a 11 años."}
                       </FormDescription>
                       <FormMessage />
@@ -598,7 +607,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   )}
                 />
 
-                {/* Biberón Waitlist Banner */}
+                {/* Waitlist Banner */}
                 {isBiberon && (
                   <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4 space-y-2">
                     <div className="flex items-center gap-2">
@@ -610,6 +619,20 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       Martes y Jueves, 6:00–7:00 PM · Hacienda del Bosque<br />
                       <strong>Cupo máximo: 8 jugadores.</strong> Si el cupo está lleno, quedarás en lista de espera automáticamente.
+                    </p>
+                  </div>
+                )}
+                {isJuvenil && (
+                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">⚽</span>
+                      <p className="font-semibold text-foreground text-sm">
+                        Juvenil A (12-13 años) — Abriendo categoría
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Lunes y Miércoles, 6:00–8:00 PM · Hacienda del Bosque<br />
+                      <strong>12 espacios disponibles.</strong> Regístrate para apartar tu lugar. Si se llena, quedarás en lista de espera.
                     </p>
                   </div>
                 )}
@@ -654,7 +677,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               </div>
 
               {/* ═══ STEP 2 (regular): La Experiencia del Reto ═══ */}
-              {!isBiberon && (
+              {!isWaitlist && (
                 <div className={cn(
                   "space-y-5 transition-all duration-300 ease-out",
                   step === 2 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
@@ -774,10 +797,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 </div>
               )}
 
-              {/* ═══ Tutor Step (Step 2 for Biberón, Step 3 for regular) ═══ */}
+              {/* ═══ Tutor Step (Step 2 for waitlist, Step 3 for regular) ═══ */}
               <div className={cn(
                 "space-y-5 transition-all duration-300 ease-out",
-                (isBiberon ? step === 2 : step === 3) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+                (isWaitlist ? step === 2 : step === 3) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
               )}>
                 <FormField
                   control={form.control}
@@ -815,8 +838,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         </div>
                       </FormControl>
                       <FormDescription className="text-xs">
-                        {isBiberon
-                          ? "Te enviaremos la confirmación de tu registro en la lista de espera."
+                        {isWaitlist
+                          ? "Te enviaremos la confirmación de tu registro."
                           : "Te enviaremos la confirmación con los detalles de la clase muestra."}
                       </FormDescription>
                       <FormMessage />
@@ -877,7 +900,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder={isBiberon
+                          placeholder={isWaitlist
                             ? "Ej: Experiencia previa, necesidades especiales..."
                             : "Ej: Experiencia previa, lesiones, necesidades especiales, objetivos del jugador..."}
                           className="min-h-[80px] resize-none"
@@ -885,7 +908,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         />
                       </FormControl>
                       <FormDescription className="text-xs">
-                        {isBiberon
+                        {isWaitlist
                           ? "Esta información nos ayuda a preparar la categoría."
                           : "Esta información nos ayuda a personalizar la experiencia de tu hijo."}
                       </FormDescription>
@@ -912,7 +935,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     variant="hero"
                     size="lg"
                   >
-                    {isBiberon ? (
+                    {isWaitlist ? (
                       <>
                         <span className="hidden sm:inline">Confirmar registro</span>
                         <span className="sm:hidden">Confirmar</span>
@@ -928,8 +951,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 </div>
               </div>
 
-              {/* ═══ Biberón Step 3: Confirm Waitlist ═══ */}
-              {isBiberon && (
+              {/* ═══ Waitlist Step 3: Confirm ═══ */}
+              {isWaitlist && (
                 <div className={cn(
                   "space-y-3 sm:space-y-5 transition-all duration-300 ease-out",
                   step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
@@ -948,7 +971,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Categoría</span>
-                        <span className="font-medium">Biberón (4-5 años)</span>
+                        <span className="font-medium">
+                          {isBiberon ? "Biberón (4-5 años)" : "Juvenil A (12-13 años)"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Tutor</span>
@@ -958,21 +983,18 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         <span className="text-muted-foreground">WhatsApp</span>
                         <span className="font-medium">{form.watch("contact_phone")}</span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-border/50">
-                        <span className="text-muted-foreground font-semibold">Inicio estimado</span>
-                        <span className="font-bold text-primary">Lun 2 Mar 2026</span>
-                      </div>
                     </div>
                   </div>
 
                   {/* Info Note */}
-                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-xl">
+                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl">
                     <span className="text-lg sm:text-xl">💡</span>
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        Al registrarte entras a la lista de espera con cupo limitado a 8 espacios.
-                        Te contactaremos por WhatsApp para confirmar tu lugar.
+                        {isBiberon
+                          ? "Al registrarte entras a la lista con cupo limitado a 8 espacios. Te contactaremos por WhatsApp para confirmar tu lugar."
+                          : "Estamos abriendo 12 espacios para Juvenil A. Te contactaremos por WhatsApp para confirmar tu lugar."}
                       </p>
                     </div>
                   </div>
@@ -997,20 +1019,24 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     >
                       {isSubmitting ? "Procesando..." : (
                         <>
-                          <span className="hidden sm:inline">🍼 Registrarme en lista de espera</span>
-                          <span className="sm:hidden">🍼 Registrarme</span>
+                          <span className="hidden sm:inline">
+                            {isBiberon ? "🍼 Registrarme en lista de espera" : "⚽ Apartar mi lugar"}
+                          </span>
+                          <span className="sm:hidden">
+                            {isBiberon ? "🍼 Registrarme" : "⚽ Apartar lugar"}
+                          </span>
                         </>
                       )}
                     </Button>
                   </div>
                   <p className="text-center text-[11px] sm:text-xs text-muted-foreground break-words">
-                    Cupo limitado · 8 espacios · Inicio Marzo 2026
+                    Cupo limitado · {isBiberon ? "8" : "12"} espacios
                   </p>
                 </div>
               )}
 
               {/* ═══ Regular Step 4: Agendar Clase Muestra ═══ */}
-              {!isBiberon && (
+              {!isWaitlist && (
                 <div className={cn(
                   "space-y-3 sm:space-y-5 transition-all duration-300 ease-out",
                   step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
@@ -1059,7 +1085,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo de $700 MXN (inscripción $400 + primera mensualidad $500, ciclo Ago–Jun) y se paga en campo únicamente si decides continuar después de la experiencia inicial.
+                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo de inscripción de $500 MXN (ciclo Ago–Jun) + primera mensualidad de $500 MXN, y se paga en campo únicamente si decides continuar después de la experiencia inicial.
                       </p>
                     </div>
                   </div>
@@ -1105,7 +1131,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 <CheckCircle2 className="w-10 h-10 text-primary" />
               </div>
               <div>
-                {isBiberon && waitlistResult ? (
+                {isWaitlist && waitlistResult ? (
                   <>
                     <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 font-display uppercase">
                       {waitlistResult.status === 'accepted'
@@ -1114,7 +1140,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     </h3>
                     <p className="text-muted-foreground font-body text-sm">
                       {waitlistResult.status === 'accepted'
-                        ? `¡Listo! Estás dentro del cupo inicial (${waitlistResult.capacity}). Te contactaremos para confirmar tu primer día (Inicio: Lun 2 Mar).`
+                        ? `¡Listo! Estás dentro del cupo (${waitlistResult.spots_taken}/${waitlistResult.capacity}). Te contactaremos para confirmar tu primer día.`
                         : "¡Listo! Quedaste en lista de espera. Te contactaremos en cuanto se liberen cupos."}
                     </p>
                   </>
@@ -1131,7 +1157,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               </div>
             </div>
 
-            {submittedData && !isBiberon && (
+            {submittedData && !isWaitlist && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
                 <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu clase muestra</p>
                 <div className="space-y-2 text-sm">
@@ -1167,7 +1193,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               </div>
             )}
 
-            {submittedData && isBiberon && waitlistResult && (
+            {submittedData && isWaitlist && waitlistResult && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
                 <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu registro</p>
                 <div className="space-y-2 text-sm">
@@ -1177,7 +1203,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Categoría</span>
-                    <span className="font-medium">Biberón (4-5 años)</span>
+                    <span className="font-medium">
+                      {isBiberon ? "Biberón (4-5 años)" : "Juvenil A (12-13 años)"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tutor</span>
@@ -1201,8 +1229,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 📧 Revisa tu correo electrónico
               </p>
               <p className="text-xs text-muted-foreground">
-                {isBiberon
-                  ? "Te enviamos la confirmación de tu registro en la lista de espera."
+                {isWaitlist
+                  ? "Te enviamos la confirmación de tu registro."
                   : <>Te enviamos la confirmación con los detalles de la clase muestra.<br />Recuerda llegar 10 minutos antes.</>}
               </p>
             </div>
