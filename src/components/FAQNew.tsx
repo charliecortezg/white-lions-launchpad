@@ -14,7 +14,7 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué es el Reto White Lions de 30 Días?",
-      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. El costo es de $700 MXN (inscripción $400 + primera mensualidad $500). Este precio aplica como oferta al iniciar después de la clase muestra. Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
+      answer: "Es una experiencia de integración de 30 días diseñada para que tu hijo conozca nuestra metodología, se adapte al grupo y viva el sistema White Lions desde dentro. Incluye inscripción de $500 MXN (ciclo Ago–Jun) y primera mensualidad de $500 MXN. Incluye entrenamientos estructurados, seguimiento formativo y garantía de satisfacción.",
     },
     {
       question: "¿Qué incluye el Reto?",
