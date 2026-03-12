@@ -282,7 +282,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             player_name: data.player_name,
             tutor_name: data.tutor_name,
             parent_email: data.tutor_email,
-            category: 'Biberón (4-5 años)',
+            category: categoryLabel,
             waitlist_status: rpcResult.status,
             spots_taken: rpcResult.spots_taken,
             capacity: rpcResult.capacity,
