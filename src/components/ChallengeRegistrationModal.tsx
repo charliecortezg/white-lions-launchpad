@@ -72,6 +72,10 @@ const getCategories = (birthYear: string | undefined) => {
   return [];
 };
 
+const isWaitlistCategory = (isBiberon: boolean, isJuvenil: boolean): boolean => {
+  return isBiberon || isJuvenil;
+};
+
 const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
   if (isBiberon) {
     return [
@@ -80,24 +84,25 @@ const getStepTitles = (isJuvenil: boolean, isBiberon: boolean) => {
       { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
     ];
   }
+  if (isJuvenil) {
+    return [
+      { title: "Cuéntanos sobre el jugador", subtitle: "Juvenil A (12-13 años). Estamos abriendo 12 espacios." },
+      { title: "¿Cómo te contactamos?", subtitle: "Usaremos estos datos para coordinar el inicio" },
+      { title: "Confirmar registro", subtitle: "Revisa los datos antes de enviar" },
+    ];
+  }
   return [
     {
       title: "Cuéntanos sobre el jugador",
-      subtitle: isJuvenil
-        ? "Para jugadores de 12-13 años ofrecemos inscripción directa"
-        : "El Reto está diseñado para niños de 6 a 11 años",
+      subtitle: "El Reto está diseñado para niños de 6 a 11 años",
     },
     {
       title: "Tu experiencia White Lions",
-      subtitle: isJuvenil
-        ? "Esto es lo que vivirá tu hijo en White Lions"
-        : "Esto es lo que vivirá tu hijo durante 30 días",
+      subtitle: "Esto es lo que vivirá tu hijo durante 30 días",
     },
     {
       title: "¿Cómo te contactamos?",
-      subtitle: isJuvenil
-        ? "Usaremos estos datos para coordinar el inicio"
-        : "Usaremos estos datos para coordinar el inicio del Reto",
+      subtitle: "Usaremos estos datos para coordinar el inicio del Reto",
     },
     {
       title: "Estás a un paso de vivir la experiencia White Lions",
