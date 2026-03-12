@@ -238,6 +238,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
     setIsSubmitting(true);
     try {
       const birthYear = parseInt(data.birth_year);
+      const waitlistCategory = isBiberon ? 'biberon' : 'juvenil_a';
+      const waitlistBatch = isBiberon ? 'Biberon_Mar_2026_Batch1' : 'JuvenilA_2026_Batch1';
+      const categoryLabel = isBiberon ? 'Biberón (4-5 años)' : 'Juvenil A (12-13 años)';
 
       const notesWithReferral = referralSource && data.referral_name
         ? `[Referido por: ${data.referral_name}] ${data.notes || ''}`
@@ -252,8 +255,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
         p_parent_email: data.tutor_email,
         p_school: data.school || null,
         p_notes: notesWithReferral,
-        p_category: 'biberon',
-        p_batch: 'Biberon_Mar_2026_Batch1',
+        p_category: waitlistCategory,
+        p_batch: waitlistBatch,
         p_source: referralSource || 'web_form',
       });
 
