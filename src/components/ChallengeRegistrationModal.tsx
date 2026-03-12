@@ -900,7 +900,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder={isBiberon
+                          placeholder={isWaitlist
                             ? "Ej: Experiencia previa, necesidades especiales..."
                             : "Ej: Experiencia previa, lesiones, necesidades especiales, objetivos del jugador..."}
                           className="min-h-[80px] resize-none"
