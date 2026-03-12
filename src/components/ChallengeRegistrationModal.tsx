@@ -1131,7 +1131,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 <CheckCircle2 className="w-10 h-10 text-primary" />
               </div>
               <div>
-                {isBiberon && waitlistResult ? (
+                {isWaitlist && waitlistResult ? (
                   <>
                     <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 font-display uppercase">
                       {waitlistResult.status === 'accepted'
@@ -1140,7 +1140,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     </h3>
                     <p className="text-muted-foreground font-body text-sm">
                       {waitlistResult.status === 'accepted'
-                        ? `¡Listo! Estás dentro del cupo inicial (${waitlistResult.capacity}). Te contactaremos para confirmar tu primer día (Inicio: Lun 2 Mar).`
+                        ? `¡Listo! Estás dentro del cupo (${waitlistResult.spots_taken}/${waitlistResult.capacity}). Te contactaremos para confirmar tu primer día.`
                         : "¡Listo! Quedaste en lista de espera. Te contactaremos en cuanto se liberen cupos."}
                     </p>
                   </>
@@ -1157,7 +1157,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               </div>
             </div>
 
-            {submittedData && !isBiberon && (
+            {submittedData && !isWaitlist && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
                 <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu clase muestra</p>
                 <div className="space-y-2 text-sm">
@@ -1193,7 +1193,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               </div>
             )}
 
-            {submittedData && isBiberon && waitlistResult && (
+            {submittedData && isWaitlist && waitlistResult && (
               <div className="bg-muted/30 rounded-xl p-5 space-y-3 border border-border/50">
                 <p className="text-sm font-semibold text-foreground mb-3">Resumen de tu registro</p>
                 <div className="space-y-2 text-sm">
@@ -1203,7 +1203,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Categoría</span>
-                    <span className="font-medium">Biberón (4-5 años)</span>
+                    <span className="font-medium">
+                      {isBiberon ? "Biberón (4-5 años)" : "Juvenil A (12-13 años)"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tutor</span>
@@ -1227,8 +1229,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 📧 Revisa tu correo electrónico
               </p>
               <p className="text-xs text-muted-foreground">
-                {isBiberon
-                  ? "Te enviamos la confirmación de tu registro en la lista de espera."
+                {isWaitlist
+                  ? "Te enviamos la confirmación de tu registro."
                   : <>Te enviamos la confirmación con los detalles de la clase muestra.<br />Recuerda llegar 10 minutos antes.</>}
               </p>
             </div>
