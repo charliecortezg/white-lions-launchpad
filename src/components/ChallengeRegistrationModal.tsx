@@ -484,7 +484,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             {isBiberon
               ? "🍼 Lista de Espera — Biberón"
               : isJuvenil
-                ? "🦁 Inscripción White Lions"
+                ? "⚽ Lista de Espera — Juvenil A"
+                : "🦁 Reto White Lions – 30 Días"}
                 : "🦁 Reto White Lions – 30 Días"}
           </DialogTitle>
 
