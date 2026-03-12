@@ -48,6 +48,10 @@ const FAQNew = () => {
       question: "¿Hay categoría para niños de 4-5 años?",
       answer: "Sí, la categoría Biberón está activa para niños de 4-5 años (nacidos en 2020-2021). Los entrenamientos son martes y jueves de 6:00 a 7:00 PM en Hacienda del Bosque. El cupo es limitado a 8 jugadores. Si el cupo está lleno, puedes registrarte en la lista de espera.",
     },
+    {
+      question: "¿Hay categoría para jóvenes de 12-13 años?",
+      answer: "Sí, estamos abriendo la categoría Juvenil A para jugadores nacidos en 2012-2013. Tenemos 12 espacios disponibles. Los entrenamientos son lunes y miércoles de 6:00 a 8:00 PM en Hacienda del Bosque. Puedes registrarte desde el formulario para apartar tu lugar.",
+    },
   ];
 
   return (
