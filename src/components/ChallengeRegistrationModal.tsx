@@ -600,7 +600,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         {isBiberon
                           ? "Categoría Biberón: para niños de 4-5 años (nacidos en 2020-2021)."
                           : isJuvenil
-                            ? "Para jugadores de 12-13 años ofrecemos inscripción directa (sin Reto)."
+                            ? "Juvenil A: para jugadores de 12-13 años (nacidos en 2012-2013). Estamos abriendo 12 espacios."
                             : "El Reto está disponible para niños de 6 a 11 años."}
                       </FormDescription>
                       <FormMessage />
