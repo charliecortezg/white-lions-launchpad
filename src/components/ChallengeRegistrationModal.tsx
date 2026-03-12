@@ -1059,7 +1059,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo de $700 MXN (inscripción $400 + primera mensualidad $500, ciclo Ago–Jun) y se paga en campo únicamente si decides continuar después de la experiencia inicial.
+                        La clase muestra es gratuita y sin compromiso. El Reto White Lions tiene un costo de inscripción de $500 MXN (ciclo Ago–Jun) + primera mensualidad de $500 MXN, y se paga en campo únicamente si decides continuar después de la experiencia inicial.
                       </p>
                     </div>
                   </div>

@@ -55,7 +55,7 @@ const ChallengeOffer = () => {
                   <div className="text-center">
                     <span className="text-sm text-muted-foreground font-body">Inscripción</span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl md:text-5xl font-bold text-primary font-display">$400</span>
+                      <span className="text-4xl md:text-5xl font-bold text-primary font-display">$500</span>
                       <span className="text-lg text-muted-foreground font-body">MXN</span>
                     </div>
                   </div>

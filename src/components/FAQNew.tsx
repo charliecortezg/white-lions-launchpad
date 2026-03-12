@@ -26,7 +26,7 @@ const FAQNew = () => {
     },
     {
       question: "¿La inscripción es anual?",
-      answer: "La inscripción de $400 MXN corresponde al ciclo escolar actual (Agosto–Junio). Una vez inscrito, solo pagas la mensualidad de $500 MXN cada mes. No hay costos ocultos ni cargos adicionales.",
+      answer: "La inscripción de $500 MXN corresponde al ciclo escolar actual (Agosto–Junio). Una vez inscrito, solo pagas la mensualidad de $500 MXN cada mes. No hay costos ocultos ni cargos adicionales.",
     },
     {
       question: "¿Cuánto cuesta continuar después del Reto?",
