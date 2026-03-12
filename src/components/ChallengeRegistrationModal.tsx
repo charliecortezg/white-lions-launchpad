@@ -147,9 +147,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   const selectedSport = "Fútbol";
   const selectedBirthYear = form.watch("birth_year");
 
-  const isBiberon = isBiberonYear(selectedBirthYear);
-  const isJuvenil = isJuvenilAYear(selectedBirthYear);
-  const totalSteps = isBiberon ? 3 : 4;
+  const isWaitlist = isWaitlistCategory(isBiberon, isJuvenil);
+  const totalSteps = isWaitlist ? 3 : 4;
 
   const getMinStartDate = () => {
     const today = new Date();
