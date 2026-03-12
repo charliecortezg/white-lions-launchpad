@@ -486,7 +486,6 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               : isJuvenil
                 ? "⚽ Lista de Espera — Juvenil A"
                 : "🦁 Reto White Lions – 30 Días"}
-                : "🦁 Reto White Lions – 30 Días"}
           </DialogTitle>
 
           {!isSubmitted && (
