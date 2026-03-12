@@ -446,7 +446,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   };
 
   const onSubmit = async (data: FormData) => {
-    if (isBiberon) {
+    if (isWaitlist) {
       return onSubmitWaitlist(data);
     }
     return onSubmitRegular(data);
