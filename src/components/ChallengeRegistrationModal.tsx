@@ -908,7 +908,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         />
                       </FormControl>
                       <FormDescription className="text-xs">
-                        {isBiberon
+                        {isWaitlist
                           ? "Esta información nos ayuda a preparar la categoría."
                           : "Esta información nos ayuda a personalizar la experiencia de tu hijo."}
                       </FormDescription>
