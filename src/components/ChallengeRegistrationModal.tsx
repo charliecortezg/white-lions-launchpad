@@ -951,8 +951,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 </div>
               </div>
 
-              {/* ═══ Biberón Step 3: Confirm Waitlist ═══ */}
-              {isBiberon && (
+              {/* ═══ Waitlist Step 3: Confirm ═══ */}
+              {isWaitlist && (
                 <div className={cn(
                   "space-y-3 sm:space-y-5 transition-all duration-300 ease-out",
                   step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
@@ -971,7 +971,9 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Categoría</span>
-                        <span className="font-medium">Biberón (4-5 años)</span>
+                        <span className="font-medium">
+                          {isBiberon ? "Biberón (4-5 años)" : "Juvenil A (12-13 años)"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Tutor</span>
@@ -981,21 +983,18 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         <span className="text-muted-foreground">WhatsApp</span>
                         <span className="font-medium">{form.watch("contact_phone")}</span>
                       </div>
-                      <div className="flex justify-between pt-2 border-t border-border/50">
-                        <span className="text-muted-foreground font-semibold">Inicio estimado</span>
-                        <span className="font-bold text-primary">Lun 2 Mar 2026</span>
-                      </div>
                     </div>
                   </div>
 
                   {/* Info Note */}
-                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-xl">
+                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl">
                     <span className="text-lg sm:text-xl">💡</span>
                     <div>
                       <p className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">Importante</p>
                       <p className="text-[11px] sm:text-xs text-muted-foreground break-words">
-                        Al registrarte entras a la lista de espera con cupo limitado a 8 espacios.
-                        Te contactaremos por WhatsApp para confirmar tu lugar.
+                        {isBiberon
+                          ? "Al registrarte entras a la lista con cupo limitado a 8 espacios. Te contactaremos por WhatsApp para confirmar tu lugar."
+                          : "Estamos abriendo 12 espacios para Juvenil A. Te contactaremos por WhatsApp para confirmar tu lugar."}
                       </p>
                     </div>
                   </div>
@@ -1020,14 +1019,18 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     >
                       {isSubmitting ? "Procesando..." : (
                         <>
-                          <span className="hidden sm:inline">🍼 Registrarme en lista de espera</span>
-                          <span className="sm:hidden">🍼 Registrarme</span>
+                          <span className="hidden sm:inline">
+                            {isBiberon ? "🍼 Registrarme en lista de espera" : "⚽ Apartar mi lugar"}
+                          </span>
+                          <span className="sm:hidden">
+                            {isBiberon ? "🍼 Registrarme" : "⚽ Apartar lugar"}
+                          </span>
                         </>
                       )}
                     </Button>
                   </div>
                   <p className="text-center text-[11px] sm:text-xs text-muted-foreground break-words">
-                    Cupo limitado · 8 espacios · Inicio Marzo 2026
+                    Cupo limitado · {isBiberon ? "8" : "12"} espacios
                   </p>
                 </div>
               )}
