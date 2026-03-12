@@ -838,8 +838,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                         </div>
                       </FormControl>
                       <FormDescription className="text-xs">
-                        {isBiberon
-                          ? "Te enviaremos la confirmación de tu registro en la lista de espera."
+                        {isWaitlist
+                          ? "Te enviaremos la confirmación de tu registro."
                           : "Te enviaremos la confirmación con los detalles de la clase muestra."}
                       </FormDescription>
                       <FormMessage />
