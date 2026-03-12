@@ -607,7 +607,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   )}
                 />
 
-                {/* Biberón Waitlist Banner */}
+                {/* Waitlist Banner */}
                 {isBiberon && (
                   <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4 space-y-2">
                     <div className="flex items-center gap-2">
@@ -619,6 +619,20 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       Martes y Jueves, 6:00–7:00 PM · Hacienda del Bosque<br />
                       <strong>Cupo máximo: 8 jugadores.</strong> Si el cupo está lleno, quedarás en lista de espera automáticamente.
+                    </p>
+                  </div>
+                )}
+                {isJuvenil && (
+                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">⚽</span>
+                      <p className="font-semibold text-foreground text-sm">
+                        Juvenil A (12-13 años) — Abriendo categoría
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Lunes y Miércoles, 6:00–8:00 PM · Hacienda del Bosque<br />
+                      <strong>12 espacios disponibles.</strong> Regístrate para apartar tu lugar. Si se llena, quedarás en lista de espera.
                     </p>
                   </div>
                 )}
