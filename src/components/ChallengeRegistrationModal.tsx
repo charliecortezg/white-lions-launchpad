@@ -1036,7 +1036,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
               )}
 
               {/* ═══ Regular Step 4: Agendar Clase Muestra ═══ */}
-              {!isBiberon && (
+              {!isWaitlist && (
                 <div className={cn(
                   "space-y-3 sm:space-y-5 transition-all duration-300 ease-out",
                   step === 4 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
