@@ -205,7 +205,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
 
   // Step validation — Biberón skips step 2 (location/schedule/date)
   const validateStep = async (currentStep: number): Promise<boolean> => {
-    if (isBiberon) {
+    if (isWaitlist) {
       switch (currentStep) {
         case 1: return form.trigger(["player_name", "birth_year", "category"]);
         case 2: return form.trigger(["tutor_name", "tutor_email", "contact_phone"]);
