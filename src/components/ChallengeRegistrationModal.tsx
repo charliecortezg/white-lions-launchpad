@@ -797,10 +797,10 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                 </div>
               )}
 
-              {/* ═══ Tutor Step (Step 2 for Biberón, Step 3 for regular) ═══ */}
+              {/* ═══ Tutor Step (Step 2 for waitlist, Step 3 for regular) ═══ */}
               <div className={cn(
                 "space-y-5 transition-all duration-300 ease-out",
-                (isBiberon ? step === 2 : step === 3) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
+                (isWaitlist ? step === 2 : step === 3) ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 hidden"
               )}>
                 <FormField
                   control={form.control}
