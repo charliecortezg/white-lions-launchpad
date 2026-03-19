@@ -86,6 +86,54 @@ export type Database = {
         }
         Relationships: []
       }
+      calculator_leads: {
+        Row: {
+          category: string
+          coeficiente: number
+          created_at: string
+          dimensions: Json | null
+          id: string
+          location: string
+          parent_email: string
+          parent_goal: string | null
+          parent_name: string
+          parent_phone: string | null
+          player_age: number
+          player_name: string
+          tier: string
+        }
+        Insert: {
+          category: string
+          coeficiente: number
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          location: string
+          parent_email: string
+          parent_goal?: string | null
+          parent_name: string
+          parent_phone?: string | null
+          player_age: number
+          player_name: string
+          tier: string
+        }
+        Update: {
+          category?: string
+          coeficiente?: number
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          location?: string
+          parent_email?: string
+          parent_goal?: string | null
+          parent_name?: string
+          parent_phone?: string | null
+          player_age?: number
+          player_name?: string
+          tier?: string
+        }
+        Relationships: []
+      }
       class_schedules: {
         Row: {
           created_at: string
