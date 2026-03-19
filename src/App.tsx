@@ -31,6 +31,7 @@ const App = () => (
           <Route path="/reprogramar/confirm" element={<ReprogramarConfirm />} />
           <Route path="/reactivacion/pausar" element={<PausarReactivacion />} />
           <Route path="/offboarding/:prospectId" element={<Offboarding />} />
+          <Route path="/calculadora-deportiva" element={<CalculadoraDeportiva />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
