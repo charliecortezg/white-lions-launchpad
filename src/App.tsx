@@ -12,6 +12,7 @@ import PausarReactivacion from "./pages/PausarReactivacion";
 import WLFriend from "./pages/WLFriend";
 import EvaluationDay from "./pages/EvaluationDay";
 import Offboarding from "./pages/Offboarding";
+import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
 
 const queryClient = new QueryClient();
