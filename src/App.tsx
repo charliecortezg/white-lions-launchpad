@@ -12,6 +12,7 @@ import PausarReactivacion from "./pages/PausarReactivacion";
 import WLFriend from "./pages/WLFriend";
 import EvaluationDay from "./pages/EvaluationDay";
 import Offboarding from "./pages/Offboarding";
+import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/reactivacion/pausar" element={<PausarReactivacion />} />
           <Route path="/offboarding/:prospectId" element={<Offboarding />} />
           <Route path="/calculadora-deportiva" element={<CalculadoraDeportiva />} />
+          <Route path="/evaluacion-por-video" element={<EvaluacionPorVideo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

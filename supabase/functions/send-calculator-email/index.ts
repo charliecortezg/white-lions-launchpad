@@ -242,6 +242,7 @@ serve(async (req) => {
         from: "White Lions Academy <hola@whitelionsacademy.com>",
         reply_to: "info@whitelionsacademy.com",
         to: [data.parentEmail],
+        bcc: ["whitelions.admn@gmail.com"],
         subject,
         html,
       }),

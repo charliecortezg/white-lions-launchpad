@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
 } from 'recharts';
 import type { CalculatorResult, Location } from '@/lib/wl-calculator';
+import ChallengeRegistrationModal from '@/components/ChallengeRegistrationModal';
 
 interface ResultsStepProps {
   result: CalculatorResult;
@@ -67,7 +69,6 @@ function ShareModal({ playerName, coeficiente, tier, onClose }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
       <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        {/* Card */}
         <div className={`rounded-xl p-6 text-center mb-4 ${tierBg(tier)}`}>
           <p className="text-xs font-bold tracking-widest text-[#1B3A6B] mb-1">WHITE LIONS</p>
           <p className="text-[10px] text-[#D4A017] tracking-wider mb-4">Academy · Mexicali</p>
@@ -96,9 +97,30 @@ function ShareModal({ playerName, coeficiente, tier, onClose }: {
   );
 }
 
+function DisabledGuideButton({ text }: { text: string }) {
+  const [showMsg, setShowMsg] = useState(false);
+  return (
+    <div>
+      <button
+        onClick={() => setShowMsg(true)}
+        className="text-xs text-gray-400 font-medium cursor-not-allowed opacity-60"
+      >
+        {text}
+      </button>
+      {showMsg && (
+        <p className="text-xs text-[#D4A017] mt-1 animate-in fade-in">
+          Próximamente — estamos preparando tu guía personalizada 🦁
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function ResultsStep({ result, playerName, age, location, onRestart }: ResultsStepProps) {
+  const navigate = useNavigate();
   const [animatedCoef, setAnimatedCoef] = useState(0);
   const [showShare, setShowShare] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
 
   useEffect(() => {
     let start = 0;
@@ -127,8 +149,6 @@ export default function ResultsStep({ result, playerName, age, location, onResta
   const tierLabel = result.tier.replace('León ', '');
 
   const buildCtasMexicali = useCallback(() => {
-    const waClass = wa(`Hola, acabo de hacer la Calculadora de Rendimiento de White Lions para ${playerName}. Obtuvo un coeficiente de ${result.coeficiente} (${result.tier}) y me gustaría agendar una clase muestra gratuita.`);
-    const waVideo = wa(`Hola, me interesa la evaluación por video para ${playerName}. Su coeficiente fue ${result.coeficiente} (${result.tier}).`);
     const waChat = wa(`Hola, hice la Calculadora de Rendimiento para mi hijo/a y tengo algunas preguntas sobre White Lions Academy.`);
 
     return (
@@ -136,18 +156,19 @@ export default function ResultsStep({ result, playerName, age, location, onResta
         <h3 className="text-xl font-bold text-[#1B3A6B]">¿Cuál es el siguiente paso para {playerName}?</h3>
         <p className="text-sm text-gray-500">Como están en Mexicali, tienen acceso directo a la academia.</p>
 
-        {/* Highlighted */}
+        {/* Highlighted — Clase muestra opens modal */}
         <div className="border-2 border-[#2E6CC7] rounded-xl p-5 bg-[#F0F6FF] relative">
           <span className="absolute -top-3 left-4 bg-[#2E6CC7] text-white text-xs px-3 py-0.5 rounded-full font-bold">Recomendado</span>
           <p className="text-lg font-bold text-[#1B3A6B] mb-1">🥇 Clase muestra gratuita</p>
           <p className="text-sm text-gray-600 mb-3">1 sesión sin costo, sin compromiso. Ven a conocer el campo y a los entrenadores en Hacienda del Bosque, Mexicali.</p>
-          <a href={waClass} target="_blank" rel="noopener noreferrer" className="block w-full text-center py-3 rounded-xl bg-[#1B3A6B] text-white font-bold text-sm hover:bg-[#152d54] transition-all">Agendar clase muestra →</a>
+          <button onClick={() => setShowTrialModal(true)} className="block w-full text-center py-3 rounded-xl bg-[#1B3A6B] text-white font-bold text-sm hover:bg-[#152d54] transition-all">Agendar clase muestra →</button>
         </div>
 
+        {/* Evaluación por video — navigates to /evaluacion-por-video */}
         <div className="border border-gray-200 rounded-xl p-5">
           <p className="font-bold text-[#1B3A6B] mb-1">📹 Evaluación por video desde casa</p>
           <p className="text-sm text-gray-600 mb-3">Graba a {playerName} realizando 3 ejercicios y recibe un Plan de Desarrollo Individual (IDP) firmado por un entrenador en 48 horas.</p>
-          <a href={waVideo} target="_blank" rel="noopener noreferrer" className="block w-full text-center py-3 rounded-xl border-2 border-[#2E6CC7] text-[#2E6CC7] font-bold text-sm hover:bg-[#F0F6FF] transition-all">Solicitar evaluación por video →</a>
+          <button onClick={() => navigate('/evaluacion-por-video')} className="block w-full text-center py-3 rounded-xl border-2 border-[#2E6CC7] text-[#2E6CC7] font-bold text-sm hover:bg-[#F0F6FF] transition-all">Solicitar evaluación por video →</button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -159,15 +180,14 @@ export default function ResultsStep({ result, playerName, age, location, onResta
           <div className="border border-gray-200 rounded-xl p-4">
             <p className="font-bold text-[#1B3A6B] text-sm mb-1">📋 Guía de ejercicios León</p>
             <p className="text-xs text-gray-500 mb-2">Descarga gratis el plan adaptado al nivel {tierLabel}.</p>
-            <a href="https://whitelionsacademy.com/calculadora-deportiva" className="text-xs text-[#2E6CC7] font-medium hover:underline">Descargar guía →</a>
+            <DisabledGuideButton text="Descargar guía →" />
           </div>
         </div>
       </div>
     );
-  }, [playerName, result, tierLabel]);
+  }, [playerName, result, tierLabel, navigate]);
 
   const buildCtasOtraCiudad = useCallback(() => {
-    const waVideo = wa(`Hola, me interesa la evaluación por video para ${playerName}. Su coeficiente fue ${result.coeficiente} (${result.tier}). Estamos en otra ciudad de México.`);
     const waCall = wa(`Hola, me gustaría agendar una orientación online de 20 minutos para hablar sobre ${playerName}.`);
     const waChat = wa(`Hola, hice la Calculadora de Rendimiento para mi hijo/a y tengo algunas preguntas. Estamos fuera de Mexicali.`);
 
@@ -180,7 +200,7 @@ export default function ResultsStep({ result, playerName, age, location, onResta
           <span className="absolute -top-3 left-4 bg-[#2E9E6C] text-white text-xs px-3 py-0.5 rounded-full font-bold">Recomendado</span>
           <p className="text-lg font-bold text-[#1B3A6B] mb-1">📹 Evaluación por video (IDP)</p>
           <p className="text-sm text-gray-600 mb-3">Graba a {playerName} con los ejercicios que te indicamos y recibe en 48 horas un Plan de Desarrollo Individual personalizado, firmado por un entrenador White Lions.</p>
-          <a href={waVideo} target="_blank" rel="noopener noreferrer" className="block w-full text-center py-3 rounded-xl bg-[#2E9E6C] text-white font-bold text-sm hover:bg-[#268a5c] transition-all">Solicitar evaluación por video →</a>
+          <button onClick={() => navigate('/evaluacion-por-video')} className="block w-full text-center py-3 rounded-xl bg-[#2E9E6C] text-white font-bold text-sm hover:bg-[#268a5c] transition-all">Solicitar evaluación por video →</button>
         </div>
 
         <div className="border border-gray-200 rounded-xl p-5">
@@ -193,7 +213,7 @@ export default function ResultsStep({ result, playerName, age, location, onResta
           <div className="border border-gray-200 rounded-xl p-4">
             <p className="font-bold text-[#1B3A6B] text-sm mb-1">📋 Plan de ejercicios a distancia</p>
             <p className="text-xs text-gray-500 mb-2">Plan personalizado por edad y nivel {tierLabel}.</p>
-            <span className="text-xs text-[#2E6CC7] font-medium">Recibir plan →</span>
+            <DisabledGuideButton text="Recibir plan →" />
           </div>
           <div className="border border-gray-200 rounded-xl p-4">
             <p className="font-bold text-[#1B3A6B] text-sm mb-1">💬 Habla con el equipo</p>
@@ -203,10 +223,9 @@ export default function ResultsStep({ result, playerName, age, location, onResta
         </div>
       </div>
     );
-  }, [playerName, result, tierLabel]);
+  }, [playerName, result, tierLabel, navigate]);
 
   const buildCtasInternacional = useCallback(() => {
-    const waIntl = wa(`Hola, hice la Calculadora de Rendimiento de White Lions para ${playerName}. Estamos fuera de México y me interesa la evaluación por video. Su coeficiente fue ${result.coeficiente} (${result.tier}).`);
     const waChat = wa(`Hola, hice la Calculadora de Rendimiento para ${playerName} y quisiera más información. Estamos fuera de México.`);
 
     return (
@@ -218,14 +237,14 @@ export default function ResultsStep({ result, playerName, age, location, onResta
           <span className="absolute -top-3 left-4 bg-[#D4A017] text-[#1B3A6B] text-xs px-3 py-0.5 rounded-full font-bold">Recomendado</span>
           <p className="text-lg font-bold text-[#1B3A6B] mb-1">📹 Evaluación por video internacional</p>
           <p className="text-sm text-gray-600 mb-3">Graba a {playerName} con los ejercicios que te indicamos y recibe en 48 horas un reporte completo de un entrenador White Lions. Sin importar el país.</p>
-          <a href={waIntl} target="_blank" rel="noopener noreferrer" className="block w-full text-center py-3 rounded-xl bg-[#D4A017] text-[#1B3A6B] font-bold text-sm hover:bg-[#c4930f] transition-all">Solicitar evaluación →</a>
+          <button onClick={() => navigate('/evaluacion-por-video')} className="block w-full text-center py-3 rounded-xl bg-[#D4A017] text-[#1B3A6B] font-bold text-sm hover:bg-[#c4930f] transition-all">Solicitar evaluación →</button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="border border-gray-200 rounded-xl p-4">
             <p className="font-bold text-[#1B3A6B] text-sm mb-1">📋 Guía de desarrollo León</p>
             <p className="text-xs text-gray-500 mb-2">Plan del nivel {tierLabel} para practicar en cualquier parte del mundo.</p>
-            <span className="text-xs text-[#2E6CC7] font-medium">Descargar →</span>
+            <DisabledGuideButton text="Descargar guía gratuita →" />
           </div>
           <div className="border border-gray-200 rounded-xl p-4">
             <p className="font-bold text-[#1B3A6B] text-sm mb-1">💬 Contactar al equipo</p>
@@ -235,7 +254,7 @@ export default function ResultsStep({ result, playerName, age, location, onResta
         </div>
       </div>
     );
-  }, [playerName, result, tierLabel]);
+  }, [playerName, result, tierLabel, navigate]);
 
   const percentileHtml = result.percentileText
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -339,6 +358,9 @@ export default function ResultsStep({ result, playerName, age, location, onResta
           Hacer la evaluación para otro jugador
         </button>
       </div>
+
+      {/* Trial class modal */}
+      <ChallengeRegistrationModal open={showTrialModal} onOpenChange={setShowTrialModal} referralSource="calculadora" />
     </div>
   );
 }
