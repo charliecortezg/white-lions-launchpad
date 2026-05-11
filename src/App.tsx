@@ -14,6 +14,7 @@ import EvaluationDay from "./pages/EvaluationDay";
 import Offboarding from "./pages/Offboarding";
 import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
+import VeranoFutcenter from "./pages/VeranoFutcenter";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/offboarding/:prospectId" element={<Offboarding />} />
           <Route path="/calculadora-deportiva" element={<CalculadoraDeportiva />} />
           <Route path="/evaluacion-por-video" element={<EvaluacionPorVideo />} />
+          <Route path="/veranofutcenter" element={<VeranoFutcenter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
