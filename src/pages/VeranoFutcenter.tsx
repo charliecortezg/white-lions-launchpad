@@ -301,13 +301,14 @@ export default function VeranoFutcenter() {
 
               <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-2xl shadow-xl space-y-4">
                 {[
-                  { name: "nombre_padre", label: "Nombre del papá o mamá", type: "text" },
-                  { name: "telefono", label: "WhatsApp", type: "tel", placeholder: "686 000 0000" },
-                  { name: "nombre_jugador", label: "Nombre del jugador", type: "text" },
-                  { name: "edad_jugador", label: "Edad", type: "number", min: 8, max: 11 },
+                  { name: "nombre_padre", label: "Nombre del papá o mamá", type: "text", required: true },
+                  { name: "telefono", label: "WhatsApp", type: "tel", placeholder: "686 000 0000", required: true },
+                  { name: "email", label: "Correo electrónico (opcional)", type: "email", required: false, placeholder: "tu@correo.com" },
+                  { name: "nombre_jugador", label: "Nombre del jugador", type: "text", required: true },
+                  { name: "edad_jugador", label: "Edad", type: "number", min: 8, max: 11, required: true },
                 ].map((f: any) => (
                   <div key={f.name}>
-                    <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>{f.label} *</label>
+                    <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>{f.label}{f.required ? " *" : ""}</label>
                     <input
                       {...register(f.name as any)}
                       type={f.type}
