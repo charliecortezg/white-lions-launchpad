@@ -19,12 +19,12 @@ Deno.serve(async (req) => {
   try {
     const lead = await req.json();
 
-    // Insert into DB
     const { data: inserted, error: dbError } = await supabase
       .from("leads_verano")
       .insert({
         nombre_padre: lead.nombre_padre,
         telefono: lead.telefono,
+        email: lead.email || null,
         nombre_jugador: lead.nombre_jugador,
         edad_jugador: lead.edad_jugador,
         grupo: lead.grupo,
@@ -39,25 +39,25 @@ Deno.serve(async (req) => {
 
     if (dbError) throw dbError;
 
-    // Email admin
-    const rows = Object.entries({
-      Padre: lead.nombre_padre,
-      WhatsApp: lead.telefono,
-      Jugador: lead.nombre_jugador,
-      Edad: lead.edad_jugador,
-      Grupo: lead.grupo,
-      Mes: lead.mes_interes,
-      Paquete: lead.paquete_interes,
-      "Forma de pago": lead.forma_pago ?? "—",
-    })
-      .map(([k, v]) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;">${k}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${v ?? ""}</td></tr>`)
-      .join("");
+    const html = `
+<h2>Nuevo lead — Clínica de Verano Futcenter</h2>
+<table style="font-family:sans-serif;border-collapse:collapse;">
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Padre/Mamá</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.nombre_padre}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>WhatsApp</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.telefono}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Email</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.email ?? '—'}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Jugador</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.nombre_jugador}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Edad</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.edad_jugador} años</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Grupo</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">Grupo ${lead.grupo}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Mes</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.mes_interes}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Paquete</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.paquete_interes}</td></tr>
+  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Forma de pago</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.forma_pago ?? '—'}</td></tr>
+</table>`;
 
     await resend.emails.send({
-      from: "Futcenter Verano <noreply@whitelionsacademy.com>",
+      from: "Clínica Verano Futcenter <noreply@whitelionsacademy.com>",
       to: ["whitelionsacademy@gmail.com"],
       subject: `Nuevo lead Verano Futcenter — ${lead.nombre_jugador ?? ""}`,
-      html: `<h2 style="font-family:sans-serif;color:#2D2B6B;">Nuevo registro Clínica de Verano</h2><table style="font-family:sans-serif;border-collapse:collapse;">${rows}</table>`,
+      html,
     }).catch((e) => console.error("Email error:", e));
 
     return new Response(JSON.stringify({ ok: true, id: inserted.id }), {
