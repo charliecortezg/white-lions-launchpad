@@ -27,6 +27,7 @@ const PRECIOS: Record<string, string> = {
 const schema = z.object({
   nombre_padre: z.string().trim().min(2, "Requerido").max(100),
   telefono: z.string().trim().min(8, "Teléfono inválido").max(20),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   nombre_jugador: z.string().trim().min(2, "Requerido").max(100),
   edad_jugador: z.coerce.number().int().min(8, "8-11 años").max(11, "8-11 años"),
   grupo: z.enum(["A", "B"], { errorMap: () => ({ message: "Selecciona un grupo" }) }),
