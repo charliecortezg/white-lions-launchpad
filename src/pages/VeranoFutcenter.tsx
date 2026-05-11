@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,11 +10,18 @@ const NAVY = "#2D2B6B";
 const MAGENTA = "#C4317A";
 
 const STRIPE = {
-  mes_full: "https://buy.stripe.com/eVq5kF7Qd1ZJ0Dd2Uw08g06",
-  mes_dep: "https://buy.stripe.com/14AbJ37Qdawf0Dd1Qs08g05",
-  dos_full: "https://buy.stripe.com/9B628t6M9fQzdpZbr208g03",
-  dos_dep: "https://buy.stripe.com/14A4gB0nL0VF2LlamY08g04",
-  una: "https://buy.stripe.com/bJe28t0nLcEnbhR9iU08g00",
+  mes_completo__completo: "https://buy.stripe.com/eVq5kF7Qd1ZJ0Dd2Uw08g06",
+  mes_completo__deposito: "https://buy.stripe.com/14AbJ37Qdawf0Dd1Qs08g05",
+  "2_semanas__completo": "https://buy.stripe.com/9B628t6M9fQzdpZbr208g03",
+  "2_semanas__deposito": "https://buy.stripe.com/14A4gB0nL0VF2LlamY08g04",
+  "1_semana__completo": "https://buy.stripe.com/bJe28t0nLcEnbhR9iU08g00",
+};
+
+const PRECIOS: Record<string, string> = {
+  mes_completo: "$3,600",
+  "2_semanas": "$2,000",
+  "1_semana": "$1,000",
+  dia_suelto: "$250",
 };
 
 const schema = z.object({
@@ -22,27 +29,31 @@ const schema = z.object({
   telefono: z.string().trim().min(8, "Teléfono inválido").max(20),
   nombre_jugador: z.string().trim().min(2, "Requerido").max(100),
   edad_jugador: z.coerce.number().int().min(8, "8-11 años").max(11, "8-11 años"),
-  grupo: z.enum(["A", "B"]),
-  mes_interes: z.enum(["junio", "julio", "agosto"]),
-  paquete_interes: z.enum(["mes_completo", "2_semanas", "1_semana", "dia_suelto"]),
-});
+  grupo: z.enum(["A", "B"], { errorMap: () => ({ message: "Selecciona un grupo" }) }),
+  mes_interes: z.enum(["junio", "julio", "agosto"], { errorMap: () => ({ message: "Selecciona un mes" }) }),
+  paquete_interes: z.enum(["mes_completo", "2_semanas", "1_semana", "dia_suelto"], { errorMap: () => ({ message: "Selecciona un paquete" }) }),
+  forma_pago: z.enum(["completo", "deposito"]).optional(),
+}).refine(
+  (d) => {
+    if (d.paquete_interes === "mes_completo" || d.paquete_interes === "2_semanas") return !!d.forma_pago;
+    return true;
+  },
+  { message: "Elige forma de pago", path: ["forma_pago"] }
+);
 type FormVals = z.infer<typeof schema>;
 
-const Btn = ({ children, href, onClick, variant = "primary", className = "", type = "button" as const }: any) => {
-  const base = "inline-flex items-center justify-center font-bold uppercase tracking-wide px-6 py-4 rounded-lg transition-all text-sm sm:text-base";
-  const styles =
-    variant === "primary"
-      ? `text-white hover:opacity-90 shadow-lg`
-      : `bg-white border-2 hover:bg-[#FFF5FA]`;
+const Btn = ({ children, href, onClick, variant = "primary", className = "", type = "button" as const, disabled = false }: any) => {
+  const base = "inline-flex items-center justify-center font-bold uppercase tracking-wide px-6 py-4 rounded-lg transition-all text-sm sm:text-base disabled:opacity-50";
+  const styles = variant === "primary" ? "text-white hover:opacity-90 shadow-lg" : "bg-white border-2 hover:bg-[#FFF5FA]";
   const inline = variant === "primary" ? { background: NAVY } : { borderColor: MAGENTA, color: MAGENTA };
   if (href)
     return (
-      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className={`${base} ${styles} ${className}`} style={inline}>
+      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className={`${base} ${styles} ${className}`} style={inline} onClick={onClick}>
         {children}
       </a>
     );
   return (
-    <button type={type} onClick={onClick} className={`${base} ${styles} ${className}`} style={inline}>
+    <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${styles} ${className}`} style={inline}>
       {children}
     </button>
   );
@@ -55,12 +66,16 @@ const Check = () => (
 );
 
 export default function VeranoFutcenter() {
-  const [modal, setModal] = useState<null | "mes_completo" | "2_semanas">(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmation, setConfirmation] = useState<null | { stripeUrl?: string; paquete: string; forma_pago?: string }>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<FormVals>({
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormVals>({
     resolver: zodResolver(schema),
   });
+
+  const paqueteWatch = watch("paquete_interes");
+  const needsFormaPago = paqueteWatch === "mes_completo" || paqueteWatch === "2_semanas";
 
   useEffect(() => {
     document.title = "Clínica de Verano 2026 · Futcenter Mexicali";
@@ -68,19 +83,33 @@ export default function VeranoFutcenter() {
     if (m) m.setAttribute("content", "Clínica de fútbol de verano en Futcenter Mexicali. Niños 8 a 11 años. Lunes a viernes 8AM–1PM. Junio, Julio y Agosto 2026.");
   }, []);
 
+  const preselectAndScroll = (paquete: FormVals["paquete_interes"], forma_pago?: "completo" | "deposito") => {
+    setValue("paquete_interes", paquete);
+    if (forma_pago) setValue("forma_pago", forma_pago);
+    setTimeout(() => {
+      document.getElementById("registro")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
   const onSubmit = async (vals: FormVals) => {
     setSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("send-verano-lead", {
-        body: { ...vals, fuente: "web", estado: "lead", created_at: new Date().toISOString() },
+        body: { ...vals, fuente: "web" },
       });
       if (error) throw error;
 
-      if (vals.paquete_interes === "mes_completo") setModal("mes_completo");
-      else if (vals.paquete_interes === "2_semanas") setModal("2_semanas");
-      else if (vals.paquete_interes === "1_semana") window.location.href = STRIPE.una;
-      else toast({ title: "¡Listo!", description: "Te contactamos por WhatsApp en menos de 24 horas." });
+      let stripeUrl: string | undefined;
+      if (vals.paquete_interes === "1_semana") {
+        stripeUrl = STRIPE["1_semana__completo"];
+      } else if (vals.paquete_interes === "mes_completo" || vals.paquete_interes === "2_semanas") {
+        const key = `${vals.paquete_interes}__${vals.forma_pago}` as keyof typeof STRIPE;
+        stripeUrl = STRIPE[key];
+      }
+      // dia_suelto: no stripe
+      setConfirmation({ stripeUrl, paquete: vals.paquete_interes, forma_pago: vals.forma_pago });
       reset();
+      setTimeout(() => window.scrollTo({ top: document.getElementById("registro")?.offsetTop ?? 0, behavior: "smooth" }), 50);
     } catch {
       toast({ title: "Hubo un error", description: "Escríbenos al 686 440 8021", variant: "destructive" });
     } finally {
@@ -166,7 +195,8 @@ export default function VeranoFutcenter() {
       {/* PAQUETES */}
       <section className="px-4 py-14">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-black text-center mb-10 uppercase">Elige el paquete de tu hijo</h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-center mb-3 uppercase">Elige el paquete de tu hijo</h2>
+          <p className="text-center text-gray-600 mb-10 text-sm">Llena el formulario para apartar tu lugar y proceder al pago.</p>
           <div className="grid lg:grid-cols-3 gap-6">
 
             {/* MES COMPLETO */}
@@ -175,9 +205,7 @@ export default function VeranoFutcenter() {
                 ⭐ Más Elegido
               </div>
               <h3 className="text-xl font-black mt-2 mb-1" style={{ color: NAVY }}>Mes Completo · 4 semanas</h3>
-              <div className="mb-1">
-                <span className="text-gray-400 line-through text-lg">$4,000</span>
-              </div>
+              <div className="mb-1"><span className="text-gray-400 line-through text-lg">$4,000</span></div>
               <div className="text-4xl font-black mb-1" style={{ color: MAGENTA }}>$3,600 <span className="text-lg">MXN</span></div>
               <p className="text-green-600 font-bold text-sm mb-4">Ahorras $400 pagando completo</p>
               <ul className="space-y-2 mb-6 text-sm flex-1">
@@ -185,10 +213,9 @@ export default function VeranoFutcenter() {
                   <li key={i} className="flex gap-2"><Check /><span>{i}</span></li>
                 ))}
               </ul>
-              <Btn href={STRIPE.mes_full} className="w-full mb-3">Pagar $3,600 completo →</Btn>
-              <p className="text-center text-xs text-gray-500 mb-3">— o aparta con depósito —</p>
-              <Btn href={STRIPE.mes_dep} variant="secondary" className="w-full">Depositar $2,000 para apartar →</Btn>
-              <p className="text-center text-xs text-gray-500 mt-2">Saldo de $2,000 el primer día</p>
+              <Btn onClick={() => preselectAndScroll("mes_completo", "completo")} className="w-full mb-3">Apartar — Pago completo →</Btn>
+              <Btn onClick={() => preselectAndScroll("mes_completo", "deposito")} variant="secondary" className="w-full">Apartar con depósito $2,000 →</Btn>
+              <p className="text-center text-xs text-gray-500 mt-2">Saldo restante el primer día</p>
             </div>
 
             {/* 2 SEMANAS */}
@@ -200,10 +227,9 @@ export default function VeranoFutcenter() {
                   <li key={i} className="flex gap-2"><Check /><span>{i}</span></li>
                 ))}
               </ul>
-              <Btn href={STRIPE.dos_full} className="w-full mb-3">Pagar $2,000 completo →</Btn>
-              <p className="text-center text-xs text-gray-500 mb-3">— o aparta con depósito —</p>
-              <Btn href={STRIPE.dos_dep} variant="secondary" className="w-full">Depositar $1,000 para apartar →</Btn>
-              <p className="text-center text-xs text-gray-500 mt-2">Saldo de $1,000 el primer día</p>
+              <Btn onClick={() => preselectAndScroll("2_semanas", "completo")} className="w-full mb-3">Apartar — Pago completo →</Btn>
+              <Btn onClick={() => preselectAndScroll("2_semanas", "deposito")} variant="secondary" className="w-full">Apartar con depósito $1,000 →</Btn>
+              <p className="text-center text-xs text-gray-500 mt-2">Saldo restante el primer día</p>
             </div>
 
             {/* 1 SEMANA */}
@@ -215,7 +241,7 @@ export default function VeranoFutcenter() {
                   <li key={i} className="flex gap-2"><Check /><span>{i}</span></li>
                 ))}
               </ul>
-              <Btn href={STRIPE.una} className="w-full">Apartar lugar — $1,000 →</Btn>
+              <Btn onClick={() => preselectAndScroll("1_semana")} className="w-full">Apartar lugar — $1,000 →</Btn>
             </div>
           </div>
 
@@ -236,71 +262,121 @@ export default function VeranoFutcenter() {
         </div>
       </section>
 
-      {/* FORM */}
+      {/* FORM / CONFIRMACIÓN */}
       <section id="registro" className="px-4 py-14 bg-gray-50">
         <div className="max-w-lg mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-black text-center mb-2 uppercase">Aparta el lugar de tu hijo</h2>
-          <p className="text-center text-gray-600 mb-8">Llena el formulario. Te confirmamos por WhatsApp en menos de 24 horas.</p>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-2xl shadow-xl space-y-4">
-            {[
-              { name: "nombre_padre", label: "Nombre del papá o mamá", type: "text" },
-              { name: "telefono", label: "WhatsApp", type: "tel", placeholder: "686 000 0000" },
-              { name: "nombre_jugador", label: "Nombre del jugador", type: "text" },
-              { name: "edad_jugador", label: "Edad", type: "number", min: 8, max: 11 },
-            ].map((f: any) => (
-              <div key={f.name}>
-                <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>{f.label} *</label>
-                <input
-                  {...register(f.name as any)}
-                  type={f.type}
-                  min={f.min}
-                  max={f.max}
-                  placeholder={f.placeholder}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[var(--nv)]"
-                  style={{ ["--nv" as any]: NAVY }}
-                />
-                {errors[f.name as keyof FormVals] && <p className="text-xs text-red-600 mt-1">{(errors as any)[f.name].message}</p>}
+          {confirmation ? (
+            <div className="bg-white p-8 rounded-2xl shadow-xl text-center">
+              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: MAGENTA }}>
+                <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            ))}
+              <h3 className="text-2xl font-black mb-2" style={{ color: NAVY }}>¡Datos recibidos!</h3>
 
-            <div>
-              <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Grupo *</label>
-              <select {...register("grupo")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
-                <option value="">Selecciona...</option>
-                <option value="A">Grupo A — 8 a 9 años</option>
-                <option value="B">Grupo B — 10 a 11 años</option>
-              </select>
-              {errors.grupo && <p className="text-xs text-red-600 mt-1">{errors.grupo.message}</p>}
+              {confirmation.stripeUrl ? (
+                <>
+                  <p className="text-gray-700 mb-6">
+                    Último paso: completa el pago de tu paquete <strong>{confirmation.paquete.replace("_", " ")}</strong>
+                    {confirmation.forma_pago === "deposito" ? " (depósito)" : ""} para asegurar el lugar.
+                  </p>
+                  <Btn href={confirmation.stripeUrl} className="w-full mb-3">Continuar al pago →</Btn>
+                  <p className="text-xs text-gray-500">Te abrimos Stripe en una nueva pestaña.</p>
+                </>
+              ) : (
+                <p className="text-gray-700 mb-4">
+                  Te contactamos por WhatsApp en menos de 24 horas para coordinar el día suelto.
+                </p>
+              )}
+
+              <button onClick={() => setConfirmation(null)} className="mt-6 text-sm text-gray-500 hover:text-gray-700 underline">
+                Registrar otro jugador
+              </button>
             </div>
+          ) : (
+            <>
+              <h2 className="text-3xl sm:text-4xl font-black text-center mb-2 uppercase">Aparta el lugar de tu hijo</h2>
+              <p className="text-center text-gray-600 mb-8">Llena el formulario. Después continúas al pago.</p>
 
-            <div>
-              <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Mes de interés *</label>
-              <select {...register("mes_interes")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
-                <option value="">Selecciona...</option>
-                <option value="junio">Junio (inicia 8 de junio)</option>
-                <option value="julio">Julio (inicia 6 de julio)</option>
-                <option value="agosto">Agosto (inicia 3 de agosto)</option>
-              </select>
-              {errors.mes_interes && <p className="text-xs text-red-600 mt-1">{errors.mes_interes.message}</p>}
-            </div>
+              <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-2xl shadow-xl space-y-4">
+                {[
+                  { name: "nombre_padre", label: "Nombre del papá o mamá", type: "text" },
+                  { name: "telefono", label: "WhatsApp", type: "tel", placeholder: "686 000 0000" },
+                  { name: "nombre_jugador", label: "Nombre del jugador", type: "text" },
+                  { name: "edad_jugador", label: "Edad", type: "number", min: 8, max: 11 },
+                ].map((f: any) => (
+                  <div key={f.name}>
+                    <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>{f.label} *</label>
+                    <input
+                      {...register(f.name as any)}
+                      type={f.type}
+                      min={f.min}
+                      max={f.max}
+                      placeholder={f.placeholder}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                    />
+                    {errors[f.name as keyof FormVals] && <p className="text-xs text-red-600 mt-1">{(errors as any)[f.name].message}</p>}
+                  </div>
+                ))}
 
-            <div>
-              <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Paquete *</label>
-              <select {...register("paquete_interes")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
-                <option value="">Selecciona...</option>
-                <option value="mes_completo">Mes completo — $3,600</option>
-                <option value="2_semanas">2 semanas — $2,000</option>
-                <option value="1_semana">1 semana — $1,000</option>
-                <option value="dia_suelto">Día suelto — $250</option>
-              </select>
-              {errors.paquete_interes && <p className="text-xs text-red-600 mt-1">{errors.paquete_interes.message}</p>}
-            </div>
+                <div>
+                  <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Grupo *</label>
+                  <select {...register("grupo")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
+                    <option value="">Selecciona...</option>
+                    <option value="A">Grupo A — 8 a 9 años</option>
+                    <option value="B">Grupo B — 10 a 11 años</option>
+                  </select>
+                  {errors.grupo && <p className="text-xs text-red-600 mt-1">{errors.grupo.message}</p>}
+                </div>
 
-            <Btn type="submit" className="w-full !mt-6" onClick={undefined}>
-              {submitting ? "Enviando..." : "Enviar →"}
-            </Btn>
-          </form>
+                <div>
+                  <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Mes de interés *</label>
+                  <select {...register("mes_interes")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
+                    <option value="">Selecciona...</option>
+                    <option value="junio">Junio (inicia 8 de junio)</option>
+                    <option value="julio">Julio (inicia 6 de julio)</option>
+                    <option value="agosto">Agosto (inicia 3 de agosto)</option>
+                  </select>
+                  {errors.mes_interes && <p className="text-xs text-red-600 mt-1">{errors.mes_interes.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold mb-1" style={{ color: NAVY }}>Paquete *</label>
+                  <select {...register("paquete_interes")} className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-white">
+                    <option value="">Selecciona...</option>
+                    <option value="mes_completo">Mes completo — $3,600</option>
+                    <option value="2_semanas">2 semanas — $2,000</option>
+                    <option value="1_semana">1 semana — $1,000</option>
+                    <option value="dia_suelto">Día suelto — $250</option>
+                  </select>
+                  {errors.paquete_interes && <p className="text-xs text-red-600 mt-1">{errors.paquete_interes.message}</p>}
+                </div>
+
+                {needsFormaPago && (
+                  <div className="p-4 rounded-lg border-2" style={{ borderColor: MAGENTA, background: "#FFF5FA" }}>
+                    <label className="block text-sm font-bold mb-2" style={{ color: NAVY }}>Forma de pago *</label>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" value="completo" {...register("forma_pago")} className="w-4 h-4" />
+                        <span className="text-sm">Pago completo ({PRECIOS[paqueteWatch]})</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" value="deposito" {...register("forma_pago")} className="w-4 h-4" />
+                        <span className="text-sm">
+                          Depósito para apartar ({paqueteWatch === "mes_completo" ? "$2,000" : "$1,000"})
+                        </span>
+                      </label>
+                    </div>
+                    {errors.forma_pago && <p className="text-xs text-red-600 mt-2">{errors.forma_pago.message}</p>}
+                  </div>
+                )}
+
+                <Btn type="submit" className="w-full !mt-6" disabled={submitting}>
+                  {submitting ? "Enviando..." : "Continuar al pago →"}
+                </Btn>
+              </form>
+            </>
+          )}
         </div>
       </section>
 
@@ -309,27 +385,6 @@ export default function VeranoFutcenter() {
         <img src={logo} alt="Futcenter" className="h-16 w-16 rounded-full object-cover mx-auto mb-3" />
         <p className="text-sm text-gray-600">Futcenter · Mexicali, Baja California</p>
       </footer>
-
-      {/* MODAL */}
-      {modal && (
-        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4" onClick={() => setModal(null)}>
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-black mb-4 text-center" style={{ color: NAVY }}>Elige cómo pagar</h3>
-            {modal === "mes_completo" ? (
-              <div className="space-y-3">
-                <Btn href={STRIPE.mes_full} className="w-full">Pagar $3,600 completo</Btn>
-                <Btn href={STRIPE.mes_dep} variant="secondary" className="w-full">Depositar $2,000 para apartar</Btn>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <Btn href={STRIPE.dos_full} className="w-full">Pagar $2,000 completo</Btn>
-                <Btn href={STRIPE.dos_dep} variant="secondary" className="w-full">Depositar $1,000 para apartar</Btn>
-              </div>
-            )}
-            <button onClick={() => setModal(null)} className="w-full mt-4 text-sm text-gray-500 hover:text-gray-700">Cerrar</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,47 +1,45 @@
+## Problema actual
 
+En `/veranofutcenter` los botones de Stripe están en la sección **PAQUETES** como links directos. Si un papá hace clic ahí y paga, **no tenemos su información** (nombre, WhatsApp, jugador, edad, grupo, mes). Solo nos llega el correo de Stripe sin contexto — no sabemos a quién contactar ni para qué grupo.
 
-# Plan: Conectar datos de Biberon al calendario y CRM
+Además, los leads del formulario hoy se mandan solo por email (no se guardan), porque la migración de la tabla no se había aprobado.
 
-## Problema
+## Solución
 
-Los datos de la lista de espera (Biberon) existen en la base de datos (10 registros), pero no se muestran en el panel admin. La causa es que el header personalizado `x-type: waitlist` no esta incluido en los headers CORS permitidos del edge function, por lo que el navegador lo descarta durante la solicitud.
+**Pago obligatoriamente después del formulario.** Los links directos de Stripe se quitan de las tarjetas de paquetes y se reemplazan por un botón "Apartar este paquete →" que hace scroll a `#registro` con el paquete pre-seleccionado. El pago solo se desbloquea después de guardar el lead.
 
-## Solucion
+### Cambios
 
-Cambiar la forma en que se solicitan los datos de waitlist: usar un query parameter (`?type=waitlist`) en lugar de un header personalizado, lo cual es mas robusto y no requiere configuracion CORS adicional.
+**1. Migración — crear tabla `leads_verano`**
 
-## Cambios
+Campos:
+- `nombre_padre`, `telefono`, `nombre_jugador`, `edad_jugador`, `grupo`, `mes_interes`, `paquete_interes`, `fuente`, `estado`, `stripe_clicked` (bool), `stripe_link_clicked` (text)
 
-### 1. Edge function `supabase/functions/admin-prospects/index.ts`
+RLS:
+- Cualquiera puede insertar (formulario público)
+- Solo admins/staff pueden ver, actualizar, borrar
 
-- Leer el parametro `type` de la URL en lugar del header `x-type`
-- Cambiar `req.headers.get("x-type")` por `new URL(req.url).searchParams.get("type")`
-- Agregar `x-type` a los CORS allowed headers como respaldo
+**2. Edge function `send-verano-lead`**
 
-### 2. Admin Panel `src/pages/AdminPanel.tsx`
+Después de enviar el email, también inserta en `leads_verano` usando service role.
 
-- Cambiar la query de waitlist para pasar `type=waitlist` como query parameter en el body o en la URL
-- En `supabase.functions.invoke`, cambiar de `headers: { "x-type": "waitlist" }` a usar el body con un flag, enviando via POST con `{ action: "list_waitlist" }`
+**3. Página `VeranoFutcenter.tsx`**
 
-### Enfoque final (mas limpio)
+- En las 3 tarjetas de PAQUETES: quitar links directos a Stripe. Reemplazar con un solo botón navy "Apartar este paquete →" que hace scroll a `#registro` y pre-selecciona el paquete + opción de pago (completo / depósito) en el formulario.
+- Agregar campo "Forma de pago" en el formulario cuando el paquete elegido tiene depósito (Mes completo, 2 semanas):
+  - Pago completo
+  - Depósito para apartar
+- Flujo al enviar formulario:
+  1. Validar con zod
+  2. Llamar edge function → guarda en DB + manda email a admin
+  3. Solo si guarda OK → mostrar pantalla de confirmación con **un solo botón** que lleva al link exacto de Stripe correspondiente (paquete + forma de pago)
+  4. Si paquete = "Día suelto" → toast "Te contactamos por WhatsApp" sin Stripe
+- Eliminar el modal con dos botones de pago (ya no se necesita, la elección se hace en el form)
 
-Usar POST con body `{ action: "list_waitlist" }` para el fetch de waitlist, ya que es la forma mas confiable con `supabase.functions.invoke`.
+### Resultado
 
-**Edge function:** Agregar handler para `action === "list_waitlist"` dentro del bloque POST, antes de verificar `id`.
+Ningún papá puede llegar a Stripe sin antes haber dejado sus datos en la base de datos. Cada pago queda ligado 1:1 a un registro en `leads_verano`.
 
-**AdminPanel:** Cambiar el query de waitlist a:
-```
-supabase.functions.invoke("admin-prospects", {
-  method: "POST",
-  body: { action: "list_waitlist" },
-})
-```
+### Nota técnica
 
-### Detalle tecnico del edge function
-
-Reestructurar el bloque POST para:
-1. Primero verificar si `action === "list_waitlist"` (no requiere `id`)
-2. Luego continuar con la logica existente que requiere `id`
-
-Esto no afecta ninguna funcionalidad existente.
-
+El flujo aún depende de que el papá haga clic en el botón final de Stripe. Si abandona ahí, al menos tenemos el lead capturado para darle seguimiento por WhatsApp.

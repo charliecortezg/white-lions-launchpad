@@ -469,6 +469,57 @@ export type Database = {
         }
         Relationships: []
       }
+      leads_verano: {
+        Row: {
+          created_at: string
+          edad_jugador: number
+          estado: string
+          forma_pago: string | null
+          fuente: string
+          grupo: string
+          id: string
+          mes_interes: string
+          nombre_jugador: string
+          nombre_padre: string
+          paquete_interes: string
+          stripe_link_clicked: string | null
+          telefono: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          edad_jugador: number
+          estado?: string
+          forma_pago?: string | null
+          fuente?: string
+          grupo: string
+          id?: string
+          mes_interes: string
+          nombre_jugador: string
+          nombre_padre: string
+          paquete_interes: string
+          stripe_link_clicked?: string | null
+          telefono: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          edad_jugador?: number
+          estado?: string
+          forma_pago?: string | null
+          fuente?: string
+          grupo?: string
+          id?: string
+          mes_interes?: string
+          nombre_jugador?: string
+          nombre_padre?: string
+          paquete_interes?: string
+          stripe_link_clicked?: string | null
+          telefono?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       offboarding_forms: {
         Row: {
           completed_at: string | null
