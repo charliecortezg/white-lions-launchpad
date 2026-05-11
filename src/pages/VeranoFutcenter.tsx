@@ -284,8 +284,7 @@ export default function VeranoFutcenter() {
                     Último paso: completa el pago de tu paquete <strong>{confirmation.paquete.replace("_", " ")}</strong>
                     {confirmation.forma_pago === "deposito" ? " (depósito)" : ""} para asegurar el lugar.
                   </p>
-                  <Btn href={confirmation.stripeUrl} className="w-full mb-3">Continuar al pago →</Btn>
-                  <p className="text-xs text-gray-500">Te abrimos Stripe en una nueva pestaña.</p>
+                  <Btn onClick={() => { window.location.href = confirmation.stripeUrl!; }} className="w-full">Completar pago →</Btn>
                 </>
               ) : (
                 <p className="text-gray-700 mb-4">
