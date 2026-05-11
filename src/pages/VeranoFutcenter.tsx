@@ -95,10 +95,11 @@ export default function VeranoFutcenter() {
   const onSubmit = async (vals: FormVals) => {
     setSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("send-verano-lead", {
+      const { data, error } = await supabase.functions.invoke("send-verano-lead", {
         body: { ...vals, fuente: "web" },
       });
       if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error ?? "Error desconocido");
 
       let stripeUrl: string | undefined;
       if (vals.paquete_interes === "1_semana") {
@@ -111,8 +112,10 @@ export default function VeranoFutcenter() {
       setConfirmation({ stripeUrl, paquete: vals.paquete_interes, forma_pago: vals.forma_pago });
       reset();
       setTimeout(() => window.scrollTo({ top: document.getElementById("registro")?.offsetTop ?? 0, behavior: "smooth" }), 50);
-    } catch {
-      toast({ title: "Hubo un error", description: "Escríbenos al 686 440 8021", variant: "destructive" });
+    } catch (err: any) {
+      const msg = err?.message || err?.error || "Escríbenos al 686 440 8021";
+      console.error("send-verano-lead error:", err);
+      toast({ title: "No se pudo guardar tu registro", description: String(msg), variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

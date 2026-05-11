@@ -1,19 +1,20 @@
 // @ts-nocheck
-import { Resend } from "npm:resend@2.0.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -37,37 +38,62 @@ Deno.serve(async (req) => {
       .select()
       .single();
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error("DB insert error:", dbError);
+      return new Response(
+        JSON.stringify({ ok: false, error: dbError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const html = `
 <h2>Nuevo lead — Clínica de Verano Futcenter</h2>
-<table style="font-family:sans-serif;border-collapse:collapse;">
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Padre/Mamá</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.nombre_padre}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>WhatsApp</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.telefono}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Email</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.email ?? '—'}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Jugador</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.nombre_jugador}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Edad</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.edad_jugador} años</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Grupo</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">Grupo ${lead.grupo}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Mes</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.mes_interes}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Paquete</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.paquete_interes}</td></tr>
-  <tr><td style="padding:6px 12px;border-bottom:1px solid #eee;"><b>Forma de pago</b></td><td style="padding:6px 12px;border-bottom:1px solid #eee;">${lead.forma_pago ?? '—'}</td></tr>
+<table border="1" cellpadding="8" style="border-collapse:collapse;font-family:sans-serif;">
+  <tr><td><b>Padre/Mamá</b></td><td>${lead.nombre_padre}</td></tr>
+  <tr><td><b>WhatsApp</b></td><td>${lead.telefono}</td></tr>
+  <tr><td><b>Email</b></td><td>${lead.email ?? '—'}</td></tr>
+  <tr><td><b>Jugador</b></td><td>${lead.nombre_jugador}</td></tr>
+  <tr><td><b>Edad</b></td><td>${lead.edad_jugador} años</td></tr>
+  <tr><td><b>Grupo</b></td><td>Grupo ${lead.grupo}</td></tr>
+  <tr><td><b>Mes</b></td><td>${lead.mes_interes}</td></tr>
+  <tr><td><b>Paquete</b></td><td>${lead.paquete_interes}</td></tr>
+  <tr><td><b>Forma de pago</b></td><td>${lead.forma_pago ?? '—'}</td></tr>
 </table>`;
 
-    await resend.emails.send({
-      from: "Clínica Verano Futcenter <noreply@whitelionsacademy.com>",
-      to: ["whitelionsacademy@gmail.com"],
-      subject: `Nuevo lead Verano Futcenter — ${lead.nombre_jugador ?? ""}`,
-      html,
-    }).catch((e) => console.error("Email error:", e));
+    try {
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "White Lions Academy <hola@whitelionsacademy.com>",
+          to: ["whitelions.admn@gmail.com"],
+          reply_to: "whitelions.admn@gmail.com",
+          subject: `Nuevo lead Verano Futcenter — ${lead.nombre_jugador ?? ""}`,
+          html,
+        }),
+      });
+      const emailResult = await emailResponse.json();
+      if (!emailResponse.ok) {
+        console.error("Resend error:", emailResult);
+      } else {
+        console.log("Email sent:", emailResult);
+      }
+    } catch (mailErr) {
+      console.error("Email send threw:", mailErr);
+    }
 
     return new Response(JSON.stringify({ ok: true, id: inserted.id }), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e) {
-    console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  } catch (e: any) {
+    console.error("send-verano-lead error:", e);
+    return new Response(
+      JSON.stringify({ ok: false, error: e?.message ?? String(e) }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
