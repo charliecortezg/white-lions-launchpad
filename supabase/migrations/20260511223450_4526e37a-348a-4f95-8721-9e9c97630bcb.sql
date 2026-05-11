@@ -1,0 +1,11 @@
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS forma_pago TEXT;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS deposito_metodo TEXT;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS deposito_monto INTEGER;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS deposito_pagado BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS deposito_fecha TIMESTAMPTZ;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS saldo_monto INTEGER;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS saldo_pagado BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS saldo_metodo TEXT;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS saldo_fecha TIMESTAMPTZ;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS notas TEXT;
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS email TEXT;
