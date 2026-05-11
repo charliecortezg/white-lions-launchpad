@@ -472,7 +472,12 @@ export type Database = {
       leads_verano: {
         Row: {
           created_at: string
+          deposito_fecha: string | null
+          deposito_metodo: string | null
+          deposito_monto: number | null
+          deposito_pagado: boolean
           edad_jugador: number
+          email: string | null
           estado: string
           forma_pago: string | null
           fuente: string
@@ -481,14 +486,24 @@ export type Database = {
           mes_interes: string
           nombre_jugador: string
           nombre_padre: string
+          notas: string | null
           paquete_interes: string
+          saldo_fecha: string | null
+          saldo_metodo: string | null
+          saldo_monto: number | null
+          saldo_pagado: boolean
           stripe_link_clicked: string | null
           telefono: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          deposito_fecha?: string | null
+          deposito_metodo?: string | null
+          deposito_monto?: number | null
+          deposito_pagado?: boolean
           edad_jugador: number
+          email?: string | null
           estado?: string
           forma_pago?: string | null
           fuente?: string
@@ -497,14 +512,24 @@ export type Database = {
           mes_interes: string
           nombre_jugador: string
           nombre_padre: string
+          notas?: string | null
           paquete_interes: string
+          saldo_fecha?: string | null
+          saldo_metodo?: string | null
+          saldo_monto?: number | null
+          saldo_pagado?: boolean
           stripe_link_clicked?: string | null
           telefono: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          deposito_fecha?: string | null
+          deposito_metodo?: string | null
+          deposito_monto?: number | null
+          deposito_pagado?: boolean
           edad_jugador?: number
+          email?: string | null
           estado?: string
           forma_pago?: string | null
           fuente?: string
@@ -513,7 +538,12 @@ export type Database = {
           mes_interes?: string
           nombre_jugador?: string
           nombre_padre?: string
+          notas?: string | null
           paquete_interes?: string
+          saldo_fecha?: string | null
+          saldo_metodo?: string | null
+          saldo_monto?: number | null
+          saldo_pagado?: boolean
           stripe_link_clicked?: string | null
           telefono?: string
           updated_at?: string

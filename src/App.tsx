@@ -15,6 +15,7 @@ import Offboarding from "./pages/Offboarding";
 import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
 import VeranoFutcenter from "./pages/VeranoFutcenter";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/calculadora-deportiva" element={<CalculadoraDeportiva />} />
           <Route path="/evaluacion-por-video" element={<EvaluacionPorVideo />} />
           <Route path="/veranofutcenter" element={<VeranoFutcenter />} />
+          <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
