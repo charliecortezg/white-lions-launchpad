@@ -15,6 +15,7 @@ import Offboarding from "./pages/Offboarding";
 import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
 import VeranoFutcenter from "./pages/VeranoFutcenter";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
