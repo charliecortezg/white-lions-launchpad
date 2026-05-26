@@ -289,6 +289,20 @@ export default function Admin() {
     fetchLeads();
   }
 
+  async function deleteLead(l: Lead) {
+    if (!confirm("¿Eliminar este registro? Esta acción no se puede deshacer")) return;
+    try {
+      await callAdmin(localStorage.getItem("wl_admin_pwd") || "", {
+        action: "delete",
+        id: l.id,
+      });
+      toast({ title: "Registro eliminado" });
+      fetchLeads();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  }
+
   function copyPhone(p: string) {
     navigator.clipboard.writeText(p);
     toast({ title: "Teléfono copiado" });
@@ -582,6 +596,13 @@ export default function Admin() {
                             className="text-xs px-2 py-1 border rounded hover:bg-gray-100"
                           >
                             Notas
+                          </button>
+                          <button
+                            onClick={() => deleteLead(l)}
+                            className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center gap-1"
+                            title="Eliminar registro"
+                          >
+                            🗑 Eliminar
                           </button>
                         </div>
                         {editNotes === l.id && (
