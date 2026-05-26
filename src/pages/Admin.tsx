@@ -479,7 +479,7 @@ export default function Admin() {
           ) : paged.length === 0 ? (
             <div className="p-8 text-center text-gray-500">No hay registros con esos filtros.</div>
           ) : (
-            <table className="w-full text-sm min-w-[1100px]">
+            <table className="w-full text-sm min-w-[1100px] text-gray-900">
               <thead className="bg-gray-50 text-left text-xs uppercase text-gray-600">
                 <tr>
                   <th className="p-3">Jugador</th>
