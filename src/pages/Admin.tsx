@@ -398,7 +398,7 @@ export default function Admin() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6 text-gray-900">
         {/* METRICS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-xl shadow-sm">
@@ -479,7 +479,7 @@ export default function Admin() {
           ) : paged.length === 0 ? (
             <div className="p-8 text-center text-gray-500">No hay registros con esos filtros.</div>
           ) : (
-            <table className="w-full text-sm min-w-[1100px]">
+            <table className="w-full text-sm min-w-[1100px] text-gray-900">
               <thead className="bg-gray-50 text-left text-xs uppercase text-gray-600">
                 <tr>
                   <th className="p-3">Jugador</th>
