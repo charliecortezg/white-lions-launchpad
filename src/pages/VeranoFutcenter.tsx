@@ -356,7 +356,7 @@ export default function VeranoFutcenter() {
               <Btn onClick={() => preselectAndScroll("2_semanas", "deposito")} variant="secondary" className="w-full">
                 Apartar con depósito $1,000 →
               </Btn>
-              <p className="text-center text-xs text-gray-500 mt-2">Saldo $800 el primer día</p>
+              <p className="text-center text-xs text-gray-500 mt-2">Saldo $1,000 el primer día</p>
             </div>
           </div>
 
