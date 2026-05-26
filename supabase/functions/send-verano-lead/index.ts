@@ -20,6 +20,16 @@ serve(async (req) => {
   try {
     const lead = await req.json();
 
+    // Calcular montos en servidor (no confiar 100% en el cliente)
+    const MONTOS: Record<string, { deposito: number; saldo: number }> = {
+      mes_completo__completo: { deposito: 3600, saldo: 0 },
+      mes_completo__deposito: { deposito: 1000, saldo: 3000 },
+      "2_semanas__completo":  { deposito: 1800, saldo: 0 },
+      "2_semanas__deposito":  { deposito: 1000, saldo: 1000 },
+    };
+    const key = `${lead.paquete_interes}__${lead.forma_pago}`;
+    const m = MONTOS[key];
+
     const { data: inserted, error: dbError } = await supabase
       .from("leads_verano")
       .insert({
@@ -32,6 +42,8 @@ serve(async (req) => {
         mes_interes: lead.mes_interes,
         paquete_interes: lead.paquete_interes,
         forma_pago: lead.forma_pago ?? null,
+        deposito_monto: m?.deposito ?? lead.deposito_monto ?? null,
+        saldo_monto:    m?.saldo    ?? lead.saldo_monto    ?? null,
         fuente: lead.fuente ?? "web",
         estado: "lead",
       })
