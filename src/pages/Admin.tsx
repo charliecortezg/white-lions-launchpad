@@ -14,6 +14,7 @@ type Lead = {
   nombre_jugador: string;
   edad_jugador: number;
   grupo: string;
+  venue: string | null;
   mes_interes: string;
   paquete_interes: string;
   forma_pago: string | null;
@@ -31,17 +32,23 @@ type Lead = {
 
 const PRECIO_TOTAL: Record<string, number> = {
   mes_completo: 3600,
-  "2_semanas": 2000,
+  "2_semanas": 1800,
   "1_semana": 1000,
   dia_suelto: 250,
 };
 
+const VENUE_LABEL: Record<string, string> = {
+  futcenter: "Futcenter",
+  city_sports: "City Sports",
+};
+
 function calcExpected(l: Lead): { dep: number; saldo: number } {
-  const total = PRECIO_TOTAL[l.paquete_interes] ?? 0;
+  // Nuevo esquema: depósito $1,000 fijo
   if (l.paquete_interes === "mes_completo" && l.forma_pago === "deposito")
-    return { dep: 2000, saldo: 1600 };
+    return { dep: 1000, saldo: 3000 };
   if (l.paquete_interes === "2_semanas" && l.forma_pago === "deposito")
     return { dep: 1000, saldo: 1000 };
+  const total = PRECIO_TOTAL[l.paquete_interes] ?? 0;
   return { dep: total, saldo: 0 };
 }
 
