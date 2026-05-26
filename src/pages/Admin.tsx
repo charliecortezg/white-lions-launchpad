@@ -450,6 +450,7 @@ export default function Admin() {
                   <th className="p-3">Jugador</th>
                   <th className="p-3">Padre</th>
                   <th className="p-3">Contacto</th>
+                  <th className="p-3">Sede</th>
                   <th className="p-3">Paquete</th>
                   <th className="p-3">Depósito</th>
                   <th className="p-3">Saldo</th>
