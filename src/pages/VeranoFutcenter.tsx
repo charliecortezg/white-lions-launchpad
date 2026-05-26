@@ -9,12 +9,12 @@ import logo from "@/assets/futcenter-logo.jpg";
 const NAVY = "#2D2B6B";
 const MAGENTA = "#C4317A";
 
-// ── Stripe (mismos links para ambas sedes) ───────────────────────────────────
-const STRIPE: Record<string, string> = {
-  mes_completo__completo: "https://buy.stripe.com/eVq5kF7Qd1ZJ0Dd2Uw08g06",
-  mes_completo__deposito: "https://buy.stripe.com/14AbJ37Qdawf0Dd1Qs08g05",
-  "2_semanas__completo":  "https://buy.stripe.com/9B628t6M9fQzdpZbr208g03",
-  "2_semanas__deposito":  "https://buy.stripe.com/14A4gB0nL0VF2LlamY08g04",
+// ── Montos por paquete + forma de pago ───────────────────────────────────────
+const MONTOS: Record<string, { deposito: number; saldo: number; aTransferir: number }> = {
+  mes_completo__completo: { deposito: 3600, saldo: 0,    aTransferir: 3600 },
+  mes_completo__deposito: { deposito: 1000, saldo: 3000, aTransferir: 1000 },
+  "2_semanas__completo":  { deposito: 1800, saldo: 0,    aTransferir: 1800 },
+  "2_semanas__deposito":  { deposito: 1000, saldo: 1000, aTransferir: 1000 },
 };
 
 // ── Sedes ─────────────────────────────────────────────────────────────────────
@@ -96,9 +96,9 @@ const MapPin = () => (
 export default function VeranoFutcenter() {
   const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<null | {
-    stripeUrl?: string;
-    paquete: string;
-    forma_pago: string;
+    nombre_jugador: string;
+    paquete: "mes_completo" | "2_semanas";
+    forma_pago: "completo" | "deposito";
     venue: VenueKey;
   }>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -131,17 +131,23 @@ export default function VeranoFutcenter() {
   const onSubmit = async (vals: FormVals) => {
     setSubmitting(true);
     try {
+      const key = `${vals.paquete_interes}__${vals.forma_pago}`;
+      const m = MONTOS[key];
+
       const { data, error } = await supabase.functions.invoke("send-verano-lead", {
-        body: { ...vals, mes_interes: "julio_agosto", fuente: "web" },
+        body: {
+          ...vals,
+          mes_interes: "julio_agosto",
+          fuente: "web",
+          deposito_monto: m?.deposito ?? null,
+          saldo_monto:    m?.saldo ?? null,
+        },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error ?? "Error desconocido");
 
-      const key = `${vals.paquete_interes}__${vals.forma_pago}`;
-      const stripeUrl = STRIPE[key] || undefined;
-
       setConfirmation({
-        stripeUrl,
+        nombre_jugador: vals.nombre_jugador,
         paquete:    vals.paquete_interes,
         forma_pago: vals.forma_pago,
         venue:      vals.venue as VenueKey,
@@ -317,9 +323,9 @@ export default function VeranoFutcenter() {
                 Pago completo $3,600 →
               </Btn>
               <Btn onClick={() => preselectAndScroll("mes_completo", "deposito")} variant="secondary" className="w-full">
-                Apartar con depósito $2,000 →
+                Apartar con depósito $1,000 →
               </Btn>
-              <p className="text-center text-xs text-gray-500 mt-2">Saldo $1,600 el primer día</p>
+              <p className="text-center text-xs text-gray-500 mt-2">Saldo $3,000 el primer día</p>
             </div>
 
             {/* 2 SEMANAS */}
@@ -350,7 +356,7 @@ export default function VeranoFutcenter() {
               <Btn onClick={() => preselectAndScroll("2_semanas", "deposito")} variant="secondary" className="w-full">
                 Apartar con depósito $1,000 →
               </Btn>
-              <p className="text-center text-xs text-gray-500 mt-2">Saldo $800 el primer día</p>
+              <p className="text-center text-xs text-gray-500 mt-2">Saldo $1,000 el primer día</p>
             </div>
           </div>
 
@@ -382,7 +388,15 @@ export default function VeranoFutcenter() {
       <section id="registro" className="px-4 py-14 bg-gray-50">
         <div className="max-w-lg mx-auto">
           {confirmation ? (
-            <div className="bg-white p-8 rounded-2xl shadow-xl text-center">
+            (() => {
+              const monto = MONTOS[`${confirmation.paquete}__${confirmation.forma_pago}`]?.aTransferir ?? 0;
+              const montoStr = `$${monto.toLocaleString("en-US")} MXN`;
+              const concepto = `${confirmation.nombre_jugador} — Verano 2026`;
+              const waLink = `https://wa.me/526864408021?text=${encodeURIComponent(
+                `Hola, soy de Verano 2026. Adjunto comprobante de ${confirmation.nombre_jugador}. Concepto: ${concepto}.`
+              )}`;
+              return (
+            <div className="bg-white p-8 rounded-2xl shadow-xl">
               <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ background: MAGENTA }}>
                 <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none"
@@ -390,9 +404,10 @@ export default function VeranoFutcenter() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-black mb-2" style={{ color: NAVY }}>¡Datos recibidos!</h3>
+              <h3 className="text-2xl font-black mb-2 text-center" style={{ color: NAVY }}>
+                ¡Listo, {confirmation.nombre_jugador} está pre-registrado!
+              </h3>
 
-              {/* Confirmación de sede */}
               {confirmation.venue && VENUES[confirmation.venue] && (
                 <a href={VENUES[confirmation.venue].mapsUrl} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 mb-5 p-3 rounded-lg bg-gray-50 text-sm hover:bg-gray-100 transition-colors"
@@ -403,34 +418,63 @@ export default function VeranoFutcenter() {
                 </a>
               )}
 
-              {confirmation.stripeUrl ? (
-                <>
-                  <p className="text-gray-700 mb-6">
-                    Último paso: completa tu pago para asegurar el lugar.
-                  </p>
-                  <Btn onClick={() => { window.location.href = confirmation.stripeUrl!; }} className="w-full">
-                    Completar pago →
-                  </Btn>
-                </>
-              ) : (
-                <p className="text-gray-700 mb-4">
-                  Te contactamos por WhatsApp en menos de 24 horas para completar
-                  tu pago y confirmar el lugar.
+              <p className="text-gray-800 font-semibold mb-3">
+                Para confirmar tu lugar, realiza tu transferencia:
+              </p>
+
+              <div className="rounded-xl border-2 p-4 mb-4 text-sm space-y-1.5"
+                style={{ borderColor: NAVY, background: "#F8F8FF" }}>
+                <p><span className="font-bold">Banco:</span> Mercado Pago</p>
+                <p><span className="font-bold">Beneficiario:</span> Carlos Mario Cortez Gurrola</p>
+                <p><span className="font-bold">CLABE:</span> 722969020720055297</p>
+                <p><span className="font-bold">Dimo:</span> 6864408021</p>
+              </div>
+
+              <div className="rounded-xl p-4 mb-4 text-center text-white"
+                style={{ background: MAGENTA }}>
+                <p className="text-xs uppercase tracking-wide opacity-90 mb-1">Monto a transferir</p>
+                <p className="text-3xl font-black">{montoStr}</p>
+                <p className="text-xs mt-1 opacity-90">
+                  {confirmation.forma_pago === "deposito"
+                    ? "Depósito para apartar lugar"
+                    : "Pago completo"}
                 </p>
-              )}
+              </div>
+
+              <p className="text-sm mb-4">
+                <span className="font-bold">Concepto:</span> {concepto}
+              </p>
+
+              <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                Una vez que realices la transferencia, envía tu comprobante por WhatsApp al{" "}
+                <a href={waLink} target="_blank" rel="noopener noreferrer"
+                  className="font-bold underline" style={{ color: MAGENTA }}>
+                  686 440 8021
+                </a>{" "}
+                para confirmar tu lugar.{" "}
+                <span className="font-semibold">Sin comprobante, el lugar no queda garantizado.</span>
+              </p>
+
+              <a href={waLink} target="_blank" rel="noopener noreferrer"
+                className="block w-full text-center px-6 py-4 rounded-lg font-bold uppercase tracking-wide text-white shadow-lg text-sm"
+                style={{ background: NAVY }}>
+                Enviar comprobante por WhatsApp →
+              </a>
 
               <button onClick={() => setConfirmation(null)}
-                className="mt-6 text-sm text-gray-500 hover:text-gray-700 underline">
+                className="block mx-auto mt-6 text-sm text-gray-500 hover:text-gray-700 underline">
                 Registrar otro jugador
               </button>
             </div>
+              );
+            })()
           ) : (
             <>
               <h2 className="text-3xl sm:text-4xl font-black text-center mb-2 uppercase">
                 Aparta el lugar de tu hijo
               </h2>
               <p className="text-center text-gray-600 mb-8">
-                Llena el formulario. Después continúas al pago.
+                Llena el formulario. Te damos los datos de transferencia al terminar.
               </p>
 
               <form ref={formRef} onSubmit={handleSubmit(onSubmit)}
@@ -548,10 +592,7 @@ export default function VeranoFutcenter() {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input type="radio" value="deposito" {...register("forma_pago")} className="w-4 h-4" />
                       <span className="text-sm">
-                        Depósito para apartar —{" "}
-                        {paqueteWatch === "mes_completo" ? "$2,000"
-                          : paqueteWatch === "2_semanas" ? "$1,000"
-                          : "—"}
+                        Depósito para apartar — $1,000
                       </span>
                     </label>
                   </div>
@@ -561,7 +602,7 @@ export default function VeranoFutcenter() {
                 </div>
 
                 <Btn type="submit" className="w-full !mt-2" disabled={submitting}>
-                  {submitting ? "Enviando..." : "Continuar al pago →"}
+                  {submitting ? "Enviando..." : "Pre-registrar a mi hijo →"}
                 </Btn>
               </form>
             </>
