@@ -52,9 +52,15 @@ serve(async (req) => {
       .single();
 
     if (dbError) {
-      console.error("DB insert error:", dbError);
+      console.error("DB insert error:", JSON.stringify(dbError), "payload:", JSON.stringify(lead));
       return new Response(
-        JSON.stringify({ ok: false, error: dbError.message }),
+        JSON.stringify({
+          ok: false,
+          error: dbError.message,
+          code: (dbError as any).code ?? null,
+          details: (dbError as any).details ?? null,
+          hint: (dbError as any).hint ?? null,
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
