@@ -474,7 +474,7 @@ export default function VeranoFutcenter() {
                 Aparta el lugar de tu hijo
               </h2>
               <p className="text-center text-gray-600 mb-8">
-                Llena el formulario. Después continúas al pago.
+                Llena el formulario. Te damos los datos de transferencia al terminar.
               </p>
 
               <form ref={formRef} onSubmit={handleSubmit(onSubmit)}
