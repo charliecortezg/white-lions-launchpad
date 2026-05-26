@@ -9,12 +9,12 @@ import logo from "@/assets/futcenter-logo.jpg";
 const NAVY = "#2D2B6B";
 const MAGENTA = "#C4317A";
 
-// ── Stripe (mismos links para ambas sedes) ───────────────────────────────────
-const STRIPE: Record<string, string> = {
-  mes_completo__completo: "https://buy.stripe.com/eVq5kF7Qd1ZJ0Dd2Uw08g06",
-  mes_completo__deposito: "https://buy.stripe.com/14AbJ37Qdawf0Dd1Qs08g05",
-  "2_semanas__completo":  "https://buy.stripe.com/9B628t6M9fQzdpZbr208g03",
-  "2_semanas__deposito":  "https://buy.stripe.com/14A4gB0nL0VF2LlamY08g04",
+// ── Montos por paquete + forma de pago ───────────────────────────────────────
+const MONTOS: Record<string, { deposito: number; saldo: number; aTransferir: number }> = {
+  mes_completo__completo: { deposito: 3600, saldo: 0,    aTransferir: 3600 },
+  mes_completo__deposito: { deposito: 1000, saldo: 3000, aTransferir: 1000 },
+  "2_semanas__completo":  { deposito: 1800, saldo: 0,    aTransferir: 1800 },
+  "2_semanas__deposito":  { deposito: 1000, saldo: 1000, aTransferir: 1000 },
 };
 
 // ── Sedes ─────────────────────────────────────────────────────────────────────
