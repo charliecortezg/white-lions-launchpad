@@ -234,6 +234,40 @@ export default function Admin() {
     fetchLeads();
   }
 
+  async function toggleDeposito(l: Lead) {
+    const exp = calcExpected(l);
+    const newPaid = !l.deposito_pagado;
+    const { error } = await supabase
+      .from("leads_verano")
+      .update({
+        deposito_pagado: newPaid,
+        deposito_fecha: newPaid ? new Date().toISOString() : null,
+        deposito_monto: l.deposito_monto ?? exp.dep,
+        estado: newPaid ? (l.saldo_pagado ? "pago_completo" : "deposito_pagado") : "lead",
+      })
+      .eq("id", l.id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: newPaid ? "Depósito marcado como pagado" : "Depósito revertido" });
+    fetchLeads();
+  }
+
+  async function toggleSaldoQuick(l: Lead) {
+    const exp = calcExpected(l);
+    const newPaid = !l.saldo_pagado;
+    const { error } = await supabase
+      .from("leads_verano")
+      .update({
+        saldo_pagado: newPaid,
+        saldo_fecha: newPaid ? new Date().toISOString() : null,
+        saldo_monto: l.saldo_monto ?? exp.saldo,
+        estado: newPaid && l.deposito_pagado ? "pago_completo" : (l.deposito_pagado ? "deposito_pagado" : "lead"),
+      })
+      .eq("id", l.id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: newPaid ? "Saldo marcado como pagado" : "Saldo revertido" });
+    fetchLeads();
+  }
+
   function copyPhone(p: string) {
     navigator.clipboard.writeText(p);
     toast({ title: "Teléfono copiado" });
