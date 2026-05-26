@@ -96,9 +96,9 @@ const MapPin = () => (
 export default function VeranoFutcenter() {
   const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<null | {
-    stripeUrl?: string;
-    paquete: string;
-    forma_pago: string;
+    nombre_jugador: string;
+    paquete: "mes_completo" | "2_semanas";
+    forma_pago: "completo" | "deposito";
     venue: VenueKey;
   }>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -131,17 +131,23 @@ export default function VeranoFutcenter() {
   const onSubmit = async (vals: FormVals) => {
     setSubmitting(true);
     try {
+      const key = `${vals.paquete_interes}__${vals.forma_pago}`;
+      const m = MONTOS[key];
+
       const { data, error } = await supabase.functions.invoke("send-verano-lead", {
-        body: { ...vals, mes_interes: "julio_agosto", fuente: "web" },
+        body: {
+          ...vals,
+          mes_interes: "julio_agosto",
+          fuente: "web",
+          deposito_monto: m?.deposito ?? null,
+          saldo_monto:    m?.saldo ?? null,
+        },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error ?? "Error desconocido");
 
-      const key = `${vals.paquete_interes}__${vals.forma_pago}`;
-      const stripeUrl = STRIPE[key] || undefined;
-
       setConfirmation({
-        stripeUrl,
+        nombre_jugador: vals.nombre_jugador,
         paquete:    vals.paquete_interes,
         forma_pago: vals.forma_pago,
         venue:      vals.venue as VenueKey,
