@@ -483,6 +483,9 @@ export default function Admin() {
                         {l.email && <div className="text-xs text-gray-500">{l.email}</div>}
                       </td>
                       <td className="p-3">
+                        <span className="text-xs font-bold">{l.venue ? VENUE_LABEL[l.venue] ?? l.venue : "—"}</span>
+                      </td>
+                      <td className="p-3">
                         <span className="inline-block px-2 py-1 text-xs font-bold rounded bg-gray-100">
                           {PAQUETE_LABEL[l.paquete_interes]}
                         </span>
