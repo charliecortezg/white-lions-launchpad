@@ -88,6 +88,12 @@ serve(async (req) => {
       return json({ ok: true, data });
     }
 
+    if (action === "delete") {
+      const { error } = await supabase.from("leads_verano").delete().eq("id", id);
+      if (error) return json({ ok: false, error: error.message, details: error }, 500);
+      return json({ ok: true });
+    }
+
     return json({ ok: false, error: `Unknown action: ${action}` }, 400);
   } catch (e: any) {
     console.error("admin-leads-verano error:", e);
