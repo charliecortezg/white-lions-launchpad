@@ -388,7 +388,15 @@ export default function VeranoFutcenter() {
       <section id="registro" className="px-4 py-14 bg-gray-50">
         <div className="max-w-lg mx-auto">
           {confirmation ? (
-            <div className="bg-white p-8 rounded-2xl shadow-xl text-center">
+            (() => {
+              const monto = MONTOS[`${confirmation.paquete}__${confirmation.forma_pago}`]?.aTransferir ?? 0;
+              const montoStr = `$${monto.toLocaleString("en-US")} MXN`;
+              const concepto = `${confirmation.nombre_jugador} — Verano 2026`;
+              const waLink = `https://wa.me/526864408021?text=${encodeURIComponent(
+                `Hola, soy de Verano 2026. Adjunto comprobante de ${confirmation.nombre_jugador}. Concepto: ${concepto}.`
+              )}`;
+              return (
+            <div className="bg-white p-8 rounded-2xl shadow-xl">
               <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ background: MAGENTA }}>
                 <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none"
@@ -396,9 +404,10 @@ export default function VeranoFutcenter() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-black mb-2" style={{ color: NAVY }}>¡Datos recibidos!</h3>
+              <h3 className="text-2xl font-black mb-2 text-center" style={{ color: NAVY }}>
+                ¡Listo, {confirmation.nombre_jugador} está pre-registrado!
+              </h3>
 
-              {/* Confirmación de sede */}
               {confirmation.venue && VENUES[confirmation.venue] && (
                 <a href={VENUES[confirmation.venue].mapsUrl} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 mb-5 p-3 rounded-lg bg-gray-50 text-sm hover:bg-gray-100 transition-colors"
@@ -409,27 +418,56 @@ export default function VeranoFutcenter() {
                 </a>
               )}
 
-              {confirmation.stripeUrl ? (
-                <>
-                  <p className="text-gray-700 mb-6">
-                    Último paso: completa tu pago para asegurar el lugar.
-                  </p>
-                  <Btn onClick={() => { window.location.href = confirmation.stripeUrl!; }} className="w-full">
-                    Completar pago →
-                  </Btn>
-                </>
-              ) : (
-                <p className="text-gray-700 mb-4">
-                  Te contactamos por WhatsApp en menos de 24 horas para completar
-                  tu pago y confirmar el lugar.
+              <p className="text-gray-800 font-semibold mb-3">
+                Para confirmar tu lugar, realiza tu transferencia:
+              </p>
+
+              <div className="rounded-xl border-2 p-4 mb-4 text-sm space-y-1.5"
+                style={{ borderColor: NAVY, background: "#F8F8FF" }}>
+                <p><span className="font-bold">Banco:</span> Mercado Pago</p>
+                <p><span className="font-bold">Beneficiario:</span> Carlos Mario Cortez Gurrola</p>
+                <p><span className="font-bold">CLABE:</span> 722969020720055297</p>
+                <p><span className="font-bold">Dimo:</span> 6864408021</p>
+              </div>
+
+              <div className="rounded-xl p-4 mb-4 text-center text-white"
+                style={{ background: MAGENTA }}>
+                <p className="text-xs uppercase tracking-wide opacity-90 mb-1">Monto a transferir</p>
+                <p className="text-3xl font-black">{montoStr}</p>
+                <p className="text-xs mt-1 opacity-90">
+                  {confirmation.forma_pago === "deposito"
+                    ? "Depósito para apartar lugar"
+                    : "Pago completo"}
                 </p>
-              )}
+              </div>
+
+              <p className="text-sm mb-4">
+                <span className="font-bold">Concepto:</span> {concepto}
+              </p>
+
+              <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                Una vez que realices la transferencia, envía tu comprobante por WhatsApp al{" "}
+                <a href={waLink} target="_blank" rel="noopener noreferrer"
+                  className="font-bold underline" style={{ color: MAGENTA }}>
+                  686 440 8021
+                </a>{" "}
+                para confirmar tu lugar.{" "}
+                <span className="font-semibold">Sin comprobante, el lugar no queda garantizado.</span>
+              </p>
+
+              <a href={waLink} target="_blank" rel="noopener noreferrer"
+                className="block w-full text-center px-6 py-4 rounded-lg font-bold uppercase tracking-wide text-white shadow-lg text-sm"
+                style={{ background: NAVY }}>
+                Enviar comprobante por WhatsApp →
+              </a>
 
               <button onClick={() => setConfirmation(null)}
-                className="mt-6 text-sm text-gray-500 hover:text-gray-700 underline">
+                className="block mx-auto mt-6 text-sm text-gray-500 hover:text-gray-700 underline">
                 Registrar otro jugador
               </button>
             </div>
+              );
+            })()
           ) : (
             <>
               <h2 className="text-3xl sm:text-4xl font-black text-center mb-2 uppercase">
