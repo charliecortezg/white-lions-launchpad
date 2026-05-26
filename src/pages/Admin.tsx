@@ -533,13 +533,28 @@ export default function Admin() {
                           >
                             WhatsApp
                           </a>
-                          {l.deposito_pagado && !l.saldo_pagado && saldoMonto > 0 && (
-                            <button
-                              onClick={() => setSaldoFor(l)}
-                              className="text-xs px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
-                            >
-                              Saldo ✓
-                            </button>
+                          <button
+                            onClick={() => toggleDeposito(l)}
+                            className={`text-xs px-2 py-1 rounded ${l.deposito_pagado ? "bg-gray-200 text-gray-700 hover:bg-gray-300" : "bg-yellow-500 text-white hover:bg-yellow-600"}`}
+                          >
+                            {l.deposito_pagado ? "Depósito ↺" : "Depósito ✓"}
+                          </button>
+                          {saldoMonto > 0 && (
+                            l.saldo_pagado ? (
+                              <button
+                                onClick={() => toggleSaldoQuick(l)}
+                                className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                              >
+                                Saldo ↺
+                              </button>
+                            ) : l.deposito_pagado ? (
+                              <button
+                                onClick={() => setSaldoFor(l)}
+                                className="text-xs px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                              >
+                                Saldo ✓
+                              </button>
+                            ) : null
                           )}
                           <button
                             onClick={() => { setEditNotes(l.id); setNotesValue(l.notas ?? ""); }}
