@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
@@ -36,7 +36,8 @@ const App = () => (
           <Route path="/offboarding/:prospectId" element={<Offboarding />} />
           <Route path="/calculadora-deportiva" element={<CalculadoraDeportiva />} />
           <Route path="/evaluacion-por-video" element={<EvaluacionPorVideo />} />
-          <Route path="/veranofutcenter" element={<VeranoFutcenter />} />
+          <Route path="/verano2026" element={<VeranoFutcenter />} />
+          <Route path="/veranofutcenter" element={<Navigate to="/verano2026" replace />} />
           <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
