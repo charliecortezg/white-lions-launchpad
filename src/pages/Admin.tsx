@@ -191,6 +191,9 @@ export default function Admin() {
   const filtered = useMemo(() => {
     return byMonth.filter((l) => {
       if (grupo !== "todos" && l.grupo !== grupo) return false;
+      if (sede !== "todos" && (l.venue ?? "") !== sede) return false;
+      if (depF === "pagado" && !l.deposito_pagado) return false;
+      if (depF === "pendiente" && l.deposito_pagado) return false;
       if (estadoF !== "todos" && deriveEstado(l) !== estadoF) return false;
       if (search) {
         const s = search.toLowerCase();
@@ -198,7 +201,7 @@ export default function Admin() {
       }
       return true;
     });
-  }, [byMonth, grupo, estadoF, search]);
+  }, [byMonth, grupo, sede, depF, estadoF, search]);
 
   const PAGE_SIZE = 20;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
