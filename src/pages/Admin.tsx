@@ -2,6 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+async function callAdmin(password: string, body: Record<string, unknown>) {
+  const { data, error } = await supabase.functions.invoke("admin-leads-verano", {
+    body: { password, ...body },
+    headers: { "x-admin-password": password },
+  });
+  if (error) throw new Error(error.message);
+  if (!data?.ok) throw new Error(data?.error ?? "Error desconocido");
+  return data;
+}
+
 const NAVY = "#2D2B6B";
 const BG = "#F8F7F5";
 
@@ -117,44 +127,38 @@ export default function Admin() {
   useEffect(() => {
     if (!authed) return;
     fetchLeads();
-    const ch = supabase
-      .channel("leads_verano_admin")
-      .on("postgres_changes", { event: "*", schema: "public", table: "leads_verano" }, (payload: any) => {
-        if (payload.eventType === "INSERT") {
-          toast({ title: "Nuevo lead", description: payload.new.nombre_jugador ?? "" });
-        }
-        fetchLeads();
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
+    const interval = setInterval(fetchLeads, 30000);
+    return () => clearInterval(interval);
   }, [authed]);
 
   async function fetchLeads() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("leads_verano")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(1000);
-    if (error) toast({ title: "Error cargando", description: error.message, variant: "destructive" });
-    setLeads((data as any) || []);
+    try {
+      const res = await callAdmin(pwd || localStorage.getItem("wl_admin_pwd") || "", {
+        action: "list",
+      });
+      setLeads(res.data || []);
+    } catch (e: any) {
+      toast({ title: "Error cargando", description: e.message, variant: "destructive" });
+    }
     setLoading(false);
   }
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (pwd === PASSWORD) {
+    try {
+      await callAdmin(pwd, { action: "list" });
       localStorage.setItem("wl_admin_auth", "true");
+      localStorage.setItem("wl_admin_pwd", pwd);
       setAuthed(true);
-    } else {
-      toast({ title: "Contraseña incorrecta", variant: "destructive" });
+    } catch (e: any) {
+      toast({ title: "Contraseña incorrecta", description: e.message, variant: "destructive" });
     }
   }
 
   function logout() {
     localStorage.removeItem("wl_admin_auth");
+    localStorage.removeItem("wl_admin_pwd");
     setAuthed(false);
   }
 
@@ -210,26 +214,34 @@ export default function Admin() {
   async function confirmSaldo(metodo: string) {
     if (!saldoFor) return;
     const exp = calcExpected(saldoFor);
-    const { error } = await supabase
-      .from("leads_verano")
-      .update({
-        saldo_pagado: true,
-        saldo_metodo: metodo,
-        saldo_fecha: new Date().toISOString(),
-        saldo_monto: saldoFor.saldo_monto ?? exp.saldo,
+    try {
+      await callAdmin(localStorage.getItem("wl_admin_pwd") || "", {
+        action: "update_saldo",
+        id: saldoFor.id,
+        paid: true,
+        metodo,
+        monto: saldoFor.saldo_monto ?? exp.saldo,
         estado: "pago_completo",
-      })
-      .eq("id", saldoFor.id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else toast({ title: "Saldo registrado" });
+      });
+      toast({ title: "Saldo registrado" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
     setSaldoFor(null);
     fetchLeads();
   }
 
   async function saveNotes(id: string) {
-    const { error } = await supabase.from("leads_verano").update({ notas: notesValue }).eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else toast({ title: "Notas guardadas" });
+    try {
+      await callAdmin(localStorage.getItem("wl_admin_pwd") || "", {
+        action: "update_notas",
+        id,
+        notas: notesValue,
+      });
+      toast({ title: "Notas guardadas" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
     setEditNotes(null);
     fetchLeads();
   }
@@ -237,34 +249,36 @@ export default function Admin() {
   async function toggleDeposito(l: Lead) {
     const exp = calcExpected(l);
     const newPaid = !l.deposito_pagado;
-    const { error } = await supabase
-      .from("leads_verano")
-      .update({
-        deposito_pagado: newPaid,
-        deposito_fecha: newPaid ? new Date().toISOString() : null,
-        deposito_monto: l.deposito_monto ?? exp.dep,
+    try {
+      await callAdmin(localStorage.getItem("wl_admin_pwd") || "", {
+        action: "update_deposito",
+        id: l.id,
+        paid: newPaid,
+        monto: l.deposito_monto ?? exp.dep,
         estado: newPaid ? (l.saldo_pagado ? "pago_completo" : "deposito_pagado") : "lead",
-      })
-      .eq("id", l.id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else toast({ title: newPaid ? "Depósito marcado como pagado" : "Depósito revertido" });
+      });
+      toast({ title: newPaid ? "Depósito marcado como pagado" : "Depósito revertido" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
     fetchLeads();
   }
 
   async function toggleSaldoQuick(l: Lead) {
     const exp = calcExpected(l);
     const newPaid = !l.saldo_pagado;
-    const { error } = await supabase
-      .from("leads_verano")
-      .update({
-        saldo_pagado: newPaid,
-        saldo_fecha: newPaid ? new Date().toISOString() : null,
-        saldo_monto: l.saldo_monto ?? exp.saldo,
+    try {
+      await callAdmin(localStorage.getItem("wl_admin_pwd") || "", {
+        action: "update_saldo",
+        id: l.id,
+        paid: newPaid,
+        monto: l.saldo_monto ?? exp.saldo,
         estado: newPaid && l.deposito_pagado ? "pago_completo" : (l.deposito_pagado ? "deposito_pagado" : "lead"),
-      })
-      .eq("id", l.id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else toast({ title: newPaid ? "Saldo marcado como pagado" : "Saldo revertido" });
+      });
+      toast({ title: newPaid ? "Saldo marcado como pagado" : "Saldo revertido" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
     fetchLeads();
   }
 
