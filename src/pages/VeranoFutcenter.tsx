@@ -602,7 +602,7 @@ export default function VeranoFutcenter() {
                 </div>
 
                 <Btn type="submit" className="w-full !mt-2" disabled={submitting}>
-                  {submitting ? "Enviando..." : "Continuar al pago →"}
+                  {submitting ? "Enviando..." : "Pre-registrar a mi hijo →"}
                 </Btn>
               </form>
             </>
