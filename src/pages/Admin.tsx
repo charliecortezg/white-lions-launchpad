@@ -2,6 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+async function callAdmin(password: string, body: Record<string, unknown>) {
+  const { data, error } = await supabase.functions.invoke("admin-leads-verano", {
+    body: { password, ...body },
+    headers: { "x-admin-password": password },
+  });
+  if (error) throw new Error(error.message);
+  if (!data?.ok) throw new Error(data?.error ?? "Error desconocido");
+  return data;
+}
+
 const NAVY = "#2D2B6B";
 const BG = "#F8F7F5";
 
