@@ -1,0 +1,1 @@
+ALTER TABLE public.leads_verano ADD COLUMN IF NOT EXISTS venue TEXT;

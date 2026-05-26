@@ -14,6 +14,7 @@ type Lead = {
   nombre_jugador: string;
   edad_jugador: number;
   grupo: string;
+  venue: string | null;
   mes_interes: string;
   paquete_interes: string;
   forma_pago: string | null;
@@ -31,17 +32,23 @@ type Lead = {
 
 const PRECIO_TOTAL: Record<string, number> = {
   mes_completo: 3600,
-  "2_semanas": 2000,
+  "2_semanas": 1800,
   "1_semana": 1000,
   dia_suelto: 250,
 };
 
+const VENUE_LABEL: Record<string, string> = {
+  futcenter: "Futcenter",
+  city_sports: "City Sports",
+};
+
 function calcExpected(l: Lead): { dep: number; saldo: number } {
-  const total = PRECIO_TOTAL[l.paquete_interes] ?? 0;
+  // Nuevo esquema: depósito $1,000 fijo
   if (l.paquete_interes === "mes_completo" && l.forma_pago === "deposito")
-    return { dep: 2000, saldo: 1600 };
+    return { dep: 1000, saldo: 3000 };
   if (l.paquete_interes === "2_semanas" && l.forma_pago === "deposito")
     return { dep: 1000, saldo: 1000 };
+  const total = PRECIO_TOTAL[l.paquete_interes] ?? 0;
   return { dep: total, saldo: 0 };
 }
 
@@ -83,6 +90,8 @@ export default function Admin() {
   // Filters
   const [mes, setMes] = useState("todos");
   const [grupo, setGrupo] = useState("todos");
+  const [sede, setSede] = useState("todos");
+  const [depF, setDepF] = useState("todos");
   const [estadoF, setEstadoF] = useState("todos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -182,6 +191,9 @@ export default function Admin() {
   const filtered = useMemo(() => {
     return byMonth.filter((l) => {
       if (grupo !== "todos" && l.grupo !== grupo) return false;
+      if (sede !== "todos" && (l.venue ?? "") !== sede) return false;
+      if (depF === "pagado" && !l.deposito_pagado) return false;
+      if (depF === "pendiente" && l.deposito_pagado) return false;
       if (estadoF !== "todos" && deriveEstado(l) !== estadoF) return false;
       if (search) {
         const s = search.toLowerCase();
@@ -189,7 +201,7 @@ export default function Admin() {
       }
       return true;
     });
-  }, [byMonth, grupo, estadoF, search]);
+  }, [byMonth, grupo, sede, depF, estadoF, search]);
 
   const PAGE_SIZE = 20;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -219,6 +231,40 @@ export default function Admin() {
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else toast({ title: "Notas guardadas" });
     setEditNotes(null);
+    fetchLeads();
+  }
+
+  async function toggleDeposito(l: Lead) {
+    const exp = calcExpected(l);
+    const newPaid = !l.deposito_pagado;
+    const { error } = await supabase
+      .from("leads_verano")
+      .update({
+        deposito_pagado: newPaid,
+        deposito_fecha: newPaid ? new Date().toISOString() : null,
+        deposito_monto: l.deposito_monto ?? exp.dep,
+        estado: newPaid ? (l.saldo_pagado ? "pago_completo" : "deposito_pagado") : "lead",
+      })
+      .eq("id", l.id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: newPaid ? "Depósito marcado como pagado" : "Depósito revertido" });
+    fetchLeads();
+  }
+
+  async function toggleSaldoQuick(l: Lead) {
+    const exp = calcExpected(l);
+    const newPaid = !l.saldo_pagado;
+    const { error } = await supabase
+      .from("leads_verano")
+      .update({
+        saldo_pagado: newPaid,
+        saldo_fecha: newPaid ? new Date().toISOString() : null,
+        saldo_monto: l.saldo_monto ?? exp.saldo,
+        estado: newPaid && l.deposito_pagado ? "pago_completo" : (l.deposito_pagado ? "deposito_pagado" : "lead"),
+      })
+      .eq("id", l.id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else toast({ title: newPaid ? "Saldo marcado como pagado" : "Saldo revertido" });
     fetchLeads();
   }
 
@@ -358,6 +404,18 @@ export default function Admin() {
             <option value="A">Grupo A</option>
             <option value="B">Grupo B</option>
           </select>
+          <select value={sede} onChange={(e) => { setSede(e.target.value); setPage(1); }}
+            className="px-3 py-2 border rounded text-sm">
+            <option value="todos">Todas las sedes</option>
+            <option value="futcenter">Futcenter</option>
+            <option value="city_sports">City Sports</option>
+          </select>
+          <select value={depF} onChange={(e) => { setDepF(e.target.value); setPage(1); }}
+            className="px-3 py-2 border rounded text-sm">
+            <option value="todos">Depósito: todos</option>
+            <option value="pagado">Depósito pagado</option>
+            <option value="pendiente">Depósito pendiente</option>
+          </select>
           <select value={estadoF} onChange={(e) => { setEstadoF(e.target.value); setPage(1); }}
             className="px-3 py-2 border rounded text-sm">
             <option value="todos">Todos los estados</option>
@@ -392,6 +450,7 @@ export default function Admin() {
                   <th className="p-3">Jugador</th>
                   <th className="p-3">Padre</th>
                   <th className="p-3">Contacto</th>
+                  <th className="p-3">Sede</th>
                   <th className="p-3">Paquete</th>
                   <th className="p-3">Depósito</th>
                   <th className="p-3">Saldo</th>
@@ -422,6 +481,9 @@ export default function Admin() {
                           <button onClick={() => copyPhone(l.telefono)} className="text-xs text-blue-600 hover:underline">📋</button>
                         </div>
                         {l.email && <div className="text-xs text-gray-500">{l.email}</div>}
+                      </td>
+                      <td className="p-3">
+                        <span className="text-xs font-bold">{l.venue ? VENUE_LABEL[l.venue] ?? l.venue : "—"}</span>
                       </td>
                       <td className="p-3">
                         <span className="inline-block px-2 py-1 text-xs font-bold rounded bg-gray-100">
@@ -471,13 +533,28 @@ export default function Admin() {
                           >
                             WhatsApp
                           </a>
-                          {l.deposito_pagado && !l.saldo_pagado && saldoMonto > 0 && (
-                            <button
-                              onClick={() => setSaldoFor(l)}
-                              className="text-xs px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
-                            >
-                              Saldo ✓
-                            </button>
+                          <button
+                            onClick={() => toggleDeposito(l)}
+                            className={`text-xs px-2 py-1 rounded ${l.deposito_pagado ? "bg-gray-200 text-gray-700 hover:bg-gray-300" : "bg-yellow-500 text-white hover:bg-yellow-600"}`}
+                          >
+                            {l.deposito_pagado ? "Depósito ↺" : "Depósito ✓"}
+                          </button>
+                          {saldoMonto > 0 && (
+                            l.saldo_pagado ? (
+                              <button
+                                onClick={() => toggleSaldoQuick(l)}
+                                className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                              >
+                                Saldo ↺
+                              </button>
+                            ) : l.deposito_pagado ? (
+                              <button
+                                onClick={() => setSaldoFor(l)}
+                                className="text-xs px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                              >
+                                Saldo ✓
+                              </button>
+                            ) : null
                           )}
                           <button
                             onClick={() => { setEditNotes(l.id); setNotesValue(l.notas ?? ""); }}

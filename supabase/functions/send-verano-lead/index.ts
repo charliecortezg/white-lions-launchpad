@@ -39,6 +39,7 @@ serve(async (req) => {
         nombre_jugador: lead.nombre_jugador,
         edad_jugador: lead.edad_jugador,
         grupo: lead.grupo,
+        venue: lead.venue ?? null,
         mes_interes: lead.mes_interes,
         paquete_interes: lead.paquete_interes,
         forma_pago: lead.forma_pago ?? null,
