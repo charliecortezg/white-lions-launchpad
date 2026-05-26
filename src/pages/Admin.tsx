@@ -90,6 +90,8 @@ export default function Admin() {
   // Filters
   const [mes, setMes] = useState("todos");
   const [grupo, setGrupo] = useState("todos");
+  const [sede, setSede] = useState("todos");
+  const [depF, setDepF] = useState("todos");
   const [estadoF, setEstadoF] = useState("todos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
