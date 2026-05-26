@@ -128,6 +128,8 @@ export default function Admin() {
     } else {
       localStorage.removeItem("wl_admin_auth");
     }
+  }, []);
+
 
   useEffect(() => {
     if (!authed) return;
