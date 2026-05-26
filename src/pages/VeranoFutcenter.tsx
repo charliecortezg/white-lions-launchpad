@@ -592,10 +592,7 @@ export default function VeranoFutcenter() {
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input type="radio" value="deposito" {...register("forma_pago")} className="w-4 h-4" />
                       <span className="text-sm">
-                        Depósito para apartar —{" "}
-                        {paqueteWatch === "mes_completo" ? "$2,000"
-                          : paqueteWatch === "2_semanas" ? "$1,000"
-                          : "—"}
+                        Depósito para apartar — $1,000
                       </span>
                     </label>
                   </div>
