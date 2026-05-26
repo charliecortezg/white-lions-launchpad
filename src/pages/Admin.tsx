@@ -404,6 +404,18 @@ export default function Admin() {
             <option value="A">Grupo A</option>
             <option value="B">Grupo B</option>
           </select>
+          <select value={sede} onChange={(e) => { setSede(e.target.value); setPage(1); }}
+            className="px-3 py-2 border rounded text-sm">
+            <option value="todos">Todas las sedes</option>
+            <option value="futcenter">Futcenter</option>
+            <option value="city_sports">City Sports</option>
+          </select>
+          <select value={depF} onChange={(e) => { setDepF(e.target.value); setPage(1); }}
+            className="px-3 py-2 border rounded text-sm">
+            <option value="todos">Depósito: todos</option>
+            <option value="pagado">Depósito pagado</option>
+            <option value="pendiente">Depósito pendiente</option>
+          </select>
           <select value={estadoF} onChange={(e) => { setEstadoF(e.target.value); setPage(1); }}
             className="px-3 py-2 border rounded text-sm">
             <option value="todos">Todos los estados</option>
