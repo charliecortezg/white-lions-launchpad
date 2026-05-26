@@ -495,6 +495,7 @@ export type Database = {
           stripe_link_clicked: string | null
           telefono: string
           updated_at: string
+          venue: string | null
         }
         Insert: {
           created_at?: string
@@ -521,6 +522,7 @@ export type Database = {
           stripe_link_clicked?: string | null
           telefono: string
           updated_at?: string
+          venue?: string | null
         }
         Update: {
           created_at?: string
@@ -547,6 +549,7 @@ export type Database = {
           stripe_link_clicked?: string | null
           telefono?: string
           updated_at?: string
+          venue?: string | null
         }
         Relationships: []
       }
