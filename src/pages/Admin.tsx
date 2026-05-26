@@ -121,8 +121,15 @@ export default function Admin() {
       document.head.appendChild(m);
     }
     m.setAttribute("content", "noindex, nofollow");
-    if (localStorage.getItem("wl_admin_auth") === "true") setAuthed(true);
+    const savedPwd = localStorage.getItem("wl_admin_pwd");
+    if (localStorage.getItem("wl_admin_auth") === "true" && savedPwd) {
+      setPwd(savedPwd);
+      setAuthed(true);
+    } else {
+      localStorage.removeItem("wl_admin_auth");
+    }
   }, []);
+
 
   useEffect(() => {
     if (!authed) return;
