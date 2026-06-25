@@ -643,6 +643,8 @@ export type Database = {
         Row: {
           calidad_entrenamiento: number
           categoria: string
+          como_tratar_hijo: string[] | null
+          como_tratar_padre: string[] | null
           comunicacion_triangulo: number
           created_at: string
           id: string
@@ -660,6 +662,8 @@ export type Database = {
         Insert: {
           calidad_entrenamiento: number
           categoria: string
+          como_tratar_hijo?: string[] | null
+          como_tratar_padre?: string[] | null
           comunicacion_triangulo: number
           created_at?: string
           id?: string
@@ -677,6 +681,8 @@ export type Database = {
         Update: {
           calidad_entrenamiento?: number
           categoria?: string
+          como_tratar_hijo?: string[] | null
+          como_tratar_padre?: string[] | null
           comunicacion_triangulo?: number
           created_at?: string
           id?: string

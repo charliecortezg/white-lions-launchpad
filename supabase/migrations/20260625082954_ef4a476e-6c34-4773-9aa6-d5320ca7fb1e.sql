@@ -1,0 +1,1 @@
+ALTER TABLE public.season_feedback ADD COLUMN IF NOT EXISTS como_tratar_hijo text[], ADD COLUMN IF NOT EXISTS como_tratar_padre text[];
