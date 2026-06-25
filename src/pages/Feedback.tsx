@@ -20,6 +20,8 @@ type FormState = {
   que_no_repetir: string;
   que_cambiaria: string;
   que_le_falta_a_wla: string;
+  como_tratar_hijo: string[];
+  como_tratar_padre: string[];
 };
 
 const initial: FormState = {
@@ -36,7 +38,81 @@ const initial: FormState = {
   que_no_repetir: "",
   que_cambiaria: "",
   que_le_falta_a_wla: "",
+  como_tratar_hijo: [],
+  como_tratar_padre: [],
 };
+
+const OPCIONES_HIJO = [
+  "Que me exijan más, quiero mejorar de verdad",
+  "Que me traten como parte de una familia",
+  "Que me den más libertad para expresarme",
+  "Que celebren más mis logros, aunque sean pequeños",
+  "Que me conozcan más como persona, no solo como jugador",
+  "Está bien como estamos",
+];
+
+const OPCIONES_PADRE = [
+  "Más comunicación sobre el progreso de mi hijo",
+  "Que lo exijan con respeto y paciencia",
+  "Que lo hagan sentir importante dentro del equipo",
+  "Que nos incluyan más como familia en el proceso",
+  "Que celebren sus avances aunque no sea el mejor",
+  "Estamos muy satisfechos como están las cosas",
+];
+
+function CheckboxList({
+  options,
+  values,
+  onToggle,
+}: {
+  options: string[];
+  values: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {options.map((opt) => {
+        const active = values.includes(opt);
+        return (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onToggle(opt)}
+            className="flex items-start gap-3 text-left rounded-lg transition-all active:scale-[0.99]"
+            style={{
+              padding: "12px 14px",
+              backgroundColor: active ? "rgba(201,168,76,0.12)" : "#161616",
+              border: `1px solid ${active ? GOLD : "#2a2a2a"}`,
+              color: "#fff",
+              minHeight: 48,
+            }}
+          >
+            <span
+              aria-hidden
+              className="flex items-center justify-center shrink-0"
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 6,
+                border: `1.5px solid ${active ? GOLD : "#555"}`,
+                backgroundColor: active ? GOLD : "transparent",
+                color: "#0a0a0a",
+                marginTop: 2,
+              }}
+            >
+              {active && (
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="M5 12l5 5L20 7" />
+                </svg>
+              )}
+            </span>
+            <span className="text-sm sm:text-base leading-snug">{opt}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 const DRIVE_URL =
   "https://drive.google.com/drive/folders/1Cz8KaZYNhrN7FP6bKHcdMiHEUyUVX3s1";
@@ -212,6 +288,14 @@ export default function Feedback() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const toggleIn = (key: "como_tratar_hijo" | "como_tratar_padre", value: string) =>
+    setForm((f) => ({
+      ...f,
+      [key]: f[key].includes(value)
+        ? f[key].filter((v) => v !== value)
+        : [...f[key], value],
+    }));
+
   const canContinue = useMemo(() => {
     switch (step) {
       case 1:
@@ -233,6 +317,8 @@ export default function Feedback() {
         return true;
       case 5:
         return form.que_cambiaria.trim().length > 0;
+      case 6:
+        return true;
       default:
         return true;
     }
@@ -260,6 +346,8 @@ export default function Feedback() {
       que_no_repetir: form.que_no_repetir.trim() || null,
       que_cambiaria: form.que_cambiaria.trim(),
       que_le_falta_a_wla: form.que_le_falta_a_wla.trim() || null,
+      como_tratar_hijo: form.como_tratar_hijo.length > 0 ? form.como_tratar_hijo : null,
+      como_tratar_padre: form.como_tratar_padre.length > 0 ? form.como_tratar_padre : null,
     });
     setSubmitting(false);
     if (error) {
@@ -509,6 +597,46 @@ export default function Feedback() {
             )}
 
             {step === 6 && (
+              <>
+                <h2 className="text-xl font-semibold" style={{ color: GOLD }}>
+                  ¿Cómo les gustaría que los tratáramos?
+                </h2>
+                <p
+                  className="text-white/60 text-sm sm:text-base"
+                  style={{ fontStyle: "italic" }}
+                >
+                  Ahora pregúntale a tu hijo Y dinos también tú como padre:
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm sm:text-base font-semibold" style={{ color: GOLD }}>
+                    Tu hijo dice:
+                  </span>
+                  <CheckboxList
+                    options={OPCIONES_HIJO}
+                    values={form.como_tratar_hijo}
+                    onToggle={(v) => toggleIn("como_tratar_hijo", v)}
+                  />
+                </div>
+
+                <div className="h-px w-full" style={{ backgroundColor: "#2a2a2a" }} />
+
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm sm:text-base font-semibold" style={{ color: GOLD }}>
+                    Tú como padre/madre dices:
+                  </span>
+                  <CheckboxList
+                    options={OPCIONES_PADRE}
+                    values={form.como_tratar_padre}
+                    onToggle={(v) => toggleIn("como_tratar_padre", v)}
+                  />
+                </div>
+
+                <PrimaryButton onClick={goNext}>Continuar →</PrimaryButton>
+              </>
+            )}
+
+            {step === 7 && (
               <>
                 <h2 className="text-xl font-semibold" style={{ color: GOLD }}>
                   ¿Nos regalas un momento más?
