@@ -16,6 +16,7 @@ import EvaluacionPorVideo from "./pages/EvaluacionPorVideo";
 import CalculadoraDeportiva from "./pages/CalculadoraDeportiva";
 import VeranoFutcenter from "./pages/VeranoFutcenter";
 import Admin from "./pages/Admin";
+import Feedback from "./pages/Feedback";
 
 const queryClient = new QueryClient();
 
