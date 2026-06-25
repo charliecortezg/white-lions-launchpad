@@ -599,6 +599,46 @@ export default function Feedback() {
             {step === 6 && (
               <>
                 <h2 className="text-xl font-semibold" style={{ color: GOLD }}>
+                  ¿Cómo les gustaría que los tratáramos?
+                </h2>
+                <p
+                  className="text-white/60 text-sm sm:text-base"
+                  style={{ fontStyle: "italic" }}
+                >
+                  Ahora pregúntale a tu hijo Y dinos también tú como padre:
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm sm:text-base font-semibold" style={{ color: GOLD }}>
+                    Tu hijo dice:
+                  </span>
+                  <CheckboxList
+                    options={OPCIONES_HIJO}
+                    values={form.como_tratar_hijo}
+                    onToggle={(v) => toggleIn("como_tratar_hijo", v)}
+                  />
+                </div>
+
+                <div className="h-px w-full" style={{ backgroundColor: "#2a2a2a" }} />
+
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm sm:text-base font-semibold" style={{ color: GOLD }}>
+                    Tú como padre/madre dices:
+                  </span>
+                  <CheckboxList
+                    options={OPCIONES_PADRE}
+                    values={form.como_tratar_padre}
+                    onToggle={(v) => toggleIn("como_tratar_padre", v)}
+                  />
+                </div>
+
+                <PrimaryButton onClick={goNext}>Continuar →</PrimaryButton>
+              </>
+            )}
+
+            {step === 7 && (
+              <>
+                <h2 className="text-xl font-semibold" style={{ color: GOLD }}>
                   ¿Nos regalas un momento más?
                 </h2>
 
