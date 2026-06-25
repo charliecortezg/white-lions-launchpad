@@ -288,6 +288,14 @@ export default function Feedback() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const toggleIn = (key: "como_tratar_hijo" | "como_tratar_padre", value: string) =>
+    setForm((f) => ({
+      ...f,
+      [key]: f[key].includes(value)
+        ? f[key].filter((v) => v !== value)
+        : [...f[key], value],
+    }));
+
   const canContinue = useMemo(() => {
     switch (step) {
       case 1:
@@ -309,6 +317,8 @@ export default function Feedback() {
         return true;
       case 5:
         return form.que_cambiaria.trim().length > 0;
+      case 6:
+        return true;
       default:
         return true;
     }
@@ -336,6 +346,8 @@ export default function Feedback() {
       que_no_repetir: form.que_no_repetir.trim() || null,
       que_cambiaria: form.que_cambiaria.trim(),
       que_le_falta_a_wla: form.que_le_falta_a_wla.trim() || null,
+      como_tratar_hijo: form.como_tratar_hijo.length > 0 ? form.como_tratar_hijo : null,
+      como_tratar_padre: form.como_tratar_padre.length > 0 ? form.como_tratar_padre : null,
     });
     setSubmitting(false);
     if (error) {
