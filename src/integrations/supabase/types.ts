@@ -639,6 +639,60 @@ export type Database = {
           },
         ]
       }
+      season_feedback: {
+        Row: {
+          calidad_entrenamiento: number
+          categoria: string
+          comunicacion_triangulo: number
+          created_at: string
+          id: string
+          nps: number
+          organizacion_general: number
+          progreso_hijo: number
+          que_cambiaria: string
+          que_le_falta_a_wla: string | null
+          que_le_gusto_al_hijo: string
+          que_no_funciono: string | null
+          que_no_repetir: string | null
+          que_valoro_el_padre: string
+          temporadas_en_wla: string
+        }
+        Insert: {
+          calidad_entrenamiento: number
+          categoria: string
+          comunicacion_triangulo: number
+          created_at?: string
+          id?: string
+          nps: number
+          organizacion_general: number
+          progreso_hijo: number
+          que_cambiaria: string
+          que_le_falta_a_wla?: string | null
+          que_le_gusto_al_hijo: string
+          que_no_funciono?: string | null
+          que_no_repetir?: string | null
+          que_valoro_el_padre: string
+          temporadas_en_wla: string
+        }
+        Update: {
+          calidad_entrenamiento?: number
+          categoria?: string
+          comunicacion_triangulo?: number
+          created_at?: string
+          id?: string
+          nps?: number
+          organizacion_general?: number
+          progreso_hijo?: number
+          que_cambiaria?: string
+          que_le_falta_a_wla?: string | null
+          que_le_gusto_al_hijo?: string
+          que_no_funciono?: string | null
+          que_no_repetir?: string | null
+          que_valoro_el_padre?: string
+          temporadas_en_wla?: string
+        }
+        Relationships: []
+      }
       trial_class_registrations: {
         Row: {
           age_or_birth_year: string
