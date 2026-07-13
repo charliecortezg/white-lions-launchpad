@@ -9,27 +9,33 @@ const Schedule = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4 font-display uppercase tracking-wide">
             Horarios de Entrenamiento
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto font-body">
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto font-body">
             Días y horarios fijos para cada categoría.
           </p>
         </AnimatedSection>
 
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <AnimatedSection animation="fade-up">
+            <div className="bento-card p-5 border-l-4 border-primary bg-primary/5">
+              <p className="text-sm md:text-base text-foreground font-body">
+                🌡️ <strong>Horario de verano (julio):</strong> todas las categorías entrenan de <strong>7:30 a 8:30 PM</strong> por la salud de los jugadores. El horario regular regresa gradualmente con el nuevo ciclo.
+              </p>
+            </div>
+          </AnimatedSection>
+
           <AnimatedSection animation="fade-up" className="w-full">
             <div className="bento-card overflow-hidden p-0">
-              {/* Header */}
               <div className="bg-primary/20 p-6 text-center border-b border-border">
                 <span className="text-4xl mb-2 block">⚽</span>
                 <h3 className="text-2xl font-bold text-foreground font-display uppercase">Fútbol</h3>
                 <div className="flex items-center justify-center gap-1 text-muted-foreground text-sm mt-2 font-body">
                   <MapPin className="w-4 h-4" />
-                  Hacienda del Bosque
+                  Campo Hacienda del Bosque
                 </div>
               </div>
 
-              {/* Schedule Table */}
-              <div className="p-6">
-                <table className="w-full">
+              <div className="p-6 overflow-x-auto">
+                <table className="w-full min-w-[520px]">
                   <thead>
                     <tr className="text-left text-sm text-muted-foreground font-body">
                       <th className="pb-3 font-medium">Categoría</th>
@@ -40,7 +46,22 @@ const Schedule = () => {
                   <tbody>
                     <tr className="border-t border-border">
                       <td className="py-4">
-                        <span className="font-medium text-foreground font-body">Todas las categorías</span>
+                        <span className="font-medium text-foreground font-body">Biberón 🍼</span>
+                        <span className="block text-xs text-muted-foreground mt-1 font-body">4–5 años</span>
+                      </td>
+                      <td className="py-4">
+                        <span className="font-medium text-foreground font-body">Martes y Jueves</span>
+                      </td>
+                      <td className="py-4">
+                        <div className="flex items-center gap-2 text-foreground font-body">
+                          <Clock className="w-4 h-4 text-primary" />
+                          7:30 – 8:30 PM
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="border-t border-border">
+                      <td className="py-4">
+                        <span className="font-medium text-foreground font-body">Escuelita, Estrellita, Infantil, Juvenil A</span>
                         <span className="block text-xs text-muted-foreground mt-1 font-body">6–13 años</span>
                       </td>
                       <td className="py-4">
@@ -49,22 +70,7 @@ const Schedule = () => {
                       <td className="py-4">
                         <div className="flex items-center gap-2 text-foreground font-body">
                           <Clock className="w-4 h-4 text-primary" />
-                          6:00 PM – 8:00 PM
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="border-t border-border">
-                      <td className="py-4">
-                        <span className="font-medium text-foreground font-body">Biberón 🍼</span>
-                        <span className="block text-xs text-muted-foreground mt-1 font-body">4–5 años · Cupo máx. 8</span>
-                      </td>
-                      <td className="py-4">
-                        <span className="font-medium text-foreground font-body">Martes y Jueves</span>
-                      </td>
-                      <td className="py-4">
-                        <div className="flex items-center gap-2 text-foreground font-body">
-                          <Clock className="w-4 h-4 text-primary" />
-                          6:00 PM – 7:00 PM
+                          7:30 – 8:30 PM
                         </div>
                       </td>
                     </tr>
@@ -73,6 +79,10 @@ const Schedule = () => {
               </div>
             </div>
           </AnimatedSection>
+
+          <p className="text-center text-sm text-muted-foreground font-body">
+            Nuevo ciclo deportivo: inicia la semana del <strong>3 de agosto de 2026</strong>.
+          </p>
         </div>
       </div>
     </section>

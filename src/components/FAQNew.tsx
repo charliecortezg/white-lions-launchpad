@@ -38,7 +38,7 @@ const FAQNew = () => {
     },
     {
       question: "¿Qué debe llevar mi hijo al primer día?",
-      answer: "Ropa deportiva cómoda, tacos de fútbol, agua y muchas ganas. Nosotros proporcionamos los balones de entrenamiento.",
+      answer: "Entrenamos en campo natural de tierra, así que recomendamos tenis deportivos o tacos multitaco, ropa cómoda y botella de agua. Nosotros ponemos los balones. Llegar 10 minutos antes.",
     },
     {
       question: "¿Las academias son mixtas?",
@@ -46,11 +46,11 @@ const FAQNew = () => {
     },
     {
       question: "¿Hay categoría para niños de 4-5 años?",
-      answer: "Sí, la categoría Biberón está activa para niños de 4-5 años (nacidos en 2020-2021). Los entrenamientos son martes y jueves de 6:00 a 7:00 PM en Hacienda del Bosque. El cupo es limitado a 8 jugadores. Si el cupo está lleno, puedes registrarte en la lista de espera.",
+      answer: "Sí, la categoría Biberón está activa para niños de 4-5 años (nacidos en 2021-2022). Los entrenamientos son martes y jueves. Durante julio el horario es de 7:30 a 8:30 PM por el calor. El nuevo ciclo inicia el martes 4 de agosto y el grupo es reducido (cupo máximo: 13). Todo inicia con una clase muestra gratuita.",
     },
     {
       question: "¿Hay categoría para jóvenes de 12-13 años?",
-      answer: "Sí, estamos abriendo la categoría Juvenil A para jugadores nacidos en 2012-2013. Tenemos 12 espacios disponibles. Los entrenamientos son lunes y miércoles de 6:00 a 8:00 PM en Hacienda del Bosque. Puedes registrarte desde el formulario para apartar tu lugar.",
+      answer: "Sí, la categoría Juvenil A es para jugadores nacidos en 2013-2014 que quieren dar el salto al fútbol 11 con metodología estructurada. Ya estamos entrenando: lunes y miércoles, en julio de 7:30 a 8:30 PM. Solo hay 5 lugares disponibles. Todo inicia con una clase muestra gratuita.",
     },
   ];
 

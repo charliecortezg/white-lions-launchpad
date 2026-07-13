@@ -72,6 +72,9 @@ const ChallengeOffer = () => {
                   <p className="text-xs text-muted-foreground/80 font-body">
                     Inscripción válida para el ciclo Agosto–Junio · Pago en campo
                   </p>
+                  <p className="text-xs text-primary/90 font-body">
+                    Para las categorías Biberón, Escuelita y Estrellita, tu Reto inicia con el arranque del nuevo ciclo: semana del 3 de agosto.
+                  </p>
                 </div>
               </div>
 

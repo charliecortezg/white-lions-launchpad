@@ -37,12 +37,12 @@ const FooterNew = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="mailto:info@whitelions.mx"
+                <a
+                  href="mailto:whitelions.admn@gmail.com"
                   className="flex items-center gap-2 hover:text-primary transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  info@whitelions.mx
+                  whitelions.admn@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-2">

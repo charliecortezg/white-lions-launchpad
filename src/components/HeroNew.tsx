@@ -31,7 +31,7 @@ const HeroNew = () => {
           >
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             <span className="text-sm text-primary font-medium font-body">
-              Cupos limitados · Grupo de 4 a 5 años
+              🦁 Nuevo ciclo deportivo · Inicia 3 de agosto · Lugares limitados
             </span>
           </div>
 

@@ -8,10 +8,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// ─── Types ──────────────────────────────────────────────────────────
-
 interface TrialEmailRequest {
-  type?: undefined;
   player_name: string;
   tutor_name: string;
   parent_email: string;
@@ -19,147 +16,16 @@ interface TrialEmailRequest {
   category: string;
   trial_date: string;
   location: string;
+  location_zone?: string;
+  location_map?: string;
   schedule: string;
 }
 
-interface WaitlistEmailRequest {
-  type: 'waitlist';
-  player_name: string;
-  tutor_name: string;
-  parent_email: string;
-  category: string;
-  waitlist_status: 'accepted' | 'overflow';
-  spots_taken: number;
-  capacity: number;
-}
-
-type EmailRequest = TrialEmailRequest | WaitlistEmailRequest;
-
-// ─── Helpers ────────────────────────────────────────────────────────
-
-const getLocationMapLink = (location: string, sport: string): string => {
-  const loc = (location || '').toLowerCase();
-  const sp = (sport || '').toLowerCase();
-  
-  if (loc.includes('hacienda') || loc.includes('bosque')) {
-    return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
-  }
-  if (loc.includes('quinta') || loc.includes('rey')) {
-    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
-  }
-  if (sp.includes('fútbol') || sp.includes('futbol') || sp.includes('soccer')) {
-    return 'https://maps.app.goo.gl/ZoLbWvaQgFAsoDYa8';
-  }
-  if (sp.includes('basketball') || sp.includes('basquet') || sp.includes('básquet')) {
-    return 'https://maps.app.goo.gl/1o1iuUroqA4yD86M8';
-  }
-  return '';
-};
-
-// ─── Email Templates ────────────────────────────────────────────────
-
-const buildWaitlistEmail = (data: WaitlistEmailRequest): string => {
-  const isAccepted = data.waitlist_status === 'accepted';
-
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background-color: #f8f9fa;">
-  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-    
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); padding: 40px 30px; text-align: center;">
-      <h1 style="color: #f59e0b; margin: 0; font-size: 28px; font-weight: bold;">🍼 White Lions Academy</h1>
-      <p style="color: #94a3b8; margin: 12px 0 0; font-size: 16px;">Lista de Espera — Categoría Biberón</p>
-    </div>
-    
-    <!-- Main Content -->
-    <div style="padding: 40px 30px;">
-      
-      <h2 style="color: #0F172A; margin: 0 0 20px; font-size: 24px;">
-        ¡Hola ${data.tutor_name}! 👋
-      </h2>
-      
-      ${isAccepted ? `
-      <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
-        <h3 style="color: #0F172A; margin: 0 0 10px; font-size: 18px;">✅ ¡${data.player_name} está dentro del cupo!</h3>
-        <p style="color: #334155; margin: 0; font-size: 14px; line-height: 1.6;">
-          Tu hijo tiene un lugar asegurado en la categoría <strong>Biberón (4-5 años)</strong>.
-          <br>Cupo: <strong>${data.spots_taken} de ${data.capacity}</strong> espacios ocupados.
-        </p>
-      </div>
-      ` : `
-      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
-        <h3 style="color: #0F172A; margin: 0 0 10px; font-size: 18px;">⏳ ${data.player_name} está en lista de espera</h3>
-        <p style="color: #334155; margin: 0; font-size: 14px; line-height: 1.6;">
-          El cupo inicial de <strong>${data.capacity} espacios</strong> ya se completó, pero tu registro quedó guardado.
-          <br>Te contactaremos en cuanto se libere un lugar.
-        </p>
-      </div>
-      `}
-
-      <!-- Details Card -->
-      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); border-radius: 12px; padding: 25px; margin-bottom: 30px; border-left: 4px solid #f59e0b;">
-        <h3 style="color: #0F172A; margin: 0 0 20px; font-size: 18px;">📋 Detalles del registro</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">👤 Jugador:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.player_name}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">👥 Categoría:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.category}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📅 Inicio estimado:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">Lunes 2 de Marzo, 2026</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📊 Status:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${isAccepted ? '✅ Dentro del cupo' : '⏳ En lista de espera'}</td>
-          </tr>
-        </table>
-      </div>
-
-      <!-- What's Next -->
-      <div style="background: #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 18px;">🤔 ¿Qué sigue?</h3>
-        <p style="color: #334155; margin: 0; font-size: 14px; line-height: 1.6;">
-          ${isAccepted 
-            ? 'Te contactaremos por WhatsApp antes de la fecha de inicio para confirmar los detalles y horarios de la categoría Biberón.'
-            : 'Guardamos tu registro y te avisaremos por WhatsApp en cuanto se libere un cupo o se abra un nuevo grupo.'}
-        </p>
-      </div>
-
-      <p style="color: #334155; line-height: 1.6; font-size: 16px;">
-        ¿Tienes preguntas? Responde a este correo o escríbenos por WhatsApp.
-      </p>
-
-      <p style="color: #334155; line-height: 1.6; margin-top: 25px; font-size: 16px;">
-        ¡Gracias por confiar en White Lions! 🦁<br>
-        <strong style="color: #f59e0b;">El equipo de White Lions Academy</strong>
-      </p>
-    </div>
-    
-    <!-- Footer -->
-    <div style="background-color: #0F172A; padding: 25px; text-align: center;">
-      <p style="color: #64748b; font-size: 12px; margin: 0;">
-        White Lions Academy – Formamos personas a través del deporte<br>
-        <a href="https://whitelionsacademy.com" style="color: #f59e0b; text-decoration: none;">whitelionsacademy.com</a>
-      </p>
-    </div>
-  </div>
-</body>
-</html>
-  `;
-};
+const DEFAULT_MAP = "https://share.google/JWKOVbkRTJ8bDJaMU";
 
 const buildTrialEmail = (data: TrialEmailRequest): string => {
-  const mapLink = getLocationMapLink(data.location, data.sport);
+  const mapLink = data.location_map || DEFAULT_MAP;
+  const zone = data.location_zone || "Zona Juventud 2000, Mexicali";
 
   return `
 <!DOCTYPE html>
@@ -170,36 +36,29 @@ const buildTrialEmail = (data: TrialEmailRequest): string => {
 </head>
 <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background-color: #f8f9fa;">
   <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-    
-    <!-- Header -->
+
     <div style="background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); padding: 40px 30px; text-align: center;">
       <h1 style="color: #f59e0b; margin: 0; font-size: 28px; font-weight: bold;">🦁 White Lions Academy</h1>
       <p style="color: #94a3b8; margin: 12px 0 0; font-size: 16px;">¡Tu clase muestra está confirmada!</p>
     </div>
-    
-    <!-- Main Content -->
+
     <div style="padding: 40px 30px;">
-      
+
       <h2 style="color: #0F172A; margin: 0 0 20px; font-size: 24px;">
         ¡Hola ${data.tutor_name}! 👋
       </h2>
-      
+
       <p style="color: #334155; line-height: 1.7; font-size: 16px; margin-bottom: 15px;">
         <strong>¡Excelente!</strong> ${data.player_name} tiene reservado su lugar para vivir la experiencia White Lions.
       </p>
-      
+
       <p style="color: #334155; line-height: 1.7; font-size: 16px; margin-bottom: 30px;">
         Esta clase es <strong>gratuita y sin compromiso</strong>. Queremos que vivan la metodología antes de tomar cualquier decisión.
       </p>
 
-      <!-- Registration Details Card -->
       <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); border-radius: 12px; padding: 25px; margin-bottom: 30px; border-left: 4px solid #f59e0b;">
         <h3 style="color: #0F172A; margin: 0 0 20px; font-size: 18px;">📋 Detalles de tu Clase Muestra</h3>
         <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">🏅 Deporte:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.sport}</td>
-          </tr>
           <tr>
             <td style="padding: 10px 0; color: #64748b; font-size: 14px;">👤 Jugador:</td>
             <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.player_name}</td>
@@ -213,70 +72,34 @@ const buildTrialEmail = (data: TrialEmailRequest): string => {
             <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.trial_date}</td>
           </tr>
           <tr>
-            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📍 Sede:</td>
-            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.location}</td>
-          </tr>
-          <tr>
             <td style="padding: 10px 0; color: #64748b; font-size: 14px;">🕐 Horario:</td>
             <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.schedule}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; color: #64748b; font-size: 14px;">📍 Sede:</td>
+            <td style="padding: 10px 0; color: #0F172A; font-weight: 600; font-size: 14px;">${data.location}<br><span style="color:#64748b; font-weight:400; font-size:13px;">${zone}</span></td>
           </tr>
         </table>
       </div>
 
-      <!-- What to Bring Section -->
       <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
-        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 16px;">📌 Para la clase muestra:</h3>
+        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 16px;">📌 Recomendaciones para el primer día:</h3>
         <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
-          <li>Ropa deportiva cómoda</li>
-          <li>Tenis adecuados (de preferencia para pasto)</li>
-          <li>Agua o bebida hidratante</li>
-          <li>¡Muchas ganas de aprender!</li>
+          <li>Entrenamos en <strong>campo natural de tierra</strong>: tenis deportivos o tacos multitaco</li>
+          <li>Ropa cómoda</li>
+          <li>Botella de agua</li>
+          <li>Llegar 10 minutos antes</li>
         </ul>
         <p style="margin: 15px 0 0; color: #64748b; font-size: 13px;">
-          Nosotros proporcionamos los balones y el espacio de entrenamiento.
+          Nosotros ponemos los balones.
         </p>
       </div>
 
-      ${mapLink ? `
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${mapLink}" 
-           target="_blank"
-           style="display: inline-block; 
-                  background-color: #f59e0b; 
-                  color: #0F172A; 
-                  padding: 16px 40px; 
-                  border-radius: 10px; 
-                  text-decoration: none; 
-                  font-weight: bold; 
-                  font-size: 16px;">
+        <a href="${mapLink}" target="_blank"
+           style="display: inline-block; background-color: #f59e0b; color: #0F172A; padding: 16px 40px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px;">
           📍 Ver ubicación en Google Maps
         </a>
-      </div>
-      ` : ''}
-
-      <!-- What's Next Section -->
-      <div style="background: #f1f5f9; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-        <h3 style="color: #0F172A; margin: 0 0 15px; font-size: 18px;">🤔 ¿Qué sigue después de la clase?</h3>
-        <p style="color: #334155; margin: 0 0 15px; font-size: 14px; line-height: 1.6;">
-          Si después de vivir la experiencia decides continuar, podrás inscribir a ${data.player_name} en el <strong>Reto White Lions – 30 días</strong>, que incluye:
-        </p>
-        <ul style="margin: 0 0 15px; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.8;">
-          <li>✓ Kit de inicio White Lions</li>
-          <li>✓ 30 días de entrenamiento estructurado</li>
-          <li>✓ Evaluaciones mensuales</li>
-          <li>✓ Acceso a la app de rendimiento</li>
-          <li>✓ Garantía de satisfacción</li>
-        </ul>
-        <p style="color: #64748b; margin: 0; font-size: 13px; font-style: italic;">
-          El pago se realiza únicamente en campo. Sin presiones, la decisión final es tuya.
-        </p>
-      </div>
-
-      <!-- Reminder Box -->
-      <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-        <p style="margin: 0; color: #0F172A; font-size: 14px; line-height: 1.6;">
-          <strong>💡 Recuerda:</strong> La clase muestra es gratuita y sin compromiso. Solo queremos que tu hijo viva la experiencia White Lions antes de tomar cualquier decisión.
-        </p>
       </div>
 
       <p style="color: #334155; line-height: 1.6; font-size: 16px;">
@@ -288,8 +111,7 @@ const buildTrialEmail = (data: TrialEmailRequest): string => {
         <strong style="color: #f59e0b;">El equipo de White Lions Academy</strong>
       </p>
     </div>
-    
-    <!-- Footer -->
+
     <div style="background-color: #0F172A; padding: 25px; text-align: center;">
       <p style="color: #64748b; font-size: 12px; margin: 0;">
         White Lions Academy – Formamos personas a través del deporte<br>
@@ -302,37 +124,20 @@ const buildTrialEmail = (data: TrialEmailRequest): string => {
   `;
 };
 
-// ─── Handler ────────────────────────────────────────────────────────
-
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const data: EmailRequest = await req.json();
+    const data: TrialEmailRequest = await req.json();
 
-    console.log("Processing email, type:", (data as any).type || 'trial');
-
-    const isWaitlist = (data as any).type === 'waitlist';
-    const parentEmail = data.parent_email;
-
-    if (!parentEmail || !parentEmail.includes('@')) {
+    if (!data.parent_email || !data.parent_email.includes('@')) {
       throw new Error("Email del padre/tutor es requerido y debe ser válido");
     }
 
-    let htmlContent: string;
-    let subject: string;
-
-    if (isWaitlist) {
-      const waitlistData = data as WaitlistEmailRequest;
-      htmlContent = buildWaitlistEmail(waitlistData);
-      subject = `🍼 Lista de espera Biberón — ${waitlistData.player_name} — White Lions`;
-    } else {
-      const trialData = data as TrialEmailRequest;
-      htmlContent = buildTrialEmail(trialData);
-      subject = `🦁 ¡Tu clase muestra está confirmada! - ${trialData.player_name}`;
-    }
+    const htmlContent = buildTrialEmail(data);
+    const subject = `🦁 ¡Tu clase muestra está confirmada! — ${data.player_name}`;
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -342,7 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "White Lions Academy <hola@whitelionsacademy.com>",
-        to: [parentEmail],
+        to: [data.parent_email],
         bcc: ["whitelions.admn@gmail.com"],
         reply_to: "whitelions.admn@gmail.com",
         subject,
@@ -352,28 +157,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResult = await emailResponse.json();
 
-    console.log("Email response status:", emailResponse.status);
-    console.log("Email result:", emailResult);
-
     if (!emailResponse.ok) {
       throw new Error(emailResult.message || "Failed to send email");
     }
 
     return new Response(JSON.stringify({ success: true, data: emailResult }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-confirmation function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };
