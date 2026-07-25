@@ -24,6 +24,38 @@
   <meta name="twitter:title" content="White Lions Academy | Academia de Fútbol Formativo en Mexicali">
   <meta property="og:description" content="White Lions Academy: academia formativa de fútbol en Mexicali. Metodología europea, grupos reducidos y seguimiento medible del progreso de cada jugador. Nuevo ciclo: 3 de agosto.">
   <meta name="twitter:description" content="White Lions Academy: academia formativa de fútbol en Mexicali. Metodología europea, grupos reducidos y seguimiento medible del progreso de cada jugador. Nuevo ciclo: 3 de agosto.">
+
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1180242963905710');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1180242963905710&ev=PageView&noscript=1"/></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- UTM capture: persist in sessionStorage for the browsing session -->
+  <script>
+    (function () {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        ['utm_source', 'utm_campaign', 'utm_content', 'utm_medium'].forEach(function (k) {
+          var v = params.get(k);
+          if (v && v.length > 0) {
+            sessionStorage.setItem(k, v);
+          }
+        });
+      } catch (e) { /* no-op */ }
+    })();
+  </script>
 </head>
 
   <body>

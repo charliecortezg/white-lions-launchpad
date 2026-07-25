@@ -192,6 +192,21 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
       const emailNormalized = normalizeEmail(data.tutor_email);
       const phoneNormalized = normalizePhone(data.contact_phone);
 
+      // Read UTM params from sessionStorage (captured on site load)
+      const readUtm = (k: string): string | null => {
+        try {
+          const v = sessionStorage.getItem(k);
+          return v && v.length > 0 ? v : null;
+        } catch { return null; }
+      };
+      const utmFields = {
+        utm_source: readUtm('utm_source'),
+        utm_campaign: readUtm('utm_campaign'),
+        utm_content: readUtm('utm_content'),
+        utm_medium: readUtm('utm_medium'),
+      };
+
+
       const thresholdDate = new Date();
       thresholdDate.setDate(thresholdDate.getDate() - 45);
 
@@ -230,6 +245,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             no_show_processed_at: null,
             status_updated_at: new Date().toISOString(),
             ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
+            ...utmFields,
+
           })
           .eq("id", existingProspect.id);
         if (updateError) throw updateError;
@@ -254,9 +271,20 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             school: data.school || null,
             comments: data.notes || null,
             ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
+            ...utmFields,
           }]);
         if (insertError) throw insertError;
       }
+
+      // Fire Meta Pixel Lead event (secondary, must never block registration)
+      try {
+        if (typeof (window as any).fbq === 'function') {
+          (window as any).fbq('track', 'Lead');
+        }
+      } catch (fbqErr) {
+        console.warn('fbq Lead event failed:', fbqErr);
+      }
+
 
       try {
         await supabase.functions.invoke('send-confirmation', {

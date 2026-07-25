@@ -1,0 +1,5 @@
+ALTER TABLE public.trial_class_registrations
+ADD COLUMN IF NOT EXISTS utm_source text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS utm_campaign text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS utm_content text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS utm_medium text DEFAULT NULL;
