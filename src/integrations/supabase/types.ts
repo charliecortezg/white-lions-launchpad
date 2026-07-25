@@ -730,6 +730,10 @@ export type Database = {
           trial_duration_min: number
           trial_start_at: string | null
           tutor_name: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
           age_or_birth_year: string
@@ -761,6 +765,10 @@ export type Database = {
           trial_duration_min?: number
           trial_start_at?: string | null
           tutor_name: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
           age_or_birth_year?: string
@@ -792,6 +800,10 @@ export type Database = {
           trial_duration_min?: number
           trial_start_at?: string | null
           tutor_name?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: []
       }
