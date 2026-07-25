@@ -245,6 +245,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             no_show_processed_at: null,
             status_updated_at: new Date().toISOString(),
             ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
+            ...utmFields,
+
           })
           .eq("id", existingProspect.id);
         if (updateError) throw updateError;
