@@ -192,6 +192,21 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
       const emailNormalized = normalizeEmail(data.tutor_email);
       const phoneNormalized = normalizePhone(data.contact_phone);
 
+      // Read UTM params from sessionStorage (captured on site load)
+      const readUtm = (k: string): string | null => {
+        try {
+          const v = sessionStorage.getItem(k);
+          return v && v.length > 0 ? v : null;
+        } catch { return null; }
+      };
+      const utmFields = {
+        utm_source: readUtm('utm_source'),
+        utm_campaign: readUtm('utm_campaign'),
+        utm_content: readUtm('utm_content'),
+        utm_medium: readUtm('utm_medium'),
+      };
+
+
       const thresholdDate = new Date();
       thresholdDate.setDate(thresholdDate.getDate() - 45);
 
