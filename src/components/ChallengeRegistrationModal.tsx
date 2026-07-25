@@ -271,9 +271,20 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             school: data.school || null,
             comments: data.notes || null,
             ...(referralSource ? { referral_name: data.referral_name || null, referral_source: referralSource } : {}),
+            ...utmFields,
           }]);
         if (insertError) throw insertError;
       }
+
+      // Fire Meta Pixel Lead event (secondary, must never block registration)
+      try {
+        if (typeof (window as any).fbq === 'function') {
+          (window as any).fbq('track', 'Lead');
+        }
+      } catch (fbqErr) {
+        console.warn('fbq Lead event failed:', fbqErr);
+      }
+
 
       try {
         await supabase.functions.invoke('send-confirmation', {
