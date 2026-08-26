@@ -73,9 +73,6 @@ const Schedule = () => {
             </div>
           </AnimatedSection>
 
-          <p className="text-center text-sm text-muted-foreground font-body">
-            Nuevo ciclo deportivo: inicia la semana del <strong>3 de agosto de 2026</strong>.
-          </p>
         </div>
       </div>
     </section>

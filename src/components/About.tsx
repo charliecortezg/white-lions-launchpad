@@ -44,6 +44,9 @@ const About = () => {
             <div className="inline-block bg-gold/10 text-gold text-sm font-semibold px-4 py-2 rounded-full mb-4">
               Quiénes Somos
             </div>
+            <p className="text-sm md:text-base text-muted-foreground font-medium mb-2 tracking-wide uppercase">
+              Del Niño al León · Aquí inicia tu mejor versión
+            </p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
               White Lions Academies
             </h2>
@@ -67,7 +70,7 @@ const About = () => {
                 Nuestra Misión
               </h3>
               <p className="text-lg text-primary-foreground/90 max-w-3xl mx-auto">
-                Criar deportistas de alto rendimiento mientras juegan y se divierten.
+                Transformamos a nuestros jugadores en leones verdaderos: valientes en la cancha, extraordinarios en la vida.
               </p>
             </div>
           </AnimatedSection>
