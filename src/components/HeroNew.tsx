@@ -31,7 +31,7 @@ const HeroNew = () => {
           >
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             <span className="text-sm text-primary font-medium font-body">
-              🦁 Nuevo ciclo deportivo · Inicia 3 de agosto · Lugares limitados
+              🦁 Del Niño al León · Ciclo 2026–2027 · Cupo limitado
             </span>
           </div>
 
