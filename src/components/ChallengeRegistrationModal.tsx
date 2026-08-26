@@ -45,11 +45,13 @@ const SPORT = "Fútbol";
 const LOCATION = "Campo Hacienda del Bosque";
 const LOCATION_ZONE = "Zona Juventud 2000, Mexicali";
 const LOCATION_MAP = "https://share.google/JWKOVbkRTJ8bDJaMU";
-const SUMMER_SCHEDULE_TEXT = "Durante julio: 7:30–8:30 PM (horario de verano). Biberón entrena Martes y Jueves; el resto de las categorías Lunes y Miércoles.";
-
-// Fixed cycle start dates
-const CYCLE_START_MON = new Date(2026, 7, 3); // Aug 3, 2026 (Monday)
-const CYCLE_START_TUE = new Date(2026, 7, 4); // Aug 4, 2026 (Tuesday)
+// Schedule text per category (no seasonal references)
+const getScheduleText = (cat: string): string => {
+  if (cat === "Biberón") {
+    return "7:30–8:30 PM. Entrena Martes y Jueves.";
+  }
+  return "7:30–9:00 PM. Entrena Lunes y Miércoles.";
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -74,12 +76,22 @@ const getCategories = (birthYear: string | undefined) => {
   return cat ? [cat] : [];
 };
 
-const isFixedDateCategory = (cat: string) =>
-  cat === "Biberón" || cat === "Escuelita" || cat === "Estrellita";
+const getCategoryDays = (cat: string): number[] | null => {
+  if (cat === "Biberón") return [2, 4]; // Martes, Jueves
+  if (cat === "Escuelita" || cat === "Estrellita") return [1, 3]; // Lunes, Miércoles
+  return null; // Infantil / Juvenil A usan el selector manual
+};
 
-const getFixedDate = (cat: string): Date | null => {
-  if (cat === "Biberón") return CYCLE_START_TUE;
-  if (cat === "Escuelita" || cat === "Estrellita") return CYCLE_START_MON;
+const getNextClassDate = (cat: string): Date | null => {
+  const days = getCategoryDays(cat);
+  if (!days) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = 0; i <= 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    if (days.includes(d.getDay())) return d;
+  }
   return null;
 };
 
@@ -133,8 +145,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   // Auto-fill fixed date when applicable
   useEffect(() => {
     const cat = getCategoryFromYear(selectedBirthYear);
-    if (cat && isFixedDateCategory(cat)) {
-      const d = getFixedDate(cat);
+    if (cat && getCategoryDays(cat)) {
+      const d = getNextClassDate(cat);
       if (d) form.setValue("start_date", d);
     }
   }, [selectedBirthYear, form]);
@@ -184,7 +196,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const schedule = SUMMER_SCHEDULE_TEXT;
+      const schedule = getScheduleText(data.category);
       const formattedDate = data.start_date
         ? format(data.start_date, "EEEE d 'de' MMMM", { locale: es })
         : '';
@@ -298,7 +310,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             location: LOCATION,
             location_zone: LOCATION_ZONE,
             location_map: LOCATION_MAP,
-            schedule: "7:30 PM (horario de verano de julio)",
+            schedule: getScheduleText(data.category),
           }
         });
       } catch (emailErr) {
@@ -340,7 +352,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   const progressValue = (step / totalSteps) * 100;
   const stepTitles = getStepTitles(selectedCategory);
   const currentCat = selectedCategory;
-  const fixedDate = isFixedDateCategory(currentCat) ? getFixedDate(currentCat) : null;
+  const fixedDate = getCategoryDays(currentCat) ? getNextClassDate(currentCat) : null;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -464,7 +476,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-primary flex-shrink-0" />
-                    <p className="text-sm text-muted-foreground">{SUMMER_SCHEDULE_TEXT}</p>
+                    <p className="text-sm text-muted-foreground">{getScheduleText(currentCat)}</p>
                   </div>
                 </div>
 
