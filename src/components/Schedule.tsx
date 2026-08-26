@@ -48,7 +48,7 @@ const Schedule = () => {
                       <td className="py-4">
                         <div className="flex items-center gap-2 text-foreground font-body">
                           <Clock className="w-4 h-4 text-primary" />
-                          7:30 – 9:00 PM
+                          7:30 – 8:30 PM
                         </div>
                       </td>
                     </tr>
@@ -63,7 +63,7 @@ const Schedule = () => {
                       <td className="py-4">
                         <div className="flex items-center gap-2 text-foreground font-body">
                           <Clock className="w-4 h-4 text-primary" />
-                          7:30 – 8:30 PM
+                          7:30 – 9:00 PM
                         </div>
                       </td>
                     </tr>
