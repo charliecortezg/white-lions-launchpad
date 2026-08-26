@@ -15,13 +15,6 @@ const Schedule = () => {
         </AnimatedSection>
 
         <div className="max-w-3xl mx-auto space-y-6">
-          <AnimatedSection animation="fade-up">
-            <div className="bento-card p-5 border-l-4 border-primary bg-primary/5">
-              <p className="text-sm md:text-base text-foreground font-body">
-                🌡️ <strong>Horario de verano (julio):</strong> todas las categorías entrenan de <strong>7:30 a 8:30 PM</strong> por la salud de los jugadores. El horario regular regresa gradualmente con el nuevo ciclo.
-              </p>
-            </div>
-          </AnimatedSection>
 
           <AnimatedSection animation="fade-up" className="w-full">
             <div className="bento-card overflow-hidden p-0">
@@ -55,7 +48,7 @@ const Schedule = () => {
                       <td className="py-4">
                         <div className="flex items-center gap-2 text-foreground font-body">
                           <Clock className="w-4 h-4 text-primary" />
-                          7:30 – 8:30 PM
+                          7:30 – 9:00 PM
                         </div>
                       </td>
                     </tr>
