@@ -145,8 +145,8 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   // Auto-fill fixed date when applicable
   useEffect(() => {
     const cat = getCategoryFromYear(selectedBirthYear);
-    if (cat && isFixedDateCategory(cat)) {
-      const d = getFixedDate(cat);
+    if (cat && getCategoryDays(cat)) {
+      const d = getNextClassDate(cat);
       if (d) form.setValue("start_date", d);
     }
   }, [selectedBirthYear, form]);
@@ -196,7 +196,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const schedule = SUMMER_SCHEDULE_TEXT;
+      const schedule = getScheduleText(data.category);
       const formattedDate = data.start_date
         ? format(data.start_date, "EEEE d 'de' MMMM", { locale: es })
         : '';
@@ -310,7 +310,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
             location: LOCATION,
             location_zone: LOCATION_ZONE,
             location_map: LOCATION_MAP,
-            schedule: "7:30 PM (horario de verano de julio)",
+            schedule: getScheduleText(data.category),
           }
         });
       } catch (emailErr) {
@@ -352,7 +352,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
   const progressValue = (step / totalSteps) * 100;
   const stepTitles = getStepTitles(selectedCategory);
   const currentCat = selectedCategory;
-  const fixedDate = isFixedDateCategory(currentCat) ? getFixedDate(currentCat) : null;
+  const fixedDate = getCategoryDays(currentCat) ? getNextClassDate(currentCat) : null;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -476,7 +476,7 @@ const ChallengeRegistrationModal = ({ open, onOpenChange, referralSource }: Chal
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-primary flex-shrink-0" />
-                    <p className="text-sm text-muted-foreground">{SUMMER_SCHEDULE_TEXT}</p>
+                    <p className="text-sm text-muted-foreground">{getScheduleText(currentCat)}</p>
                   </div>
                 </div>
 
